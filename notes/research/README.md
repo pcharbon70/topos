@@ -161,6 +161,19 @@ Debugging and development tools that bridge category theory with BEAM's runtime 
 - Integration with BEAM's OTP sys module for production debugging
 - Category-aware step debugging with zipper-based navigation
 
+### 1.15 - Advanced Type System
+**File**: `1.15-advanced-type-system/1.15-advanced-type-system.md`
+
+A comprehensive type system design grounded in category theory while compiling efficiently to BEAM. Explores:
+- Row polymorphism for extensible records and variants
+- Polymorphic variants enabling structural typing for sum types
+- Existential types for abstract data type hiding
+- Type families and singleton types for type-level computation
+- Intersection types for multiple type constraints
+- Constraint-based type inference with complete type erasure
+- BEAM integration through strategic compilation of closed vs. polymorphic types
+- Categorical foundations via Curry-Howard-Lambek correspondence
+
 ## Reading Order
 
 For those new to the project, we recommend reading in this order:
@@ -176,9 +189,10 @@ For those new to the project, we recommend reading in this order:
 9. Explore **1.08 - Advanced Concurrency** for cutting-edge concurrency primitives
 10. Dive into **1.13 - Foreign Function Interface** for interop with native code
 11. Check **1.14 - Development Tools** for the debugging and tooling approach
-12. Explore **1.09 - Reflection and Introspection** for runtime capabilities
-13. Review **1.11 - Domain-Specific Languages** for DSL support
-14. Check **1.12 - Build System** for compilation and build details
+12. Explore **1.15 - Advanced Type System** for the comprehensive type system design
+13. Review **1.09 - Reflection and Introspection** for runtime capabilities
+14. Check **1.11 - Domain-Specific Languages** for DSL support
+15. Review **1.12 - Build System** for compilation and build details
 
 ## Research Methodology
 

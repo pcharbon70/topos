@@ -70,6 +70,7 @@ Comprehensive research documents are available in [`notes/research/`](notes/rese
 - **[1.12 - Build System](notes/research/1.12-build-system/1.12-build-system.md)** - Compilation pipeline
 - **[1.13 - Foreign Function Interface](notes/research/1.13-foreign-function-interface/1.13-foreign-function-interface.md)** - Safe native code interop
 - **[1.14 - Development Tools](notes/research/1.14-development-tools/1.14-development-tools.md)** - Debugging and tooling
+- **[1.15 - Advanced Type System](notes/research/1.15-advanced-type-system/1.15-advanced-type-system.md)** - Category theory-based type system
 
 See the [research directory README](notes/research/README.md) for a detailed overview and recommended reading order.
 
@@ -137,4 +138,4 @@ This project is currently in the research phase. Contributions in the form of fe
 
 ## License
 
-[To be determined]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
