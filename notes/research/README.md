@@ -1,13 +1,13 @@
-# Morphic Language Design Research
+# Topos Language Design Research
 
-This directory contains the core research and design documentation for the Morphic programming language. Each document explores a specific aspect of the language design, combining theoretical foundations from category theory with practical considerations for the BEAM virtual machine.
+This directory contains the core research and design documentation for the Topos programming language. Each document explores a specific aspect of the language design, combining theoretical foundations from category theory with practical considerations for the BEAM virtual machine.
 
 ## Research Documents
 
 ### 1.0.0 - Original Idea
 **File**: `1.0.0-original_idea.md`
 
-The foundational design document introducing Morphic's core philosophy: marrying category theory's mathematical rigor with BEAM's practical strengths. Covers:
+The foundational design document introducing Topos's core philosophy: marrying category theory's mathematical rigor with BEAM's practical strengths. Covers:
 - Core concepts: shapes (types), flows (functions), composition as first-class citizen
 - Algebraic data types with pattern matching
 - Functors, applicatives, and monads (simplified as "Mappable" and "Chainable")
@@ -18,7 +18,7 @@ The foundational design document introducing Morphic's core philosophy: marrying
 ### 1.0.1 - Modules
 **File**: `1.0.1-modules.md`
 
-Comprehensive exploration of Morphic's advanced module system, inspired by ML languages (OCaml, Standard ML) with BEAM-specific adaptations. Topics include:
+Comprehensive exploration of Topos's advanced module system, inspired by ML languages (OCaml, Standard ML) with BEAM-specific adaptations. Topics include:
 - ML-style parameterized modules (functors) with explicit signatures
 - Three-level visibility control (private, export, public export)
 - Applicative vs generative functor semantics
@@ -31,7 +31,7 @@ Comprehensive exploration of Morphic's advanced module system, inspired by ML la
 ### 1.0.2 - Immutability
 **File**: `1.0.2-immutability.md`
 
-Deep dive into immutability as a foundational principle of Morphic, exploring how all data structures remain immutable while maintaining performance. Covers:
+Deep dive into immutability as a foundational principle of Topos, exploring how all data structures remain immutable while maintaining performance. Covers:
 - Immutable bindings and explicit shadowing
 - Update syntax with `with` keyword for creating new values
 - Optics (lenses and prisms) for nested immutable updates
@@ -62,7 +62,7 @@ Documentation as a mandatory, first-class language construct with runtime intros
 **File**: `1.0.4-packages.md`
 
 Integration with the Erlang/Elixir ecosystem through Hex.pm and HexDocs. Includes:
-- Package.morphic configuration file
+- Package.topos configuration file
 - Package management CLI (deps add, get, update, tree)
 - Publishing to Hex.pm with validation
 - HexDocs-compatible documentation generation
@@ -137,14 +137,14 @@ Each document follows a similar structure:
 - **Practical integration**: How concepts map to BEAM architecture
 - **Comparative analysis**: Lessons from existing languages (Haskell, OCaml, Erlang, etc.)
 - **Implementation considerations**: Concrete approaches for building the feature
-- **Examples**: Illustrative code samples in proposed Morphic syntax
+- **Examples**: Illustrative code samples in proposed Topos syntax
 
 ## Contributing
 
 When adding new research documents:
 - Follow the numbering scheme (1.0.X for core features)
 - Include both theoretical rigor and practical BEAM considerations
-- Provide concrete examples in Morphic syntax
+- Provide concrete examples in Topos syntax
 - Reference academic papers and production implementations
 - Consider interoperability with Erlang/Elixir ecosystem
 - Balance mathematical elegance with developer ergonomics
