@@ -1,5 +1,28 @@
 # Topos Minimal Proof-of-Concept Implementation Plan
 
+**[🧭 Phase Navigation](phase-navigation.md)** | **[Detailed Phase Documents](#phase-documents)**
+
+---
+
+## Phase Documents
+
+This proof-of-concept is organized into 5 detailed phase documents with comprehensive task breakdowns:
+
+- **[Phase 1: Core Language Infrastructure](phase-01.md)** (Weeks 1-3) - Lexer, Parser, Type System, Code Generation
+- **[Phase 2: REPL and Basic Runtime](phase-02.md)** (Weeks 4-5) - Interactive Development, Standard Prelude
+- **[Phase 3: Pattern Matching Engine](phase-03.md)** (Weeks 6-8) - Advanced Patterns, Decision Trees, Exhaustiveness
+- **[Phase 4: Module System](phase-04.md)** (Weeks 9-10) - Modules, Imports, Separate Compilation
+- **[Phase 5: Actor Model Integration](phase-05.md)** (Weeks 11-12) - Actors, Supervision, Fault Tolerance
+
+Each phase document includes:
+- Detailed section and task breakdowns with subtasks
+- Descriptive paragraphs explaining purpose and approach
+- Unit tests for each section
+- Integration tests for the phase
+- Success criteria and key outputs
+
+---
+
 ## Executive Overview
 
 This plan outlines the development of Topos, a new category-theory-based functional programming language for the BEAM virtual machine. The minimal PoC will demonstrate Topos's core concepts: categorical abstractions (`shape` for types, `flow` for morphisms), immutability by default, advanced pattern matching, and compilation to BEAM bytecode via Core Erlang.
