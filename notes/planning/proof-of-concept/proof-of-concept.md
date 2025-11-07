@@ -2,572 +2,723 @@
 
 ## Executive Overview
 
-The minimal PoC will demonstrate Topos's core concepts: category-theory-inspired syntax (`shape` for types, `flow` for functions), immutability by default, basic pattern matching, and compilation to BEAM bytecode via Core Erlang. The implementation will be written in Elixir/Erlang to leverage existing BEAM infrastructure.
+This plan outlines the development of Topos, a new category-theory-based functional programming language for the BEAM virtual machine. The minimal PoC will demonstrate Topos's core concepts: categorical abstractions (`shape` for types, `flow` for morphisms), immutability by default, advanced pattern matching, and compilation to BEAM bytecode via Core Erlang.
 
 ## Phase 1: Core Language Infrastructure (Weeks 1-3)
 
 ### 1.1 Lexer and Parser
 
-**Goal**: Parse basic Topos syntax into an Abstract Syntax Tree (AST)
-
-**Implementation**:
-```elixir
-# Use leex for lexical analysis
-# Use yecc for parsing (LALR parser generator)
-# Alternative: Use nimble_parsec for a pure Elixir solution
-```
+**Goal**: Parse Topos syntax into an Abstract Syntax Tree (AST)
 
 **Core Syntax to Support**:
 ```topos
--- Basic shapes (types)
+-- Basic shapes (objects in category theory)
 shape Point = { x: Float, y: Float }
 shape Maybe a = Some a | None
 
--- Basic flows (functions)  
-flow add : Int -> Int -> Int
+-- Flows (morphisms between objects)  
+flow add : Natural -> Natural -> Natural
 flow add x y = x + y
 
--- Pattern matching
-flow describe : Maybe Int -> Text
+-- Pattern matching as destructuring
+flow describe : Maybe Natural -> Text
 flow describe = match
   | Some n -> "Value: " <> show n
   | None -> "No value"
+end
+
+-- Composition operator
+flow process = 
+  validate |> transform |> persist
 ```
 
+**Token Categories**:
+- Keywords: `shape`, `flow`, `match`, `where`, `let`, `in`, `do`, `end`
+- Operators: `|>`, `->`, `:`, `=`, `<>`, `>>=`
+- Delimiters: `{`, `}`, `[`, `]`, `(`, `)`, `|`
+- Literals: Numbers, Strings, Atoms (`:atom`)
+- Comments: `--` single line, `{- -}` multi-line
+
 **Deliverables**:
-- `lexer.xrl` - Lexical rules for tokens
-- `parser.yrl` - Grammar specification
-- `ast.ex` - AST data structures
-- Basic test suite for parsing
+- Lexer specification for Topos tokens
+- Parser grammar for Topos syntax
+- AST data structure definitions
+- Parser test suite with edge cases
 
 ### 1.2 Core Type System
 
-**Goal**: Implement Hindley-Milner type inference with basic extensions
+**Goal**: Implement Hindley-Milner type inference with categorical extensions
 
-**Components**:
-```elixir
-defmodule Topos.Types do
-  # Type representation
-  @type type :: 
-    | {:var, atom()}           # Type variables
-    | {:arrow, type(), type()} # Function types
-    | {:shape, atom(), [type()]} # ADTs
-    | {:record, [{atom(), type()}]} # Records
-    
-  # Type schemes for polymorphism
-  @type scheme :: {:forall, [atom()], type()}
-end
+**Type System Features**:
+```topos
+-- Parametric polymorphism
+flow identity : forall a. a -> a
+flow identity x = x
+
+-- Type constraints (traits as categories)
+flow sort : forall a. Ord a => List a -> List a
+
+-- Row polymorphism (for extensible records)
+flow getName : forall ρ. {name: Text | ρ} -> Text
+flow getName record = record.name
+
+-- Higher-kinded types (functors)
+shape Functor f where
+  map : forall a b. (a -> b) -> f a -> f b
 ```
 
-**Algorithm W Implementation**:
-- Unification with occurs check
-- Constraint generation
-- Type scheme instantiation/generalization
-- Basic type error reporting
+**Type Representation**:
+- Type variables: `α, β, γ, ...`
+- Type constructors: `List`, `Maybe`, `Process`
+- Function types: `τ₁ -> τ₂`
+- Record types: `{label₁: τ₁, label₂: τ₂}`
+- Variant types: `Constructor₁ τ₁ | Constructor₂ τ₂`
 
 **Deliverables**:
-- `type_system.ex` - Core type definitions
-- `inference.ex` - Type inference engine
-- `unification.ex` - Unification algorithm
-- Test suite with type checking examples
+- Type inference engine (Algorithm W)
+- Unification with occurs check
+- Type scheme generalization
+- Constraint solver for traits
 
-### 1.3 Core to Core Erlang Translator
+### 1.3 Core Erlang Code Generation
 
-**Goal**: Translate typed AST to Core Erlang for BEAM compilation
+**Goal**: Translate typed Topos AST to Core Erlang
 
-**Strategy**:
-```erlang
-% Topos source
-flow factorial : Int -> Int
+**Translation Examples**:
+
+```topos
+-- Topos source (factorial.tps)
+flow factorial : Natural -> Natural
 flow factorial n = match n
   | 0 -> 1
   | n -> n * factorial (n - 1)
+end
+```
 
-% Core Erlang output
+Compiles to Core Erlang:
+```erlang
 'factorial'/1 =
   fun (N) ->
     case N of
       0 -> 1;
-      N -> call 'erlang':'*'(N, 
-           call 'topos':'factorial'(
-             call 'erlang':'-'(N, 1)))
+      N -> call 'erlang':'*'(
+             N, 
+             call 'topos':'factorial'(
+               call 'erlang':'-'(N, 1)))
     end
 ```
 
-**Key Translations**:
-- Shapes → Tagged tuples or records
-- Flows → Core Erlang functions
-- Pattern matching → Case expressions
-- Module structure → Core Erlang modules
+**Shape Compilation**:
+```topos
+-- Algebraic data type
+shape Tree a = Leaf | Node a (Tree a) (Tree a)
+
+-- Compiles to tagged tuples
+% Leaf -> {leaf}
+% Node(x, l, r) -> {node, X, L, R}
+```
 
 **Deliverables**:
-- `core_erlang_gen.ex` - Core Erlang code generator
-- `runtime.erl` - Minimal runtime support functions
-- Integration tests compiling to `.beam` files
+- Core Erlang AST builder
+- Pattern match compilation (decision trees)
+- Module structure generator
+- Runtime support library
 
 ## Phase 2: REPL and Basic Runtime (Weeks 4-5)
 
 ### 2.1 Interactive REPL
 
-**Architecture**:
-```elixir
-defmodule Topos.REPL do
-  def start do
-    # Initialize type environment
-    # Start evaluation loop
-    # Maintain history and state
-  end
-  
-  def eval_line(input, env) do
-    with {:ok, ast} <- parse(input),
-         {:ok, typed_ast, type} <- typecheck(ast, env),
-         {:ok, core_erlang} <- compile(typed_ast),
-         {:ok, result} <- evaluate(core_erlang) do
-      {:ok, result, type, updated_env}
-    end
-  end
-end
+**REPL Commands**:
+```topos
+topos> 1 + 1
+2 : Natural
+
+topos> flow double x = x * 2
+double : Natural -> Natural
+
+topos> :type double
+double : Natural -> Natural
+
+topos> :load examples/list.tps
+Module Examples.List loaded
+
+topos> :browse List
+shape List a = Nil | Cons a (List a)
+  map : (a -> b) -> List a -> List b
+  filter : (a -> Bool) -> List a -> List a
+  fold : (b -> a -> b) -> b -> List a -> b
+
+topos> :quit
 ```
 
-**Features**:
-- Expression evaluation
-- Type inspection (`:t expression`)
-- Multi-line input support
-- Definition persistence within session
-- Error recovery and helpful messages
+**Multi-line Input**:
+```topos
+topos> flow fibonacci n = match n
+     |   | 0 -> 0
+     |   | 1 -> 1  
+     |   | n -> fibonacci (n - 1) + fibonacci (n - 2)
+     | end
+fibonacci : Natural -> Natural
+```
 
 **Deliverables**:
-- `repl.ex` - REPL implementation
-- `evaluator.ex` - Direct evaluation engine
-- Command-line interface
-- REPL user guide
+- REPL loop implementation
+- Command parser (`:type`, `:load`, `:browse`, etc.)
+- Pretty printer for types and values
+- History and tab completion
 
 ### 2.2 Standard Prelude
 
-**Core Types and Functions**:
+**Core Library (prelude.tps)**:
 ```topos
--- Primitive types
+-- Category-theoretic foundation types
+shape Identity a = Identity a
+
+shape Compose f g a = Compose (f (g a))
+
+-- Basic algebraic data types  
 shape Bool = True | False
+
 shape List a = Nil | Cons a (List a)
+
 shape Result a b = Ok a | Error b
 
--- Essential functions
-flow compose : (b -> c) -> (a -> b) -> (a -> c)
-flow compose f g x = f (g x)
+shape Maybe a = Some a | None
+
+-- Functor trait (endofunctor in category of types)
+trait Functor f where
+  map : (a -> b) -> f a -> f b
+  
+  law identity : map id == id
+  law composition : map (f |> g) == map f |> map g
+
+-- Monad trait (monoid in category of endofunctors)
+trait Monad m where
+  return : a -> m a
+  bind : m a -> (a -> m b) -> m b
+  
+  law left_identity : bind (return a) f == f a
+  law right_identity : bind ma return == ma
+  law associativity : bind (bind ma f) g == bind ma (\x -> bind (f x) g)
+
+-- List operations
+flow map : (a -> b) -> List a -> List b
+flow map f = match
+  | Nil -> Nil
+  | Cons x xs -> Cons (f x) (map f xs)
+end
+
+flow filter : (a -> Bool) -> List a -> List a
+flow filter pred = match
+  | Nil -> Nil
+  | Cons x xs when pred x -> Cons x (filter pred xs)
+  | Cons _ xs -> filter pred xs
+end
+
+flow fold : (b -> a -> b) -> b -> List a -> b
+flow fold f acc = match
+  | Nil -> acc
+  | Cons x xs -> fold f (f acc x) xs
+end
+```
+
+## Phase 3: Pattern Matching Engine (Weeks 6-8)
+
+### 3.1 Advanced Pattern Features
+
+**Pattern Matching Capabilities**:
+```topos
+-- Guards with pattern bindings
+flow safeDivide : Natural -> Natural -> Result Natural Text
+flow safeDivide x y = match (x, y)
+  | (_, 0) -> Error "Division by zero"
+  | (x, y) when x < y -> Ok 0
+  | (x, y) -> Ok (x / y)
+end
+
+-- Or-patterns for multiple cases
+flow classifyNumber : Integer -> Text
+flow classifyNumber n = match n
+  | 0 -> "zero"
+  | 1 | -1 -> "unit"  
+  | 2 | 3 | 5 | 7 | 11 -> "small prime"
+  | n when n > 0 -> "positive"
+  | _ -> "negative"
+end
+
+-- Nested patterns
+flow headOfHead : List (List a) -> Maybe a
+flow headOfHead = match
+  | Cons (Cons x _) _ -> Some x
+  | _ -> None
+end
+
+-- As-patterns for naming
+flow duplicateHead : List a -> List a
+flow duplicateHead = match
+  | Cons x xs as list -> Cons x list
+  | Nil -> Nil
+end
+```
+
+### 3.2 Pattern Compilation Strategy
+
+**Decision Tree Generation**:
+```topos
+-- Source patterns
+flow describe : (Bool, Bool) -> Text
+flow describe = match
+  | (True, True) -> "both"
+  | (True, False) -> "first"
+  | (False, True) -> "second"
+  | (False, False) -> "neither"
+end
+
+-- Compiles to decision tree:
+-- 1. Test first element
+--    True -> Test second element
+--            True -> "both"
+--            False -> "first"
+--    False -> Test second element
+--            True -> "second"
+--            False -> "neither"
+```
+
+### 3.3 Exhaustiveness and Redundancy Checking
+
+```topos
+-- Exhaustiveness warning
+flow incomplete : Maybe a -> Natural
+flow incomplete = match
+  | Some _ -> 1
+  -- Warning: Pattern match is not exhaustive
+  -- Missing: None
+end
+
+-- Redundancy warning
+flow redundant : Bool -> Natural
+flow redundant = match
+  | True -> 1
+  | False -> 0
+  | True -> 2  -- Warning: Redundant pattern
+end
+```
+
+## Phase 4: Module System (Weeks 9-10)
+
+### 4.1 Module Structure
+
+**Module Definition (data/list.tps)**:
+```topos
+module Data.List exports (List, map, filter, fold, append) where
+
+-- Private helper (not exported)
+private flow reverse_helper : List a -> List a -> List a
+private flow reverse_helper acc = match
+  | Nil -> acc
+  | Cons x xs -> reverse_helper (Cons x acc) xs
+end
+
+-- Public exports
+shape List a = Nil | Cons a (List a)
 
 flow map : (a -> b) -> List a -> List b
 flow map f = match
   | Nil -> Nil
   | Cons x xs -> Cons (f x) (map f xs)
-```
-
-**Deliverables**:
-- `prelude.topos` - Standard library basics
-- Compiled prelude module
-- Documentation for standard functions
-
-## Phase 3: Essential Language Features (Weeks 6-8)
-
-### 3.1 Enhanced Pattern Matching
-
-**Features to Implement**:
-- Guards: `| pattern when condition ->`
-- Nested patterns: `| Some (Cons x xs) ->`
-- As-patterns: `| Some x as maybe ->`
-- Wildcard: `| _ ->`
-
-**Implementation Strategy**:
-```elixir
-defmodule Topos.PatternCompiler do
-  # Compile patterns to decision trees
-  # Generate optimal Core Erlang case expressions
-  # Handle exhaustiveness checking
-  # Report non-exhaustive/redundant patterns
 end
-```
 
-### 3.2 Let Bindings and Where Clauses
-
-```topos
-flow calculate : Int -> Int
-flow calculate x = 
-  let y = x * 2
-      z = y + 1
-  in z * z
-
-flow calculate2 : Int -> Int  
-flow calculate2 x = result
-  where result = z * z
-        z = y + 1
-        y = x * 2
-```
-
-### 3.3 Pipe Operator and Composition
-
-```topos
-flow process : List Int -> Int
-flow process = 
-  filter isPositive
-  |> map double
-  |> fold add 0
-```
-
-## Phase 4: Module System Foundation (Weeks 9-10)
-
-### 4.1 Basic Modules
-
-**Syntax**:
-```topos
-module Data.List exports (List, map, filter, fold) where
-  
-  shape List a = Nil | Cons a (List a)
-  
-  flow map : (a -> b) -> List a -> List b
-  flow map f = match
-    | Nil -> Nil
-    | Cons x xs -> Cons (f x) (map f xs)
-    
-  -- Private helper (not exported)
-  flow helper : List a -> Int
-  flow helper = ...
+flow filter : (a -> Bool) -> List a -> List a  
+flow filter pred = match
+  | Nil -> Nil
+  | Cons x xs when pred x -> Cons x (filter pred xs)
+  | Cons _ xs -> filter pred xs
 end
-```
 
-**Compilation**:
-- Each Topos module → BEAM module
-- Export lists → `-export([...])` directives
-- Module imports → fully qualified calls
+flow fold : (b -> a -> b) -> b -> List a -> b
+flow fold f acc = match
+  | Nil -> acc
+  | Cons x xs -> fold f (f acc x) xs
+end
+
+flow append : List a -> List a -> List a
+flow append xs ys = match xs
+  | Nil -> ys
+  | Cons x xs' -> Cons x (append xs' ys)
+end
+
+end -- module
+```
 
 ### 4.2 Import System
 
+**Import Examples (main.tps)**:
 ```topos
-import Data.List (List, map)
+-- Qualified imports
+import qualified Data.List as L
 import qualified Data.Set as Set
 
-flow process : List Int -> Set.Set Int
+-- Selective imports
+import Data.List (List, map, filter)
+import Data.Maybe (Maybe(Some, None))
+
+-- Module usage
+flow process : List Natural -> Set.Set Natural
 flow process xs = 
-  xs |> map increment |> Set.fromList
+  xs 
+  |> L.filter (> 0)
+  |> L.map (* 2)
+  |> Set.fromList
+
+flow safe_head : List a -> Maybe a
+flow safe_head = match
+  | Cons x _ -> Some x
+  | Nil -> None
+end
 ```
+
+### 4.3 Module Compilation
+
+Each Topos module compiles to a BEAM module:
+- Module name: `Data.List` → `'Elixir.Data.List'`
+- Export list: Public functions only
+- Private functions: Not in export list
+- Module attributes: Store type information
 
 ## Phase 5: Actor Model Integration (Weeks 11-12)
 
-### 5.1 Basic Actor Support
+### 5.1 Actor Definition Syntax
 
-**Minimal Actor Syntax**:
+**Counter Actor (actors/counter.tps)**:
 ```topos
 actor Counter = {
-  shape State = { count: Int }
-  shape Message = Increment | Get
+  -- State type (immutable between messages)
+  shape State = { 
+    count: Natural,
+    history: List Natural 
+  }
   
+  -- Message protocol
+  shape Message = 
+    | Increment
+    | Decrement  
+    | Get
+    | Reset Natural
+  
+  -- Initialization
   flow init : () -> State
-  flow init () = { count: 0 }
+  flow init () = { count: 0, history: [] }
   
+  -- Message handler (returns new state)
   flow handle : Message -> State -> (State, Maybe Reply)
   flow handle msg state = match msg
-    | Increment -> ({ count: state.count + 1 }, None)
-    | Get -> (state, Some state.count)
+    | Increment -> 
+        let new_count = state.count + 1
+        let new_state = state with { 
+          count: new_count,
+          history: new_count :: state.history 
+        }
+        in (new_state, None)
+        
+    | Decrement ->
+        let new_count = state.count - 1
+        let new_state = state with {
+          count: new_count,
+          history: new_count :: state.history
+        }
+        in (new_state, None)
+        
+    | Get -> 
+        (state, Some state.count)
+        
+    | Reset n ->
+        ({ count: n, history: [n] }, None)
+  end
 }
+
+-- Usage
+flow example_usage : Process Unit
+flow example_usage = do
+  counter <- spawn Counter.init()
+  counter ! Increment
+  counter ! Increment
+  result <- counter ? Get
+  IO.println("Count: " <> show result)
+end
 ```
 
-**Compilation to gen_server**:
-```erlang
--behaviour(gen_server).
--export([init/1, handle_call/3, handle_cast/2]).
+### 5.2 Supervision Trees
 
-init([]) -> {ok, #{count => 0}}.
-
-handle_cast(increment, State) ->
-  {noreply, State#{count => maps:get(count, State) + 1}}.
+**Supervisor Definition (supervisor.tps)**:
+```topos
+supervisor AppSupervisor = {
+  strategy: one_for_one
+  max_restarts: 3
+  max_seconds: 60
   
-handle_call(get, _From, State) ->
-  {reply, maps:get(count, State), State}.
+  children: [
+    worker(Counter, name: :counter1),
+    worker(Counter, name: :counter2),
+    supervisor(SubSupervisor, [])
+  ]
+}
+
+-- Child specification
+flow child_spec : ChildSpec
+flow child_spec = {
+  id: :my_worker,
+  start: {MyWorker, :start_link, []},
+  restart: :permanent,
+  shutdown: 5000,
+  type: :worker
+}
 ```
 
 ## Implementation Architecture
 
 ### Technology Stack
 
-**Core Implementation** (Elixir/Erlang):
-- Lexer: `leex` (Erlang's lex)
-- Parser: `yecc` (Erlang's yacc)
-- Type System: Pure Elixir/Erlang
-- Code Generation: Generate Core Erlang AST
-- REPL: Elixir GenServer
+**Compiler Implementation Options**:
+
+**Option 1: Erlang/Elixir Implementation**
+- Pros: Native BEAM integration, can use OTP libraries
+- Cons: Bootstrapping problem for self-hosting
+
+**Option 2: Haskell Implementation**  
+- Pros: Strong type system, excellent parsing libraries (Megaparsec)
+- Cons: Separate runtime, deployment complexity
+
+**Option 3: Rust Implementation**
+- Pros: Performance, memory safety, good error messages
+- Cons: Learning curve, longer development time
+
+**Recommendation**: Start with Erlang/Elixir for fast prototyping, plan for self-hosting later.
 
 ### Project Structure
 
 ```
 topos/
 ├── lib/
-│   ├── topos/
-│   │   ├── lexer.xrl
-│   │   ├── parser.yrl
-│   │   ├── ast.ex
-│   │   ├── types/
-│   │   │   ├── inference.ex
-│   │   │   ├── unification.ex
-│   │   │   └── environment.ex
-│   │   ├── compiler/
-│   │   │   ├── core_erlang.ex
-│   │   │   ├── pattern_compiler.ex
-│   │   │   └── module_compiler.ex
-│   │   ├── repl/
-│   │   │   ├── server.ex
-│   │   │   ├── evaluator.ex
-│   │   │   └── commands.ex
-│   │   └── runtime/
-│   │       └── prelude.ex
-├── priv/
-│   └── stdlib/
-│       ├── prelude.topos
-│       └── data/
-│           └── list.topos
+│   ├── compiler/
+│   │   ├── lexer.erl        # Tokenization
+│   │   ├── parser.erl       # AST generation
+│   │   ├── types.erl        # Type system
+│   │   ├── inference.erl    # Type inference
+│   │   ├── patterns.erl     # Pattern compilation
+│   │   ├── codegen.erl      # Core Erlang generation
+│   │   └── modules.erl      # Module system
+│   ├── runtime/
+│   │   ├── prelude.erl      # Runtime support
+│   │   ├── actors.erl       # Actor primitives
+│   │   └── supervisor.erl   # Supervision support
+│   └── repl/
+│       ├── repl.erl         # REPL loop
+│       ├── commands.erl     # REPL commands
+│       └── pretty.erl       # Pretty printing
+├── stdlib/
+│   ├── prelude.tps          # Standard library
+│   ├── data/
+│   │   ├── list.tps
+│   │   ├── set.tps
+│   │   └── map.tps
+│   └── control/
+│       ├── monad.tps
+│       └── functor.tps
+├── examples/
+│   ├── hello.tps
+│   ├── factorial.tps
+│   ├── fibonacci.tps
+│   └── counter.tps
 ├── test/
-│   ├── lexer_test.exs
-│   ├── parser_test.exs
-│   ├── type_inference_test.exs
-│   └── integration_test.exs
-└── mix.exs
+│   ├── compiler/
+│   ├── stdlib/
+│   └── integration/
+└── README.md
 ```
 
 ## Testing Strategy
 
-### Unit Tests
-- Lexer: Token generation for all syntax
-- Parser: AST construction and error cases
-- Type System: Inference, unification, error messages
-- Code Generation: Core Erlang output verification
+### Compiler Tests
 
-### Integration Tests
+**Lexer Tests**:
 ```topos
--- test/examples/factorial.topos
-flow factorial : Int -> Int
-flow factorial n = match n
-  | 0 -> 1
-  | n -> n * factorial (n - 1)
+-- Input: test/lexer/operators.tps
+flow compose = f |> g >>= h
 
--- Compile, run, verify output
--- Check type inference
--- Verify BEAM bytecode generation
+-- Expected tokens:
+FLOW, IDENT(compose), EQUALS, IDENT(f), PIPE_RIGHT, 
+IDENT(g), BIND, IDENT(h), EOF
 ```
 
-### REPL Tests
-- Interactive session recording/playback
-- Error recovery testing
-- Multi-line input handling
-- State management
+**Type Inference Tests**:
+```topos
+-- Input: test/types/polymorphism.tps
+flow identity x = x
+flow const x y = x
+flow compose f g x = f (g x)
+
+-- Expected types:
+-- identity : forall a. a -> a
+-- const : forall a b. a -> b -> a  
+-- compose : forall a b c. (b -> c) -> (a -> b) -> a -> c
+```
+
+### Integration Tests
+
+**Full Compilation Test**:
+```topos
+-- test/integration/quicksort.tps
+flow quicksort : List Natural -> List Natural
+flow quicksort = match
+  | Nil -> Nil
+  | Cons pivot xs ->
+      let smaller = filter (< pivot) xs
+      let greater = filter (>= pivot) xs
+      in append (quicksort smaller) 
+                (Cons pivot (quicksort greater))
+end
+
+-- Verify: Compiles, type checks, runs correctly
+```
 
 ## Development Milestones
 
-### Milestone 1 (Week 3): "Hello, World!"
-- Parse and compile: `flow main = "Hello, World!"`
-- Generate working `.beam` file
-- Execute on BEAM
+### Milestone 1 (Week 3): Basic Compilation
+```topos
+-- hello.tps
+flow main : Text
+flow main = "Hello, Topos!"
+```
+✓ Parses successfully  
+✓ Type checks  
+✓ Generates .beam file  
+✓ Runs on BEAM VM
 
-### Milestone 2 (Week 5): Interactive REPL
-- Basic arithmetic and functions in REPL
-- Type inspection working
-- Error messages helpful
+### Milestone 2 (Week 5): Working REPL
+```topos
+topos> flow fib n = match n | 0 -> 0 | 1 -> 1 | n -> fib(n-1) + fib(n-2) end
+fib : Natural -> Natural
+topos> fib 10
+55 : Natural
+```
 
 ### Milestone 3 (Week 8): Pattern Matching
-- Compile recursive functions with pattern matching
-- Exhaustiveness checking
-- List processing working
+```topos
+-- Full pattern matching with guards, or-patterns
+flow classify : Natural -> Text
+flow classify n = match n
+  | 0 -> "zero"
+  | 1 | 2 | 3 -> "small"
+  | n when n < 10 -> "single digit"
+  | n when n < 100 -> "double digit"
+  | _ -> "large"
+end
+```
 
-### Milestone 4 (Week 10): Modules
-- Multi-module compilation
-- Import/export working
-- Standard library usable
+### Milestone 4 (Week 10): Module System
+```topos
+-- Multi-file compilation
+-- math/prime.tps
+module Math.Prime exports (isPrime, primes) where
+  flow isPrime : Natural -> Bool
+  flow primes : Natural -> List Natural
+end
+```
 
 ### Milestone 5 (Week 12): Actors
-- Basic actor compilation to gen_server
-- Message passing working
-- Counter example running
-
-## Performance Considerations
-
-### Compilation Performance
-- Cache type inference results
-- Incremental compilation support
-- Parallel module compilation
-
-### Runtime Performance
-- Direct Core Erlang generation (no intermediate representations)
-- Leverage BEAM's pattern matching optimizations
-- Minimal runtime overhead
-
-## Documentation Requirements
-
-### User Documentation
-1. **Quick Start Guide**: Installation, first program, REPL basics
-2. **Language Tutorial**: Types, functions, pattern matching
-3. **Standard Library Reference**: Prelude functions
-4. **REPL Guide**: Commands, shortcuts, debugging
-
-### Developer Documentation
-1. **Architecture Overview**: Component relationships
-2. **Type System Internals**: Algorithm W implementation
-3. **Core Erlang Mapping**: Translation strategies
-4. **Extension Guide**: Adding new features
-
-## Risk Mitigation
-
-### Technical Risks
-
-**Risk**: Type inference complexity
-- **Mitigation**: Start with basic HM, add features incrementally
-
-**Risk**: Core Erlang generation bugs  
-- **Mitigation**: Extensive test suite, compare with Erlang compiler output
-
-**Risk**: REPL stability
-- **Mitigation**: Robust error handling, session recovery
-
-### Schedule Risks
-
-**Risk**: Feature creep
-- **Mitigation**: Strict scope control, defer advanced features
-
-**Risk**: BEAM integration issues
-- **Mitigation**: Early prototype integration, consult BEAM documentation
-
-## Success Criteria
-
-The PoC is successful when:
-
-1. ✅ Can parse basic Topos syntax (shapes, flows, pattern matching)
-2. ✅ Type inference works for simple programs
-3. ✅ Compiles to executable BEAM bytecode
-4. ✅ REPL allows interactive development
-5. ✅ Can define and use recursive functions
-6. ✅ Module system supports basic import/export
-7. ✅ Documentation enables others to use and extend
-
-## Future Expansion Path
-
-After the PoC, prioritize:
-1. **Row polymorphism** for extensible records
-2. **Polymorphic variants** for flexible sum types  
-3. **Functors** for parameterized modules
-4. **Effect system** for tracking side effects
-5. **Advanced pattern matching** (view patterns, guards with bindings)
-6. **Supervision trees** and full OTP integration
-7. **Distributed computing** primitives
-
-## Appendix A: Core Language Grammar (Simplified)
-
-```bnf
-program     ::= definition*
-
-definition  ::= shape_def | flow_def
-
-shape_def   ::= 'shape' type_name type_params? '=' shape_body
-
-shape_body  ::= constructor ('|' constructor)*
-             | '{' field_list '}'
-
-constructor ::= con_name type*
-
-flow_def    ::= 'flow' name ':' type
-             | 'flow' name pattern* '=' expression
-
-expression  ::= literal
-             | variable
-             | application
-             | 'match' expression clause+
-             | 'let' bindings 'in' expression
-             | expression '|>' expression
-
-pattern     ::= literal
-             | variable
-             | constructor pattern*
-             | '{' field_patterns '}'
-             | pattern 'when' guard
-
-type        ::= type_var
-             | type_name
-             | type '->' type
-             | type_name type*
-             | '{' field_types '}'
-```
-
-## Appendix B: Example Programs
-
-### Example 1: List Operations
 ```topos
-module Examples.Lists where
-
-shape List a = Nil | Cons a (List a)
-
-flow length : List a -> Int
-flow length = match
-  | Nil -> 0
-  | Cons _ xs -> 1 + length xs
-
-flow filter : (a -> Bool) -> List a -> List a
-flow filter pred = match
-  | Nil -> Nil
-  | Cons x xs -> 
-    if pred x 
-    then Cons x (filter pred xs)
-    else filter pred xs
-
-flow sum : List Int -> Int
-flow sum = fold (+) 0
-
-flow fold : (b -> a -> b) -> b -> List a -> b
-flow fold f acc = match
-  | Nil -> acc
-  | Cons x xs -> fold f (f acc x) xs
-```
-
-### Example 2: Binary Tree
-```topos
-module Examples.Tree where
-
-shape Tree a = Leaf | Node a (Tree a) (Tree a)
-
-flow insert : Ord a => a -> Tree a -> Tree a
-flow insert x = match
-  | Leaf -> Node x Leaf Leaf
-  | Node y left right ->
-    if x < y
-    then Node y (insert x left) right
-    else Node y left (insert x right)
-
-flow inorder : Tree a -> List a
-flow inorder = match
-  | Leaf -> Nil
-  | Node x left right ->
-    append (inorder left) (Cons x (inorder right))
-```
-
-### Example 3: Simple Actor
-```topos
+-- Working actor with supervision
 actor Stack = {
-  shape State = List Int
-  shape Message = 
-    | Push Int
-    | Pop
-    | Peek
-    
-  flow init : () -> State
-  flow init () = Nil
+  shape State = List a
+  shape Message = Push a | Pop | Size
   
-  flow handle : Message -> State -> (State, Maybe Reply)
   flow handle msg state = match msg
-    | Push x -> (Cons x state, None)
+    | Push x -> (x :: state, None)
     | Pop -> match state
-        | Nil -> (Nil, Some Error "Empty stack")
+        | Nil -> (Nil, Some (Error "Empty"))
         | Cons _ xs -> (xs, Some Ok)
-    | Peek -> match state
-        | Nil -> (state, Some Error "Empty stack")
-        | Cons x _ -> (state, Some (Ok x))
+    | Size -> (state, Some (length state))
+  end
 }
 ```
 
+## Performance Targets
+
+### Compilation Speed
+- < 100ms for 1000 line module
+- Incremental compilation support
+- Parallel module compilation
+
+### Runtime Performance  
+- Pattern matching: Within 10% of native Erlang
+- Function calls: Zero overhead vs Erlang
+- Actor messaging: Native BEAM performance
+
+### Memory Usage
+- Complete type erasure (no runtime type overhead)
+- Immutable data with structure sharing
+- Leverage BEAM's garbage collection
+
+## Documentation Plan
+
+### Language Reference
+1. **Syntax Guide**: Complete grammar reference
+2. **Type System**: Type inference, traits, laws
+3. **Pattern Matching**: All pattern forms
+4. **Module System**: Import/export, visibility
+5. **Actor Model**: Actors, messages, supervision
+6. **Standard Library**: All stdlib modules
+
+### Tutorials
+1. **Getting Started**: Installation, first program
+2. **Functional Basics**: Functions, types, recursion
+3. **Pattern Matching**: From simple to advanced
+4. **Building Applications**: Modules and organization
+5. **Concurrent Programming**: Actors and supervisors
+6. **Category Theory**: Mathematical foundations
+
+## Future Roadmap (Post-PoC)
+
+### Advanced Type Features
+- **Row polymorphism**: Extensible records/variants
+- **Type families**: Type-level functions
+- **GADTs**: Generalized algebraic data types
+- **Dependent types**: Type-safe proofs
+
+### Category Theory Features
+- **Functors as modules**: ML-style functors
+- **Natural transformations**: First-class transforms
+- **Monad transformers**: Composable effects
+- **Comonads**: Context-aware computations
+
+### Distribution Features
+- **Distributed actors**: Cross-node messaging
+- **Location transparency**: Automatic routing
+- **Consensus protocols**: Built-in Raft/Paxos
+- **CRDTs**: Conflict-free replicated data
+
+### Tooling
+- **Language Server Protocol**: IDE support
+- **Debugger**: Step-through debugging
+- **Profiler**: Performance analysis
+- **Property testing**: QuickCheck-style
+- **Formal verification**: Model checking
+
+## Success Metrics
+
+The PoC succeeds when:
+
+1. ✅ **Core language works**: Can write and run Topos programs
+2. ✅ **Type system works**: Catches errors, infers types correctly
+3. ✅ **BEAM integration works**: Generates valid bytecode, runs on VM
+4. ✅ **REPL works**: Interactive development is smooth
+5. ✅ **Patterns work**: All pattern forms compile correctly
+6. ✅ **Modules work**: Multi-file programs compile and link
+7. ✅ **Actors work**: Basic OTP patterns expressible
+8. ✅ **Documentation exists**: Others can learn and contribute
+
 ## Conclusion
 
-This implementation plan provides a pragmatic path to a working Topos proof-of-concept in 12 weeks. By focusing on core features first—parsing, type inference, compilation, and REPL—we establish a solid foundation for the language while demonstrating its unique value proposition: category theory principles meeting BEAM's practical distributed systems capabilities.
+This implementation plan provides a structured path to building Topos as a category-theory-based functional language for the BEAM. By focusing on the essential features that demonstrate the language's unique value—categorical abstractions, advanced pattern matching, and actor model integration—we can deliver a working proof-of-concept in 12 weeks.
 
-The modular architecture ensures each component can be enhanced independently, while the test-driven approach maintains quality throughout development. Most importantly, this plan delivers a usable system quickly, enabling early feedback and iteration on the language design.
+The phased approach ensures each component builds on solid foundations, while the focus on BEAM integration leverages decades of distributed systems expertise. Most importantly, this plan creates a language that bridges the gap between mathematical elegance and practical systems programming.
