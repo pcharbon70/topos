@@ -174,6 +174,19 @@ A comprehensive type system design grounded in category theory while compiling e
 - BEAM integration through strategic compilation of closed vs. polymorphic types
 - Categorical foundations via Curry-Howard-Lambek correspondence
 
+### 1.16 - Performance Optimization Directives
+**File**: `1.16-performance-optimization-directives/1.16-performance-optimization-directives.md`
+
+Performance optimization strategies for category-theoretic functional code on BEAM. Covers:
+- Function call optimization balancing inlining with hot code reloading
+- Evaluation strategy control (strictness, laziness, monomorphization)
+- BEAM-specific optimizations (process spawning, message passing, ETS tables, binary handling)
+- Distributed systems optimization (distributed Erlang, serialization, GenStage/Flow)
+- Category theory-aligned optimization preserving denotational semantics
+- Directive system design inspired by Haskell, OCaml, Clean, and Idris
+- Zero-cost abstractions through compile-time specialization
+- Profile-guided optimization and cost-benefit models
+
 ## Reading Order
 
 For those new to the project, we recommend reading in this order:
@@ -190,9 +203,10 @@ For those new to the project, we recommend reading in this order:
 10. Dive into **1.13 - Foreign Function Interface** for interop with native code
 11. Check **1.14 - Development Tools** for the debugging and tooling approach
 12. Explore **1.15 - Advanced Type System** for the comprehensive type system design
-13. Review **1.09 - Reflection and Introspection** for runtime capabilities
-14. Check **1.11 - Domain-Specific Languages** for DSL support
-15. Review **1.12 - Build System** for compilation and build details
+13. Review **1.16 - Performance Optimization Directives** for BEAM-specific performance
+14. Check **1.09 - Reflection and Introspection** for runtime capabilities
+15. Review **1.11 - Domain-Specific Languages** for DSL support
+16. Check **1.12 - Build System** for compilation and build details
 
 ## Research Methodology
 

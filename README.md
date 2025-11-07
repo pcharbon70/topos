@@ -71,6 +71,7 @@ Comprehensive research documents are available in [`notes/research/`](notes/rese
 - **[1.13 - Foreign Function Interface](notes/research/1.13-foreign-function-interface/1.13-foreign-function-interface.md)** - Safe native code interop
 - **[1.14 - Development Tools](notes/research/1.14-development-tools/1.14-development-tools.md)** - Debugging and tooling
 - **[1.15 - Advanced Type System](notes/research/1.15-advanced-type-system/1.15-advanced-type-system.md)** - Category theory-based type system
+- **[1.16 - Performance Optimization Directives](notes/research/1.16-performance-optimization-directives/1.16-performance-optimization-directives.md)** - BEAM-specific optimizations
 
 See the [research directory README](notes/research/README.md) for a detailed overview and recommended reading order.
 
