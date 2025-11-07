@@ -13,9 +13,7 @@ This phase runs for 3 weeks and focuses on correctness over optimization, establ
 ## 1.1 Lexer and Parser
 - [ ] **Section 1.1 Complete**
 
-The lexer and parser form the front-end of the compiler, transforming raw Topos source code into structured Abstract Syntax Trees (ASTs). The lexer breaks input text into tokens (keywords, operators, identifiers, literals), while the parser organizes these tokens according to Topos grammar rules. We implement this using either Erlang's leex/yecc tools for a traditional approach, or nimble_parsec for a pure Elixir solution. The parser must handle Topos's unique syntax including categorical terminology (`shape`, `flow`), composition operators (`|>`, `>>=`), and pattern matching constructs. Error recovery and helpful error messages are priorit
-
-ies from the start.
+The lexer and parser form the front-end of the compiler, transforming raw Topos source code into structured Abstract Syntax Trees (ASTs). The lexer breaks input text into tokens (keywords, operators, identifiers, literals), while the parser organizes these tokens according to Topos grammar rules. We implement this using Erlang's leex/yecc tools, or write a custom hand-written recursive descent parser, or use parser combinator libraries from our chosen implementation language. The parser must handle Topos's unique syntax including categorical terminology (`shape`, `flow`), composition operators (`|>`, `>>=`), and pattern matching constructs. Error recovery and helpful error messages are priorities from the start.
 
 ### 1.1.1 Token Recognition
 - [ ] **Task 1.1.1 Complete**
@@ -40,7 +38,7 @@ The parser grammar defines the syntactic structure of Topos programs using produ
 ### 1.1.3 AST Construction
 - [ ] **Task 1.1.3 Complete**
 
-The Abstract Syntax Tree (AST) is the internal representation of parsed Topos programs. We define Elixir structs for each syntactic category: module definitions, type declarations, function definitions, patterns, expressions, and literals. The AST preserves source location information for error reporting and should be easy to traverse for subsequent compiler passes. We design the AST to be immutable and use pattern matching for processing.
+The Abstract Syntax Tree (AST) is the internal representation of parsed Topos programs. We define appropriate data structures for each syntactic category: module definitions, type declarations, function definitions, patterns, expressions, and literals. If using Erlang, we use records; if using another language (Haskell, Rust, OCaml), we use algebraic data types. The AST preserves source location information for error reporting and should be easy to traverse for subsequent compiler passes. We design the AST to be immutable and use pattern matching for processing.
 
 - [ ] 1.1.3.1 Define AST node structures for all expression types with source location metadata
 - [ ] 1.1.3.2 Define AST node structures for pattern forms including guards, or-patterns, and nested patterns

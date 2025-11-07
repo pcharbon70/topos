@@ -128,7 +128,7 @@ Not just inspiration—explicit language features:
 Each follows consistent structure:
 1. **Theoretical foundations** - Academic research and mathematical principles
 2. **Practical integration** - How concepts map to BEAM architecture
-3. **Comparative analysis** - Lessons from Haskell, OCaml, Erlang, Elixir, Rust, etc.
+3. **Comparative analysis** - Lessons from Haskell, OCaml, Erlang, Rust, etc.
 4. **Implementation considerations** - Concrete approaches for building features
 5. **Examples** - Code in proposed Topos syntax
 
@@ -202,7 +202,7 @@ When making significant changes:
 
 - **No Implementation Yet:** This is design documentation only. No compiler, runtime, or tooling exists.
 - **BEAM Target:** All design decisions account for BEAM VM constraints and capabilities
-- **Interoperability:** Must work with existing Erlang/Elixir code (via Core Erlang and OTP)
+- **Interoperability:** Must work with existing Erlang code (via Core Erlang and OTP)
 - **Category Theory:** Make abstract math practical, not just theoretical exercise
 - **MIT Licensed:** Open source under MIT (Topos Contributors)
 

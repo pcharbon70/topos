@@ -2,7 +2,7 @@
 
 ## Overview
 
-This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. We design the module system following ML traditions (OCaml, Standard ML) while integrating smoothly with BEAM's module structure and Erlang/Elixir interoperability.
+This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. We design the module system following ML traditions (OCaml, Standard ML) while integrating smoothly with BEAM's module structure and Erlang interoperability.
 
 Each Topos module compiles to a BEAM module with explicit exports. The import system supports qualified imports (prefixed with module name), selective imports (choosing specific definitions), and module aliases. We implement name resolution that handles shadowing correctly, prevents circular dependencies, and provides clear error messages for unresolved names. The module system must support both
 
@@ -202,12 +202,12 @@ We verify that modules compile in correct dependency order. Tests intentionally 
 ### 4.4.3 Interoperability Testing
 - [ ] **Task 4.4.3 Complete**
 
-Topos modules must interoperate with Erlang and Elixir code. We test calling Erlang functions from Topos, exposing Topos functions to Erlang, and mixing Topos and Erlang modules in a project. Type boundaries require careful handling—Topos types must map sensibly to BEAM terms. We document interoperability patterns and best practices.
+Topos modules must interoperate with Erlang code. We test calling Erlang functions from Topos, exposing Topos functions to Erlang, and mixing Topos and Erlang modules in a project. Type boundaries require careful handling—Topos types must map sensibly to BEAM terms. We document interoperability patterns and best practices.
 
 - [ ] 4.4.3.1 Test calling Erlang standard library functions from Topos with correct types
-- [ ] 4.4.3.2 Test exposing Topos functions for calling from Erlang/Elixir code
+- [ ] 4.4.3.2 Test exposing Topos functions for calling from Erlang code
 - [ ] 4.4.3.3 Test type conversions between Topos types and Erlang terms
-- [ ] 4.4.3.4 Test mixed projects combining Topos, Erlang, and Elixir modules
+- [ ] 4.4.3.4 Test mixed projects combining Topos and Erlang modules
 
 ---
 
@@ -217,7 +217,7 @@ Topos modules must interoperate with Erlang and Elixir code. We test calling Erl
 2. **Import System**: Qualified and selective imports working correctly with name resolution
 3. **Separate Compilation**: Incremental and parallel compilation using interface files
 4. **Dependency Management**: Cycle detection and topological sorting for compilation order
-5. **Interoperability**: Seamless integration with Erlang/Elixir codebases
+5. **Interoperability**: Seamless integration with Erlang codebases
 6. **Standard Library**: Organized standard library with Prelude auto-import
 
 ## Provides Foundation
@@ -239,4 +239,4 @@ This phase establishes the infrastructure for:
 - Cross-module type checking and call generation
 - Standard library organization with hierarchical modules
 - Comprehensive module system test suite
-- Interoperability guidelines for Erlang/Elixir integration
+- Interoperability guidelines for Erlang integration

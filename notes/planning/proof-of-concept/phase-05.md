@@ -102,7 +102,7 @@ Different restart strategies suit different use cases. One-for-one restarts fail
 ### 5.2.4 Supervision Tree Compilation
 - [ ] **Task 5.2.4 Complete**
 
-Supervision trees compile to OTP supervisor behaviors with child specs. We generate init callbacks returning supervision strategy and child list. Child start functions spawn actors with correct arguments. The compilation ensures that supervision trees integrate seamlessly with existing OTP applications, allowing Topos supervisors to manage Erlang/Elixir processes and vice versa.
+Supervision trees compile to OTP supervisor behaviors with child specs. We generate init callbacks returning supervision strategy and child list. Child start functions spawn actors with correct arguments. The compilation ensures that supervision trees integrate seamlessly with existing OTP applications, allowing Topos supervisors to manage Erlang processes and vice versa.
 
 - [ ] 5.2.4.1 Implement supervisor behavior generation with init callback
 - [ ] 5.2.4.2 Implement child start function generation spawning actors correctly

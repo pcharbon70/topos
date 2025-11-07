@@ -403,7 +403,7 @@ end
 ### 4.3 Module Compilation
 
 Each Topos module compiles to a BEAM module:
-- Module name: `Data.List` → `'Elixir.Data.List'`
+- Module name: `Data.List` → `'Data.List'` (hierarchical name as atom)
 - Export list: Public functions only
 - Private functions: Not in export list
 - Module attributes: Store type information
@@ -503,19 +503,24 @@ flow child_spec = {
 
 **Compiler Implementation Options**:
 
-**Option 1: Erlang/Elixir Implementation**
-- Pros: Native BEAM integration, can use OTP libraries
+**Option 1: Custom Erlang-Based Compiler**
+- Pros: Native BEAM integration, can use Erlang libraries (leex, yecc), direct Core Erlang generation
 - Cons: Bootstrapping problem for self-hosting
+- Note: Write custom compiler using Erlang tools, no Elixir dependencies
 
-**Option 2: Haskell Implementation**  
-- Pros: Strong type system, excellent parsing libraries (Megaparsec)
+**Option 2: Haskell Implementation**
+- Pros: Strong type system, excellent parsing libraries (Megaparsec), proven for compiler development
 - Cons: Separate runtime, deployment complexity
 
 **Option 3: Rust Implementation**
-- Pros: Performance, memory safety, good error messages
+- Pros: Performance, memory safety, good error messages, modern tooling
 - Cons: Learning curve, longer development time
 
-**Recommendation**: Start with Erlang/Elixir for fast prototyping, plan for self-hosting later.
+**Option 4: OCaml Implementation**
+- Pros: Proven for compiler development, strong type system, pattern matching
+- Cons: Smaller ecosystem, less BEAM familiarity
+
+**Recommendation**: Start with custom Erlang-based compiler using leex/yecc for fast prototyping and native BEAM integration, plan for self-hosting later.
 
 ### Project Structure
 
