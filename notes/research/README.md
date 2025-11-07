@@ -4,13 +4,8 @@ This directory contains the core research and design documentation for the Topos
 
 ## Research Documents
 
-### 1.00 - Investigations
-**File**: `1.00-investigations.md`
-
-Foundational investigations into critical features missing from the language design. Identifies gaps and areas requiring further research.
-
 ### 1.01 - Original Idea
-**File**: `1.01-original_idea.md`
+**File**: `1.01-original_idea/1.01-original_idea.md`
 
 The foundational design document introducing Topos's core philosophy: marrying category theory's mathematical rigor with BEAM's practical strengths. Covers:
 - Core concepts: shapes (types), flows (functions), composition as first-class citizen
@@ -21,7 +16,7 @@ The foundational design document introducing Topos's core philosophy: marrying c
 - Module system with categories
 
 ### 1.02 - Modules
-**File**: `1.02-modules.md`
+**File**: `1.02-modules/1.02-modules.md`
 
 Comprehensive exploration of Topos's advanced module system, inspired by ML languages (OCaml, Standard ML) with BEAM-specific adaptations. Topics include:
 - ML-style parameterized modules (functors) with explicit signatures
@@ -34,7 +29,7 @@ Comprehensive exploration of Topos's advanced module system, inspired by ML lang
 - Versioning and evolution strategies
 
 ### 1.03 - Immutability
-**File**: `1.03-immutability.md`
+**File**: `1.03-immutability/1.03-immutability.md`
 
 Deep dive into immutability as a foundational principle of Topos, exploring how all data structures remain immutable while maintaining performance. Covers:
 - Immutable bindings and explicit shadowing
@@ -49,7 +44,7 @@ Deep dive into immutability as a foundational principle of Topos, exploring how 
 - Compiler optimizations (fusion, region-based memory)
 
 ### 1.04 - Documentation
-**File**: `1.04-documentation.md`
+**File**: `1.04-documentation/1.04-documentation.md`
 
 Documentation as a mandatory, first-class language construct with runtime introspection capabilities. Features:
 - Required documentation preceding all definitions
@@ -64,7 +59,7 @@ Documentation as a mandatory, first-class language construct with runtime intros
 - Documentation-driven development (DDD) support
 
 ### 1.05 - Packages
-**File**: `1.05-packages.md`
+**File**: `1.05-packages/1.05-packages.md`
 
 Integration with the Erlang/Elixir ecosystem through Hex.pm and HexDocs. Includes:
 - Package.topos configuration file
@@ -79,7 +74,7 @@ Integration with the Erlang/Elixir ecosystem through Hex.pm and HexDocs. Include
 - Package health metrics and analytics
 
 ### 1.06 - Testing
-**File**: `1.06-testing.md`
+**File**: `1.06-testing/1.06-testing.md`
 
 Comprehensive built-in testing framework making tests unavoidable and integrated. Features:
 - Tests as first-class language primitives
@@ -95,7 +90,7 @@ Comprehensive built-in testing framework making tests unavoidable and integrated
 - Continuous testing with watch mode
 
 ### 1.07 - Error Handling
-**File**: `1.07-error-handling.md`
+**File**: `1.07-error-handling/1.07-error-handling.md`
 
 Reconciling static type systems with BEAM's "let it crash" philosophy through category theory. Explores:
 - Category theory foundations (monads, functors, natural transformations)
@@ -109,7 +104,7 @@ Reconciling static type systems with BEAM's "let it crash" philosophy through ca
 - Recovery strategies with algebraic properties (retry, circuit breakers, sagas, CRDTs)
 
 ### 1.08 - Advanced Concurrency
-**File**: `1.08-advanced-concurrency.md`
+**File**: `1.08-advanced-concurrency/1.08-advanced-concurrency.md`
 
 Beyond basic actors: advanced concurrency primitives grounded in type theory and category theory. Topics include:
 - Session types for protocol safety through linear logic
@@ -123,24 +118,48 @@ Beyond basic actors: advanced concurrency primitives grounded in type theory and
 - Implementation roadmap and practical examples
 
 ### 1.09 - Reflection and Introspection
-**File**: `1.09-reflection-and-introspection.md`
+**File**: `1.09-reflection-and-introspection/1.09-reflection-and-introspection.md`
 
-Runtime reflection and introspection capabilities while preserving categorical properties through a mirror-based reflection monad.
+Runtime reflection and introspection capabilities while preserving categorical properties through a mirror-based reflection monad. Explores how to provide runtime type information and code introspection without breaking the functional programming model.
 
 ### 1.10 - Pattern Matching
-**File**: `1.10-pattern-matching.md`
+**File**: `1.10-pattern-matching/1.10-pattern-matching.md`
 
-Advanced pattern matching features grounded in categorical semantics, including view patterns, pattern guards, or-patterns, pattern synonyms, active patterns, and negative patterns.
+Advanced pattern matching features grounded in categorical semantics, including view patterns, pattern guards, or-patterns, pattern synonyms, active patterns, and negative patterns. Demonstrates how pattern matching can be both powerful and mathematically sound.
 
 ### 1.11 - Domain-Specific Languages
-**File**: `1.11-domain-specific-langage.md`
+**File**: `1.11-domain-specific-langage/1.11-domain-specific-langage.md`
 
-DSL creation capabilities as a first-class language concern, built on category-theoretic foundations with native parser architecture.
+DSL creation capabilities as a first-class language concern, built on category-theoretic foundations with native parser architecture. Explores how to make Topos an ideal host language for domain-specific languages.
 
 ### 1.12 - Build System
-**File**: `1.12-build-system.md`
+**File**: `1.12-build-system/1.12-build-system.md`
 
-Build system and compilation pipeline design featuring incremental compilation, parallel compilation, caching, cross-compilation, and profile-guided optimization.
+Build system and compilation pipeline design featuring incremental compilation, parallel compilation, caching, cross-compilation, and profile-guided optimization. Covers the practical aspects of compiling Topos code to BEAM bytecode efficiently.
+
+### 1.13 - Foreign Function Interface
+**File**: `1.13-foreign-function-interface/1.13-foreign-function-interface.md`
+
+A category theory-based FFI architecture that unifies mathematical rigor with BEAM's fault tolerance. Explores:
+- Monadic effect encapsulation for foreign operations
+- Functorial marshalling between Morphic and foreign types
+- Adjunction-driven interoperability with C, Rust, and WebAssembly
+- NIFs, Port Drivers, and safe integration strategies
+- Modeling FFI boundaries as morphisms between categories
+- Natural transformations for data marshalling
+- Leveraging Rustler for memory-safe foreign calls
+
+### 1.14 - Development Tools
+**File**: `1.14-development-tools/1.14-development-tools.md`
+
+Debugging and development tools that bridge category theory with BEAM's runtime dynamism. Features:
+- Categorical debugging model treating debugging as natural transformation
+- Process-centric debug state with per-process isolation
+- Time-traveling and reversible execution leveraging immutability
+- Compositional breakpoints respecting functional boundaries
+- Pipeline-aware stepping through composition operators
+- Integration with BEAM's OTP sys module for production debugging
+- Category-aware step debugging with zipper-based navigation
 
 ## Reading Order
 
@@ -155,7 +174,11 @@ For those new to the project, we recommend reading in this order:
 7. Check **1.05 - Packages** for ecosystem integration
 8. Review **1.10 - Pattern Matching** for advanced pattern features
 9. Explore **1.08 - Advanced Concurrency** for cutting-edge concurrency primitives
-10. Check **1.00 - Investigations** for identified gaps and future research
+10. Dive into **1.13 - Foreign Function Interface** for interop with native code
+11. Check **1.14 - Development Tools** for the debugging and tooling approach
+12. Explore **1.09 - Reflection and Introspection** for runtime capabilities
+13. Review **1.11 - Domain-Specific Languages** for DSL support
+14. Check **1.12 - Build System** for compilation and build details
 
 ## Research Methodology
 
