@@ -4,8 +4,13 @@ This directory contains the core research and design documentation for the Topos
 
 ## Research Documents
 
-### 1.0.0 - Original Idea
-**File**: `1.0.0-original_idea.md`
+### 1.00 - Investigations
+**File**: `1.00-investigations.md`
+
+Foundational investigations into critical features missing from the language design. Identifies gaps and areas requiring further research.
+
+### 1.01 - Original Idea
+**File**: `1.01-original_idea.md`
 
 The foundational design document introducing Topos's core philosophy: marrying category theory's mathematical rigor with BEAM's practical strengths. Covers:
 - Core concepts: shapes (types), flows (functions), composition as first-class citizen
@@ -15,8 +20,8 @@ The foundational design document introducing Topos's core philosophy: marrying c
 - Effect systems and natural transformations
 - Module system with categories
 
-### 1.0.1 - Modules
-**File**: `1.0.1-modules.md`
+### 1.02 - Modules
+**File**: `1.02-modules.md`
 
 Comprehensive exploration of Topos's advanced module system, inspired by ML languages (OCaml, Standard ML) with BEAM-specific adaptations. Topics include:
 - ML-style parameterized modules (functors) with explicit signatures
@@ -28,8 +33,8 @@ Comprehensive exploration of Topos's advanced module system, inspired by ML lang
 - Category theory integration (modules as categories, functors as categorical functors)
 - Versioning and evolution strategies
 
-### 1.0.2 - Immutability
-**File**: `1.0.2-immutability.md`
+### 1.03 - Immutability
+**File**: `1.03-immutability.md`
 
 Deep dive into immutability as a foundational principle of Topos, exploring how all data structures remain immutable while maintaining performance. Covers:
 - Immutable bindings and explicit shadowing
@@ -43,8 +48,8 @@ Deep dive into immutability as a foundational principle of Topos, exploring how 
 - Temporal values for time-travel debugging
 - Compiler optimizations (fusion, region-based memory)
 
-### 1.0.3 - Documentation
-**File**: `1.0.3-documentation.md`
+### 1.04 - Documentation
+**File**: `1.04-documentation.md`
 
 Documentation as a mandatory, first-class language construct with runtime introspection capabilities. Features:
 - Required documentation preceding all definitions
@@ -58,8 +63,8 @@ Documentation as a mandatory, first-class language construct with runtime intros
 - Type-safe cross-references
 - Documentation-driven development (DDD) support
 
-### 1.0.4 - Packages
-**File**: `1.0.4-packages.md`
+### 1.05 - Packages
+**File**: `1.05-packages.md`
 
 Integration with the Erlang/Elixir ecosystem through Hex.pm and HexDocs. Includes:
 - Package.topos configuration file
@@ -73,8 +78,8 @@ Integration with the Erlang/Elixir ecosystem through Hex.pm and HexDocs. Include
 - Private packages and organizations
 - Package health metrics and analytics
 
-### 1.0.5 - Testing
-**File**: `1.0.5-testing.md`
+### 1.06 - Testing
+**File**: `1.06-testing.md`
 
 Comprehensive built-in testing framework making tests unavoidable and integrated. Features:
 - Tests as first-class language primitives
@@ -89,8 +94,8 @@ Comprehensive built-in testing framework making tests unavoidable and integrated
 - Multiple test output formatters
 - Continuous testing with watch mode
 
-### 1.0.6 - Error Handling
-**File**: `1.0.6-error-handling.md`
+### 1.07 - Error Handling
+**File**: `1.07-error-handling.md`
 
 Reconciling static type systems with BEAM's "let it crash" philosophy through category theory. Explores:
 - Category theory foundations (monads, functors, natural transformations)
@@ -103,8 +108,8 @@ Reconciling static type systems with BEAM's "let it crash" philosophy through ca
 - Introspection with comonadic observers
 - Recovery strategies with algebraic properties (retry, circuit breakers, sagas, CRDTs)
 
-### 1.0.7 - Advanced Concurrency
-**File**: `1.0.7-advanced-concurrency.md`
+### 1.08 - Advanced Concurrency
+**File**: `1.08-advanced-concurrency.md`
 
 Beyond basic actors: advanced concurrency primitives grounded in type theory and category theory. Topics include:
 - Session types for protocol safety through linear logic
@@ -117,18 +122,40 @@ Beyond basic actors: advanced concurrency primitives grounded in type theory and
 - Integration with OTP supervision trees
 - Implementation roadmap and practical examples
 
+### 1.09 - Reflection and Introspection
+**File**: `1.09-reflection-and-introspection.md`
+
+Runtime reflection and introspection capabilities while preserving categorical properties through a mirror-based reflection monad.
+
+### 1.10 - Pattern Matching
+**File**: `1.10-pattern-matching.md`
+
+Advanced pattern matching features grounded in categorical semantics, including view patterns, pattern guards, or-patterns, pattern synonyms, active patterns, and negative patterns.
+
+### 1.11 - Domain-Specific Languages
+**File**: `1.11-domain-specific-langage.md`
+
+DSL creation capabilities as a first-class language concern, built on category-theoretic foundations with native parser architecture.
+
+### 1.12 - Build System
+**File**: `1.12-build-system.md`
+
+Build system and compilation pipeline design featuring incremental compilation, parallel compilation, caching, cross-compilation, and profile-guided optimization.
+
 ## Reading Order
 
 For those new to the project, we recommend reading in this order:
 
-1. Start with **1.0.0 - Original Idea** to understand the core vision
-2. Read **1.0.2 - Immutability** to grasp the foundational data model
-3. Explore **1.0.1 - Modules** for the sophisticated module system
-4. Review **1.0.3 - Documentation** to see how docs are first-class
-5. Read **1.0.6 - Error Handling** to understand the three-tier approach
-6. Explore **1.0.5 - Testing** for the integrated testing philosophy
-7. Check **1.0.4 - Packages** for ecosystem integration
-8. Finally, **1.0.7 - Advanced Concurrency** for cutting-edge concurrency primitives
+1. Start with **1.01 - Original Idea** to understand the core vision
+2. Read **1.03 - Immutability** to grasp the foundational data model
+3. Explore **1.02 - Modules** for the sophisticated module system
+4. Review **1.04 - Documentation** to see how docs are first-class
+5. Read **1.07 - Error Handling** to understand the three-tier approach
+6. Explore **1.06 - Testing** for the integrated testing philosophy
+7. Check **1.05 - Packages** for ecosystem integration
+8. Review **1.10 - Pattern Matching** for advanced pattern features
+9. Explore **1.08 - Advanced Concurrency** for cutting-edge concurrency primitives
+10. Check **1.00 - Investigations** for identified gaps and future research
 
 ## Research Methodology
 
@@ -142,7 +169,7 @@ Each document follows a similar structure:
 ## Contributing
 
 When adding new research documents:
-- Follow the numbering scheme (1.0.X for core features)
+- Follow the numbering scheme (1.XX for all features)
 - Include both theoretical rigor and practical BEAM considerations
 - Provide concrete examples in Topos syntax
 - Reference academic papers and production implementations
