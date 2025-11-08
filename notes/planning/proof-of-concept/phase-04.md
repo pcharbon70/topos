@@ -2,7 +2,7 @@
 
 ## Overview
 
-This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. We design the module system following ML traditions (OCaml, Standard ML) while integrating smoothly with BEAM's module structure and Erlang interoperability.
+This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. We design the module system following ML traditions (drawing inspiration from OCaml and Standard ML semantics) while integrating smoothly with BEAM's module structure and Erlang interoperability.
 
 Each Topos module compiles to a BEAM module with explicit exports. The import system supports qualified imports (prefixed with module name), selective imports (choosing specific definitions), and module aliases. We implement name resolution that handles shadowing correctly, prevents circular dependencies, and provides clear error messages for unresolved names. The module system must support both
 

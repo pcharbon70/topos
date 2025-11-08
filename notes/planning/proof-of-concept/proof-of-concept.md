@@ -501,26 +501,25 @@ flow child_spec = {
 
 ### Technology Stack
 
-**Compiler Implementation Options**:
+**Implementation Language: Erlang**
 
-**Option 1: Custom Erlang-Based Compiler**
-- Pros: Native BEAM integration, can use Erlang libraries (leex, yecc), direct Core Erlang generation
-- Cons: Bootstrapping problem for self-hosting
-- Note: Write custom compiler using Erlang tools, no Elixir dependencies
+The Topos compiler toolchain is implemented in Erlang, leveraging BEAM-native tools and libraries:
 
-**Option 2: Haskell Implementation**
-- Pros: Strong type system, excellent parsing libraries (Megaparsec), proven for compiler development
-- Cons: Separate runtime, deployment complexity
+**Lexer**: Erlang's `leex` (lexical analyzer generator) for tokenization
+**Parser**: Erlang's `yecc` (LALR parser generator) for grammar parsing
+**Target**: Core Erlang intermediate representation compiled to BEAM bytecode
 
-**Option 3: Rust Implementation**
-- Pros: Performance, memory safety, good error messages, modern tooling
-- Cons: Learning curve, longer development time
+**Rationale:**
+- Native BEAM integration with direct access to Core Erlang generation
+- Use of mature, battle-tested Erlang compiler tooling (leex/yecc)
+- No external dependencies or cross-language boundaries
+- Direct integration with BEAM's code loading and hot-swapping mechanisms
+- Foundation for eventual self-hosting when Topos matures
 
-**Option 4: OCaml Implementation**
-- Pros: Proven for compiler development, strong type system, pattern matching
-- Cons: Smaller ecosystem, less BEAM familiarity
-
-**Recommendation**: Start with custom Erlang-based compiler using leex/yecc for fast prototyping and native BEAM integration, plan for self-hosting later.
+**Build Tools:**
+- `rebar3` for project management and dependency handling
+- Erlang's built-in compiler (`erlc`) for final bytecode generation
+- Standard Erlang development workflow
 
 ### Project Structure
 
