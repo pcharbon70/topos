@@ -20,15 +20,17 @@ Nonterminals
   topos_module
   declarations declaration
   shape_decl flow_decl
-  type_params constructors constructor constructor_fields
+  type_params type_params_nonempty constructors constructor constructor_fields
   flow_signature flow_clauses flow_clause
   match_clauses match_clause
-  pattern_list pattern
+  pattern_list pattern_list_nonempty pattern tuple_pattern_list
   guards guard
-  expr expr_primary expr_app expr_list
+  expr expr_primary expr_app expr_list tuple_expr_list
+  record_fields record_field
+  record_pattern_fields record_pattern_field
   literal
   type_expr type_expr_primary type_expr_app
-  type_list
+  type_list type_record_fields type_record_field
   .
 
 %%============================================================================
@@ -75,10 +77,10 @@ Right    160 bind.            %% >>= Kleisli composition
 
 Nonassoc 300 eq neq.          %% == /=
 Nonassoc 310 lt gt lte gte.   %% < > <= >=
+Right    350 concat.          %% <> (right-assoc for strings)
 
 Left     400 plus minus.      %% + -
 Left     500 star slash.      %% * /
-Right    550 concat.          %% <> (right-assoc for strings)
 
 Left     600 dot.             %% Record field access
 
@@ -112,9 +114,12 @@ shape_decl -> shape upper_ident type_params equals constructors :
 
 type_params -> '$empty' :
     [].
-type_params -> lower_ident :
+type_params -> type_params_nonempty :
+    '$1'.
+
+type_params_nonempty -> lower_ident :
     [extract_atom('$1')].
-type_params -> lower_ident type_params :
+type_params_nonempty -> lower_ident type_params_nonempty :
     [extract_atom('$1') | '$2'].
 
 constructors -> constructor :
@@ -150,6 +155,28 @@ flow_decl -> flow_signature flow_clauses :
         '$2',
         extract_location('$1')}.
 
+%% Simple flow without type signature (like minimal parser)
+flow_decl -> flow lower_ident pattern_list equals expr :
+    {flow_decl,
+        extract_atom('$2'),
+        undefined,
+        [{flow_clause, '$3', undefined, '$5', extract_location('$1')}],
+        extract_location('$1')}.
+
+flow_decl -> flow lower_ident pattern_list 'when' guards equals expr :
+    {flow_decl,
+        extract_atom('$2'),
+        undefined,
+        [{flow_clause, '$3', '$5', '$7', extract_location('$1')}],
+        extract_location('$1')}.
+
+flow_decl -> flow lower_ident pattern_list equals match match_clauses 'end' :
+    {flow_decl,
+        extract_atom('$2'),
+        undefined,
+        [{flow_clause, '$3', undefined, {match_expr, '$6', extract_location('$5')}, extract_location('$1')}],
+        extract_location('$1')}.
+
 flow_signature -> flow lower_ident colon type_expr :
     {flow_sig, extract_atom('$2'), '$4', extract_location('$1')}.
 
@@ -172,11 +199,11 @@ flow_clause -> flow lower_ident pattern_list 'when' guards equals expr :
         '$7',
         extract_location('$1')}.
 
-flow_clause -> flow lower_ident equals match match_clauses 'end' :
+flow_clause -> flow lower_ident pattern_list equals match match_clauses 'end' :
     {flow_clause,
-        [],
+        '$3',
         undefined,
-        {match_expr, '$5', extract_location('$4')},
+        {match_expr, '$6', extract_location('$5')},
         extract_location('$1')}.
 
 %%----------------------------------------------------------------------------
@@ -208,9 +235,12 @@ match_clause -> pipe pattern 'when' guards arrow expr :
 
 pattern_list -> '$empty' :
     [].
-pattern_list -> pattern :
+pattern_list -> pattern_list_nonempty :
+    '$1'.
+
+pattern_list_nonempty -> pattern :
     ['$1'].
-pattern_list -> pattern pattern_list :
+pattern_list_nonempty -> pattern pattern_list_nonempty :
     ['$1' | '$2'].
 
 pattern -> lower_ident :
@@ -239,6 +269,30 @@ pattern -> lbracket rbracket :
 
 pattern -> lbracket pattern_list rbracket :
     {pat_list, '$2', extract_location('$1')}.
+
+pattern -> lparen tuple_pattern_list rparen :
+    {pat_tuple, '$2', extract_location('$1')}.
+
+pattern -> lbrace rbrace :
+    {pat_record, [], extract_location('$1')}.
+
+pattern -> lbrace record_pattern_fields rbrace :
+    {pat_record, '$2', extract_location('$1')}.
+
+%% Tuple pattern lists (comma-separated patterns)
+tuple_pattern_list -> pattern comma pattern :
+    ['$1', '$3'].
+tuple_pattern_list -> pattern comma tuple_pattern_list :
+    ['$1' | '$3'].
+
+%% Record pattern fields (field: pattern, field: pattern, ...)
+record_pattern_fields -> record_pattern_field :
+    ['$1'].
+record_pattern_fields -> record_pattern_field comma record_pattern_fields :
+    ['$1' | '$3'].
+
+record_pattern_field -> lower_ident colon pattern :
+    {extract_atom('$1'), '$3'}.
 
 %%----------------------------------------------------------------------------
 %% Guards
@@ -296,14 +350,14 @@ expr -> expr lte expr :
 expr -> expr gte expr :
     {binary_op, gte, '$1', '$3', extract_location('$2')}.
 
-expr -> expr dot lower_ident :
-    {record_access, '$1', extract_atom('$3'), extract_location('$2')}.
-
 expr -> expr_app : '$1'.
 
 %% Function application (left-associative, juxtaposition)
 expr_app -> expr_app expr_primary :
     {app, '$1', ['$2'], extract_location('$1')}.
+
+expr_app -> expr_app dot lower_ident :
+    {record_access, '$1', extract_atom('$3'), extract_location('$2')}.
 
 expr_app -> expr_primary : '$1'.
 
@@ -318,6 +372,15 @@ expr_primary -> upper_ident :
 
 expr_primary -> lparen expr rparen :
     '$2'.
+
+expr_primary -> lparen tuple_expr_list rparen :
+    {tuple_expr, '$2', extract_location('$1')}.
+
+%% Tuple expression lists (comma-separated expressions)
+tuple_expr_list -> expr comma expr :
+    ['$1', '$3'].
+tuple_expr_list -> expr comma tuple_expr_list :
+    ['$1' | '$3'].
 
 expr_primary -> 'let' lower_ident equals expr 'in' expr :
     {let_expr,
@@ -336,6 +399,18 @@ expr_primary -> lbracket expr_list rbracket :
 
 expr_primary -> lbrace rbrace :
     {record_expr, [], undefined, extract_location('$1')}.
+
+expr_primary -> lbrace record_fields rbrace :
+    {record_expr, '$2', undefined, extract_location('$1')}.
+
+%% Record fields (field: expr, field: expr, ...)
+record_fields -> record_field :
+    ['$1'].
+record_fields -> record_field comma record_fields :
+    ['$1' | '$3'].
+
+record_field -> lower_ident colon expr :
+    {extract_atom('$1'), '$3'}.
 
 %% Expression lists (for list literals, function arguments, etc.)
 expr_list -> expr :
@@ -391,10 +466,25 @@ type_expr_primary -> lparen type_expr rparen :
 type_expr_primary -> lparen type_list rparen :
     {type_tuple, '$2', extract_location('$1')}.
 
+type_expr_primary -> lbrace rbrace :
+    {type_record, [], undefined, extract_location('$1')}.
+
+type_expr_primary -> lbrace type_record_fields rbrace :
+    {type_record, '$2', undefined, extract_location('$1')}.
+
 type_list -> type_expr :
     ['$1'].
 type_list -> type_expr comma type_list :
     ['$1' | '$3'].
+
+%% Record type fields (field: Type, field: Type, ...)
+type_record_fields -> type_record_field :
+    ['$1'].
+type_record_fields -> type_record_field comma type_record_fields :
+    ['$1' | '$3'].
+
+type_record_field -> lower_ident colon type_expr :
+    {extract_atom('$1'), '$3'}.
 
 %%============================================================================
 %% Erlang Code - Helper Functions
@@ -410,9 +500,56 @@ extract_atom({Tag, _Line}) when is_atom(Tag) -> Tag.
 %% @doc Extract value from token
 extract_value({_Tag, _Line, Value}) -> Value.
 
-%% @doc Extract location from token
-extract_location({_Tag, Line}) -> {line, Line};
-extract_location({_Tag, Line, _Value}) -> {line, Line}.
+%% @doc Extract location from token or AST node
+%% Supports both legacy {line, N} format and enhanced {location, ...} format
+extract_location({_Tag, Line}) when is_integer(Line) ->
+    %% Convert token to enhanced location format
+    topos_location:from_token({_Tag, Line});
+extract_location({_Tag, Line, _Value}) when is_integer(Line) ->
+    %% Convert token with value to enhanced location format
+    topos_location:from_token({_Tag, Line, _Value});
+extract_location({flow_sig, _Name, _Type, Loc}) -> Loc;
+extract_location({var, _Name, Loc}) -> Loc;
+extract_location({literal, _Value, _Type, Loc}) -> Loc;
+extract_location({record_access, _Expr, _Field, Loc}) -> Loc;
+extract_location({app, _Fun, _Args, Loc}) -> Loc;
+extract_location({binary_op, _Op, _Left, _Right, Loc}) -> Loc;
+extract_location({tuple_expr, _Elements, Loc}) -> Loc;
+extract_location({list_expr, _Elements, Loc}) -> Loc;
+extract_location({match_expr, _Clauses, Loc}) -> Loc;
+extract_location({if_expr, _Cond, _Then, _Else, Loc}) -> Loc;
+extract_location({let_expr, _Bindings, _Body, Loc}) -> Loc;
+extract_location({match_clause, _Pattern, _Guard, _Body, Loc}) -> Loc;
+extract_location({flow_clause, _Patterns, _Guard, _Body, Loc}) -> Loc;
+extract_location({type_fun, _From, _To, Loc}) -> Loc;
+extract_location({type_forall, _Vars, _Type, Loc}) -> Loc;
+extract_location({type_app, _Con, _Args, Loc}) -> Loc;
+extract_location({type_var, _Name, Loc}) -> Loc;
+extract_location({type_con, _Name, Loc}) -> Loc;
+extract_location({type_tuple, _Elements, Loc}) -> Loc;
+extract_location({type_record, _Fields, _Extension, Loc}) -> Loc;
+extract_location({pat_var, _Name, Loc}) -> Loc;
+extract_location({pat_wildcard, Loc}) -> Loc;
+extract_location({pat_constructor, _Name, _Args, Loc}) -> Loc;
+extract_location({pat_literal, _Value, _Type, Loc}) -> Loc;
+extract_location({pat_list, _Elements, Loc}) -> Loc;
+extract_location({pat_tuple, _Elements, Loc}) -> Loc;
+extract_location({pat_record, _Fields, Loc}) -> Loc;
+extract_location({record_expr, _Fields, _Base, Loc}) -> Loc;
+extract_location({shape_decl, _Name, _Params, _Constructors, _Traits, Loc}) -> Loc;
+extract_location({constructor, _Name, _Fields, Loc}) -> Loc;
+extract_location({flow_decl, _Name, _Type, _Clauses, Loc}) -> Loc;
+extract_location(Tuple) when is_tuple(Tuple) ->
+    %% Generic case: location is usually the last element
+    Loc = element(tuple_size(Tuple), Tuple),
+    %% Support both old and new format
+    case Loc of
+        {line, _} -> Loc;
+        {location, _, _} -> Loc;
+        {location, _, _, _, _} -> Loc;
+        _ when is_integer(Loc) -> topos_location:new(Loc, 0);
+        _ -> {location, 1, 0}  % Fallback
+    end.
 
 %% @doc Extract flow name from flow signature
 extract_flow_name({flow_sig, Name, _Type, _Loc}) -> Name.

@@ -14,10 +14,10 @@ parse_simple_shape_test() ->
         {pipe, 1},
         {upper_ident, 1, "False"}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
-    ?assertMatch({module, undefined, [], [], [_], {line, 1}}, Result),
+    {ok, Result} = topos_parser:parse(Tokens),
+    ?assertMatch({module, undefined, [], [], [_], _}, Result),
     {module, _, _, _, [ShapeDecl], _} = Result,
-    ?assertMatch({shape_decl, 'Bool', [], [_, _], [], {line, 1}}, ShapeDecl).
+    ?assertMatch({shape_decl, 'Bool', [], [_, _], [], _}, ShapeDecl).
 
 %%====================================================================
 %% Test 1.1.2.2: Flow Declaration Parsing
@@ -30,10 +30,10 @@ parse_simple_flow_test() ->
         {equals, 1},
         {integer, 1, 42}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
-    ?assertMatch({module, undefined, [], [], [_], {line, 1}}, Result),
+    {ok, Result} = topos_parser:parse(Tokens),
+    ?assertMatch({module, undefined, [], [], [_], _}, Result),
     {module, _, _, _, [FlowDecl], _} = Result,
-    ?assertMatch({flow_decl, id, undefined, [{flow_clause, [], undefined, _, _}], {line, 1}}, FlowDecl).
+    ?assertMatch({flow_decl, id, undefined, [{flow_clause, [], undefined, _, _}], _}, FlowDecl).
 
 %%====================================================================
 %% Test 1.1.2.3: Expression Parsing
@@ -46,10 +46,10 @@ parse_literal_integer_test() ->
         {equals, 1},
         {integer, 1, 123}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
+    {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [FlowDecl], _} = Result,
     {flow_decl, _, _, [{flow_clause, _, _, Expr, _}], _} = FlowDecl,
-    ?assertMatch({literal, 123, integer, {line, 1}}, Expr).
+    ?assertMatch({literal, 123, integer, _}, Expr).
 
 parse_literal_float_test() ->
     Tokens = [
@@ -58,10 +58,10 @@ parse_literal_float_test() ->
         {equals, 1},
         {float, 1, 3.14}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
+    {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [FlowDecl], _} = Result,
     {flow_decl, _, _, [{flow_clause, _, _, Expr, _}], _} = FlowDecl,
-    ?assertMatch({literal, 3.14, float, {line, 1}}, Expr).
+    ?assertMatch({literal, 3.14, float, _}, Expr).
 
 parse_literal_string_test() ->
     Tokens = [
@@ -70,10 +70,10 @@ parse_literal_string_test() ->
         {equals, 1},
         {string, 1, "Hello"}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
+    {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [FlowDecl], _} = Result,
     {flow_decl, _, _, [{flow_clause, _, _, Expr, _}], _} = FlowDecl,
-    ?assertMatch({literal, "Hello", string, {line, 1}}, Expr).
+    ?assertMatch({literal, "Hello", string, _}, Expr).
 
 parse_variable_test() ->
     Tokens = [
@@ -82,10 +82,10 @@ parse_variable_test() ->
         {equals, 1},
         {lower_ident, 1, "x"}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
+    {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [FlowDecl], _} = Result,
     {flow_decl, _, _, [{flow_clause, _, _, Expr, _}], _} = FlowDecl,
-    ?assertMatch({var, x, {line, 1}}, Expr).
+    ?assertMatch({var, x, _}, Expr).
 
 %%====================================================================
 %% Test 1.1.2.4: Multiple Declarations
@@ -105,7 +105,7 @@ parse_multiple_declarations_test() ->
         {equals, 2},
         {integer, 2, 0}
     ],
-    {ok, Result} = topos_parser_simple:parse(Tokens),
+    {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, Decls, _} = Result,
     ?assertEqual(2, length(Decls)),
     [ShapeDecl, FlowDecl] = Decls,
