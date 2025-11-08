@@ -13,9 +13,7 @@ This phase runs for 3 weeks and focuses on correctness over optimization, establ
 ## 1.1 Lexer and Parser
 - [ ] **Section 1.1 Complete**
 
-The lexer and parser form the front-end of the compiler, transforming raw Topos source code into structured Abstract Syntax Trees (ASTs). The lexer breaks input text into tokens (keywords, operators, identifiers, literals), while the parser organizes these tokens according to Topos grammar rules. We implement this using either Erlang's leex/yecc tools for a traditional approach, or nimble_parsec for a pure Elixir solution. The parser must handle Topos's unique syntax including categorical terminology (`shape`, `flow`), composition operators (`|>`, `>>=`), and pattern matching constructs. Error recovery and helpful error messages are priorit
-
-ies from the start.
+The lexer and parser form the front-end of the compiler, transforming raw Topos source code into structured Abstract Syntax Trees (ASTs). The lexer breaks input text into tokens (keywords, operators, identifiers, literals), while the parser organizes these tokens according to Topos grammar rules. We implement this using Erlang's leex (lexical analyzer generator) and yecc (LALR parser generator) tools, which provide mature, battle-tested parsing infrastructure. The parser must handle Topos's unique syntax including categorical terminology (`shape`, `flow`), composition operators (`|>`, `>>=`), and pattern matching constructs. Error recovery and helpful error messages are priorities from the start.
 
 ### 1.1.1 Token Recognition
 - [ ] **Task 1.1.1 Complete**
@@ -40,7 +38,7 @@ The parser grammar defines the syntactic structure of Topos programs using produ
 ### 1.1.3 AST Construction
 - [ ] **Task 1.1.3 Complete**
 
-The Abstract Syntax Tree (AST) is the internal representation of parsed Topos programs. We define Elixir structs for each syntactic category: module definitions, type declarations, function definitions, patterns, expressions, and literals. The AST preserves source location information for error reporting and should be easy to traverse for subsequent compiler passes. We design the AST to be immutable and use pattern matching for processing.
+The Abstract Syntax Tree (AST) is the internal representation of parsed Topos programs. We define appropriate data structures using Erlang records for each syntactic category: module definitions, type declarations, function definitions, patterns, expressions, and literals. The AST preserves source location information for error reporting and should be easy to traverse for subsequent compiler passes. We design the AST to be immutable and use pattern matching for processing, leveraging Erlang's native pattern matching capabilities.
 
 - [ ] 1.1.3.1 Define AST node structures for all expression types with source location metadata
 - [ ] 1.1.3.2 Define AST node structures for pattern forms including guards, or-patterns, and nested patterns
@@ -148,7 +146,7 @@ Pattern matching is central to functional programming. We compile Topos patterns
 ### 1.3.3 Type Erasure
 - [ ] **Task 1.3.3 Complete**
 
-Topos's rich type system exists only at compile time. At runtime, BEAM operates on untyped terms. Type erasure removes all type information from the AST, leaving only computational content. Polymorphic functions become monomorphic (or use runtime dispatch), and type classes disappear after instance resolution. We ensure that erasure preserves program semantics—well-typed programs don't change behavior.
+Topos's rich type system exists only at compile time. At runtime, BEAM operates on untyped terms. Type erasure removes all type information from the AST, leaving only computational content. Polymorphic functions use uniform representation with runtime type information where necessary, and type classes disappear after instance resolution through dictionary-passing transformation. We ensure that erasure preserves program semantics—well-typed programs don't change behavior.
 
 - [ ] 1.3.3.1 Implement type annotation removal stripping all type information from expressions
 - [ ] 1.3.3.2 Implement trait dictionary passing for type classes converting to explicit parameters

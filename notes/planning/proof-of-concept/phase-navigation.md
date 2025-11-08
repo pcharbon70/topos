@@ -49,7 +49,7 @@ Implements sophisticated pattern matching with guards, or-patterns, nested patte
 ### [Phase 4: Module System](phase-04.md) (Weeks 9-10)
 **Code organization and namespaces**
 
-Establishes hierarchical module organization with visibility control, qualified and selective imports, and separate compilation. Modules compile to BEAM modules with explicit exports. The system supports incremental builds, detects circular dependencies, and enables interoperability with Erlang/Elixir code.
+Establishes hierarchical module organization with visibility control, qualified and selective imports, and separate compilation. Modules compile to BEAM modules with explicit exports. The system supports incremental builds, detects circular dependencies, and enables interoperability with Erlang code.
 
 **Key Deliverables:**
 - Module declaration and export system
