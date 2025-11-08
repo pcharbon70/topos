@@ -124,12 +124,22 @@ _ : {token, {underscore, TokenLine}}.
 "{STRING_CONTENT}" : {token, {string, TokenLine, parse_string(TokenChars)}}.
 
 %% Identifiers (uppercase and lowercase)
-{UPPER_IDENT} : {token, {upper_ident, TokenLine, TokenChars}}.
-{LOWER_IDENT} : {token, {lower_ident, TokenLine, TokenChars}}.
+{UPPER_IDENT} : validate_identifier(TokenLine, TokenChars, upper_ident).
+{LOWER_IDENT} : validate_identifier(TokenLine, TokenChars, lower_ident).
 
 Erlang code.
 
 %% Helper functions for parsing literals
+
+validate_identifier(Line, Chars, Type) ->
+    MaxLen = topos_lexer:get_max_identifier_length(),
+    ActualLen = length(Chars),
+    case ActualLen > MaxLen of
+        true ->
+            {error, {identifier_too_long, Line, ActualLen, MaxLen}};
+        false ->
+            {token, {Type, Line, Chars}}
+    end.
 
 parse_integer(Chars) ->
     list_to_integer(Chars).

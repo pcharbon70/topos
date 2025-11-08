@@ -2,6 +2,16 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %%====================================================================
+%% Test Helper Functions
+%%====================================================================
+
+%% @doc Extract token types from token list
+%% Converts [{Type, Line}, ...] or [{Type, Line, Value}, ...] to [Type, ...]
+-spec token_types([tuple()]) -> [atom()].
+token_types(Tokens) ->
+    [Type || {Type, _Line} <- Tokens].
+
+%%====================================================================
 %% Test 1.1.1.1: Keywords, Operators, and Delimiters
 %%====================================================================
 
@@ -24,33 +34,29 @@ all_keywords_test() ->
     Input = "shape flow match where let in do end if then else case of when "
             "module import export exports as qualified private trait instance forall actor supervisor",
     {ok, Tokens} = topos_lexer:tokenize(Input),
-    TokenTypes = [Type || {Type, _Line} <- Tokens],
     Expected = [shape, flow, match, where, 'let', 'in', 'do', 'end', 'if', 'then', 'else',
                 'case', 'of', 'when', 'module', 'import', 'export', exports, as, qualified,
                 private, trait, instance, forall, actor, supervisor],
-    ?assertEqual(Expected, TokenTypes).
+    ?assertEqual(Expected, token_types(Tokens)).
 
 operators_two_char_test() ->
     %% Test two-character operators
     {ok, Tokens} = topos_lexer:tokenize("|> >>= -> => <> == /= <= >= || && :: <- .."),
-    TokenTypes = [Type || {Type, _Line} <- Tokens],
     Expected = [pipe_right, bind, arrow, double_arrow, concat, eq, neq, lte, gte,
                 'or', 'and', cons, left_arrow, range],
-    ?assertEqual(Expected, TokenTypes).
+    ?assertEqual(Expected, token_types(Tokens)).
 
 operators_single_char_test() ->
     %% Test single-character operators
     {ok, Tokens} = topos_lexer:tokenize(": = | < > + - * / ."),
-    TokenTypes = [Type || {Type, _Line} <- Tokens],
     Expected = [colon, equals, pipe, lt, gt, plus, minus, star, slash, dot],
-    ?assertEqual(Expected, TokenTypes).
+    ?assertEqual(Expected, token_types(Tokens)).
 
 delimiters_test() ->
     %% Test all delimiters
     {ok, Tokens} = topos_lexer:tokenize("{ } [ ] ( ) , ; _"),
-    TokenTypes = [Type || {Type, _Line} <- Tokens],
     Expected = [lbrace, rbrace, lbracket, rbracket, lparen, rparen, comma, semicolon, underscore],
-    ?assertEqual(Expected, TokenTypes).
+    ?assertEqual(Expected, token_types(Tokens)).
 
 operator_precedence_in_expression_test() ->
     %% Test that operators are recognized in expressions
@@ -247,11 +253,11 @@ nested_comment_multiple_levels_test() ->
 
 unclosed_comment_error_test() ->
     Result = topos_lexer:tokenize("x {- unclosed comment"),
-    ?assertMatch({error, {unclosed_comment, 1}}, Result).
+    ?assertMatch({error, {0, topos_lexer, {unclosed_comment, 1}}}, Result).
 
 unmatched_comment_end_error_test() ->
     Result = topos_lexer:tokenize("x -} y"),
-    ?assertMatch({error, {1, _}}, Result).
+    ?assertMatch({error, {1, topos_lexer, unmatched_comment_end}}, Result).
 
 mixed_comments_test() ->
     Input = "x -- single line\n"
@@ -371,3 +377,142 @@ only_whitespace_test() ->
 only_comments_test() ->
     {ok, Tokens} = topos_lexer:tokenize("-- just comments\n{- more comments -}"),
     ?assertEqual([], Tokens).
+
+%%====================================================================
+%% Test 1.1.1.5: Error Handling
+%%====================================================================
+
+%% Unterminated string tests
+unterminated_string_simple_test() ->
+    Result = topos_lexer:tokenize("\"hello"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+unterminated_string_with_newline_test() ->
+    Result = topos_lexer:tokenize("\"line1\nline2"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+unterminated_string_ending_with_backslash_test() ->
+    Result = topos_lexer:tokenize("\"escape\\"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+%% Illegal character tests
+illegal_character_at_sign_test() ->
+    Result = topos_lexer:tokenize("@symbol"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+illegal_character_hash_test() ->
+    Result = topos_lexer:tokenize("#directive"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+illegal_character_dollar_test() ->
+    Result = topos_lexer:tokenize("$var"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+illegal_character_percent_test() ->
+    Result = topos_lexer:tokenize("%percent"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+illegal_character_caret_test() ->
+    Result = topos_lexer:tokenize("^caret"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+illegal_character_backtick_test() ->
+    Result = topos_lexer:tokenize("`template`"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+%% Invalid escape sequence tests
+invalid_escape_unknown_letter_test() ->
+    Result = topos_lexer:tokenize("\"invalid \\z escape\""),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+invalid_escape_hex_not_supported_test() ->
+    Result = topos_lexer:tokenize("\"hex \\x41\""),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+%%====================================================================
+%% Test 1.1.1.6: Resource Limits (DoS Prevention)
+%%====================================================================
+
+input_too_large_test() ->
+    %% Create a string larger than MAX_INPUT_SIZE (10MB)
+    LargeString = lists:duplicate(10000001, $a),
+    Result = topos_lexer:tokenize(LargeString),
+    ?assertMatch({error, {0, topos_lexer, {input_too_large, 10000001, 10000000}}}, Result).
+
+nesting_too_deep_test() ->
+    %% Create 101 levels of nested comments (exceeds MAX_NESTING_DEPTH of 100)
+    OpenComments = lists:duplicate(101, "{-"),
+    CloseComments = lists:duplicate(101, "-}"),
+    Input = lists:flatten(OpenComments ++ CloseComments),
+    Result = topos_lexer:tokenize(Input),
+    ?assertMatch({error, {_Line, topos_lexer, {nesting_too_deep, 100, 100}}}, Result).
+
+identifier_too_long_test() ->
+    %% Create an identifier longer than MAX_IDENT_LENGTH (255)
+    LongIdent = lists:duplicate(256, $a),
+    Result = topos_lexer:tokenize(LongIdent),
+    ?assertMatch({error, {1, topos_lexer, {identifier_too_long, 256, 255}}}, Result).
+
+%%====================================================================
+%% Test 1.1.1.7: Unicode and Special Characters
+%%====================================================================
+
+%% Unicode in strings tests (unicode IS supported in strings)
+unicode_string_russian_test() ->
+    %% UTF-8 Russian text in string - should work
+    {ok, Tokens} = topos_lexer:tokenize("\"Привет мир\""),
+    ?assertMatch([{string, 1, _}], Tokens),
+    %% Verify it contains unicode codepoints
+    [{string, 1, Content}] = Tokens,
+    ?assert(lists:any(fun(C) -> C > 127 end, Content)).
+
+unicode_string_emoji_test() ->
+    %% Emoji in string - should work
+    {ok, Tokens} = topos_lexer:tokenize("\"Hello 👋 World\""),
+    ?assertMatch([{string, 1, _}], Tokens),
+    %% Verify it contains emoji codepoint (128075 is wave emoji)
+    [{string, 1, Content}] = Tokens,
+    ?assert(lists:member(128075, Content)).
+
+unicode_string_cjk_test() ->
+    %% Chinese characters in string - should work
+    {ok, Tokens} = topos_lexer:tokenize("\"你好世界\""),
+    ?assertMatch([{string, 1, _}], Tokens),
+    %% Verify it contains CJK codepoints (> 127)
+    [{string, 1, Content}] = Tokens,
+    ?assert(lists:all(fun(C) -> C > 127 end, Content)).
+
+%% Unicode in identifiers tests (should fail - only ASCII allowed)
+unicode_identifier_russian_test() ->
+    %% UTF-8 identifier should fail
+    Result = topos_lexer:tokenize("привет"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+unicode_identifier_emoji_test() ->
+    %% Emoji identifier should fail
+    Result = topos_lexer:tokenize("hello👋"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+unicode_identifier_cjk_test() ->
+    %% CJK identifier should fail
+    Result = topos_lexer:tokenize("变量名"),
+    ?assertMatch({error, {_, _, _}}, Result).
+
+%% Special whitespace tests (should be rejected as illegal characters)
+special_whitespace_bom_test() ->
+    %% Byte Order Mark (BOM) should be rejected as illegal character
+    BOM = [16#EF, 16#BB, 16#BF],
+    Result = topos_lexer:tokenize(BOM ++ "x"),
+    ?assertMatch({error, {1, _, _}}, Result).
+
+special_whitespace_zero_width_test() ->
+    %% Zero-width space (U+200B) should be rejected
+    ZeroWidth = "x" ++ [16#E2, 16#80, 16#8B] ++ "y",
+    Result = topos_lexer:tokenize(ZeroWidth),
+    ?assertMatch({error, {1, _, _}}, Result).
+
+special_whitespace_nbsp_test() ->
+    %% Non-breaking space (U+00A0) should be rejected
+    NBSP = "x" ++ [16#C2, 16#A0] ++ "y",
+    Result = topos_lexer:tokenize(NBSP),
+    ?assertMatch({error, {1, _, _}}, Result).
