@@ -1,0 +1,28 @@
+# Compiled files
+ebin/
+*.beam
+*.app
+
+# Generated files
+src/compiler/lexer/topos_lexer_gen.erl
+
+# Erlang
+.erl_crash.dump
+.erlang.cookie
+erl_crash.dump
+
+# Rebar3
+.rebar3/
+_build/
+_checkouts/
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
