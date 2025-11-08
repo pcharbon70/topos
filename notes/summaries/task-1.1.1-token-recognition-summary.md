@@ -117,19 +117,29 @@ All Topos keywords are recognized and tokenized:
    - Handles nested comment filtering
    - Exports `tokenize/1` and `tokenize_file/1`
 
+### Build Scripts
+4. **scripts/build_lexer.sh**
+   - Automated lexer generation script
+   - Compiles .xrl to .erl using leex
+   - Renames output to topos_lexer_gen.erl
+   - Fixes module name automatically
+   - Includes incremental build detection (skips if up to date)
+
 ### Configuration Files
-4. **rebar.config**
+5. **rebar.config**
    - Erlang project configuration
    - EUnit test configuration
+   - Pre-compile hooks for automatic lexer generation
 
-5. **src/topos.app.src**
+6. **src/topos.app.src**
    - Application resource file
    - Metadata for the Topos compiler application
 
 ### Test Files
-6. **test/topos_lexer_tests.erl** (10 KB)
+7. **test/topos_lexer_tests.erl** (13 KB)
    - Comprehensive EUnit test suite
-   - 45 test cases covering all functionality
+   - 68 test cases covering all functionality
+   - Test helper functions to reduce code duplication
    - **100% pass rate**
 
 ### Documentation
@@ -140,8 +150,8 @@ All Topos keywords are recognized and tokenized:
 
 ## Test Coverage
 
-**Total Tests**: 45
-**Passed**: 45 (100%)
+**Total Tests**: 68
+**Passed**: 68 (100%)
 **Failed**: 0
 
 ### Test Categories
@@ -193,6 +203,21 @@ All Topos keywords are recognized and tokenized:
    - Only whitespace
    - Only comments
 
+7. **Error Handling** (11 tests)
+   - Unterminated strings (simple, with newline, ending with backslash)
+   - Illegal characters (at sign, hash, dollar, percent, caret, backtick)
+   - Invalid escape sequences (unknown letter, hex not supported)
+
+8. **Resource Limits (DoS Prevention)** (3 tests)
+   - Input size limit (10MB maximum)
+   - Comment nesting depth limit (100 levels maximum)
+   - Identifier length limit (255 characters maximum)
+
+9. **Unicode and Special Characters** (9 tests)
+   - Unicode in strings: Russian, Emoji, CJK (supported)
+   - Unicode in identifiers: Russian, Emoji, CJK (correctly rejected)
+   - Special whitespace: BOM, zero-width space, non-breaking space (rejected)
+
 ## Technical Decisions
 
 ### 1. Leex Tool Selection
@@ -225,6 +250,90 @@ All Topos keywords are recognized and tokenized:
   - Maintains compatibility with Erlang compiler
   - Examples: `'let'`, `'in'`, `'case'`, `'if'`, etc.
 
+### 5. Resource Limits (DoS Prevention) - Configurable
+- **Decision**: Implement configurable limits on input size, nesting depth, and identifier length
+- **Default Limits**:
+  - `max_input_size`: 10,000,000 bytes (10 MB)
+    - **Rationale**: Large enough for substantial source files (~300K lines), small enough to prevent memory exhaustion
+  - `max_nesting_depth`: 100 levels (nested comments)
+    - **Rationale**: Deeply nested comments are rare in practice (typical max: 2-3 levels); prevents stack overflow attacks
+  - `max_identifier_length`: 255 characters
+    - **Rationale**: Matches common language limits (Java, C#, Python); prevents resource exhaustion from pathological identifiers
+- **Configuration**: Limits can be overridden via application environment
+  ```erlang
+  %% In sys.config or at runtime:
+  application:set_env(topos, max_input_size, 20000000).      % 20 MB
+  application:set_env(topos, max_nesting_depth, 200).
+  application:set_env(topos, max_identifier_length, 512).
+  ```
+- **API Functions**:
+  - `get_max_input_size/0` - Get current input size limit
+  - `get_max_nesting_depth/0` - Get current nesting depth limit
+  - `get_max_identifier_length/0` - Get current identifier length limit
+- **Implementation**:
+  - Input size: Checked in `tokenize/1` before processing
+  - Nesting depth: Checked in `filter_comments/4` during comment filtering
+  - Identifier length: Checked in `validate_identifier/3` in leex rules
+- **Benefits of Configurability**:
+  - Projects with large files can increase `max_input_size`
+  - Code generators can adjust limits as needed
+  - Testing can use smaller limits for faster failure detection
+  - Production systems can tighten limits for additional security
+
+### 6. Standardized Error Format
+- **Decision**: Use consistent error tuple format across all lexer errors
+- **Format**: `{error, {Line, Module, Reason}}`
+  - **Line**: Line number (0 if not line-specific)
+  - **Module**: Module atom (`topos_lexer` or leex module for leex errors)
+  - **Reason**: Descriptive tuple or atom
+- **Rationale**:
+  - Consistent error handling across entire lexer
+  - Easy pattern matching in calling code
+  - Follows Erlang conventions (similar to leex/yecc)
+  - Allows for future column number addition without breaking API
+- **Error Formatting**: `format_error/1` function converts reasons to human-readable strings
+- **Examples**:
+  - Input too large: `{error, {0, topos_lexer, {input_too_large, 20000000, 10000000}}}`
+    - Formatted: `"input too large: 20000000 bytes exceeds maximum of 10000000 bytes"`
+  - Nesting too deep: `{error, {Line, topos_lexer, {nesting_too_deep, 101, 100}}}`
+    - Formatted: `"comment nesting too deep: 101 levels exceeds maximum of 100"`
+  - Identifier too long: `{error, {1, topos_lexer, {identifier_too_long, 300, 255}}}`
+    - Formatted: `"identifier too long: 300 characters exceeds maximum of 255"`
+  - Unclosed comment: `{error, {0, topos_lexer, {unclosed_comment, 3}}}`
+    - Formatted: `"unclosed comment at depth 3"`
+  - Unmatched comment end: `{error, {Line, topos_lexer, unmatched_comment_end}}`
+    - Formatted: `"unmatched comment end marker -}"`
+
+### 7. Build Automation
+- **Decision**: Automated lexer generation using pre-compile hooks
+- **Implementation**:
+  - Build script (`scripts/build_lexer.sh`) handles lexer generation workflow
+  - Integrated via rebar3 `pre_hooks` in rebar.config
+  - Automatic compilation of .xrl to .erl before each build
+- **Features**:
+  - **Incremental builds**: Detects if generated file is up to date (compares timestamps)
+  - **Automatic renaming**: Converts `topos_lexer.erl` → `topos_lexer_gen.erl`
+  - **Module name correction**: Updates `-module(topos_lexer)` → `-module(topos_lexer_gen)`
+  - **Cross-platform**: Works on Linux and macOS (different sed syntax handled)
+- **Rationale**:
+  - Eliminates manual compilation step
+  - Prevents "forgot to regenerate" errors
+  - Ensures generated file always matches source definition
+  - Standard workflow: developers only edit .xrl, generated file managed automatically
+- **Usage**:
+  ```bash
+  # Automatic (via rebar3 hooks):
+  rebar3 compile  # Generates lexer automatically before compilation
+
+  # Manual (if needed):
+  ./scripts/build_lexer.sh  # Generates lexer on demand
+  ```
+- **Benefits**:
+  - Reduces developer cognitive load
+  - Prevents build inconsistencies
+  - Makes onboarding easier (no special steps to remember)
+  - Supports CI/CD pipelines (single command builds)
+
 ## Success Criteria Met
 
 ✅ All 26 Topos keywords recognized
@@ -236,8 +345,96 @@ All Topos keywords are recognized and tokenized:
 ✅ Single-line comments (--) handled
 ✅ Multi-line nested comments ({- -}) with arbitrary depth
 ✅ Error detection for unclosed/unmatched comments
-✅ 45/45 tests passing (100%)
-✅ Comprehensive edge case coverage
+✅ Error handling for unterminated strings and illegal characters
+✅ Error handling for invalid escape sequences
+✅ Resource limits to prevent DoS attacks (input size, nesting depth, identifier length)
+✅ Unicode support in string literals (UTF-8, emoji, CJK characters)
+✅ Unicode rejection in identifiers (maintains ASCII-only compatibility)
+✅ Special whitespace rejection (BOM, zero-width spaces)
+✅ Standardized error format across all lexer errors
+✅ Human-readable error messages via format_error/1
+✅ Automated build system with pre-compile hooks
+✅ Incremental build detection (skips regeneration when up to date)
+✅ 68/68 tests passing (100%)
+✅ Comprehensive edge case, error handling, security, and unicode coverage
+
+## API
+
+### Public Functions
+
+1. **`tokenize/1`** - Tokenize a string of Topos source code
+   ```erlang
+   -spec tokenize(string()) -> {ok, [tuple()]} | {error, {Line, Module, Reason}}.
+   ```
+
+2. **`tokenize_file/1`** - Tokenize a file containing Topos source code
+   ```erlang
+   -spec tokenize_file(string()) -> {ok, [tuple()]} | {error, {Line, Module, Reason}}.
+   ```
+
+3. **`format_error/1`** - Format error reason into human-readable string
+   ```erlang
+   -spec format_error(term()) -> string().
+   ```
+
+4. **`get_max_input_size/0`** - Get current maximum input size limit
+   ```erlang
+   -spec get_max_input_size() -> pos_integer().
+   ```
+
+5. **`get_max_nesting_depth/0`** - Get current maximum comment nesting depth
+   ```erlang
+   -spec get_max_nesting_depth() -> pos_integer().
+   ```
+
+6. **`get_max_identifier_length/0`** - Get current maximum identifier length
+   ```erlang
+   -spec get_max_identifier_length() -> pos_integer().
+   ```
+
+### Configuration
+
+Resource limits can be configured via Erlang application environment:
+
+```erlang
+%% In sys.config:
+[{topos, [
+    {max_input_size, 20000000},        % 20 MB (default: 10 MB)
+    {max_nesting_depth, 200},          % 200 levels (default: 100)
+    {max_identifier_length, 512}       % 512 chars (default: 255)
+]}].
+
+%% Or at runtime:
+application:set_env(topos, max_input_size, 20000000).
+application:set_env(topos, max_nesting_depth, 200).
+application:set_env(topos, max_identifier_length, 512).
+
+%% Query current limits:
+MaxSize = topos_lexer:get_max_input_size(),
+MaxDepth = topos_lexer:get_max_nesting_depth(),
+MaxIdLen = topos_lexer:get_max_identifier_length().
+```
+
+**When to Adjust Limits:**
+- **Increase `max_input_size`**: For projects with very large generated files
+- **Increase `max_nesting_depth`**: For code generators that produce deeply nested comments
+- **Increase `max_identifier_length`**: For systems using very long auto-generated names
+- **Decrease limits**: In production for tighter security constraints
+
+### Error Format
+
+All errors follow the standardized format: `{error, {Line, Module, Reason}}`
+- Use `format_error/1` to get human-readable error messages
+- Example:
+  ```erlang
+  case topos_lexer:tokenize(Input) of
+      {ok, Tokens} ->
+          process_tokens(Tokens);
+      {error, {Line, Module, Reason}} ->
+          ErrorMsg = Module:format_error(Reason),
+          io:format("Error at line ~p: ~s~n", [Line, ErrorMsg])
+  end
+  ```
 
 ## Usage Examples
 
@@ -260,6 +457,21 @@ All Topos keywords are recognized and tokenized:
 {ok, Tokens} = topos_lexer:tokenize_file("examples/factorial.tps").
 ```
 
+### Error Handling
+
+```erlang
+%% Handle errors with format_error
+Input = "x {- unclosed comment",
+case topos_lexer:tokenize(Input) of
+    {ok, Tokens} ->
+        Tokens;
+    {error, {Line, Module, Reason}} ->
+        ErrorMsg = Module:format_error(Reason),
+        io:format("Lexer error at line ~p: ~s~n", [Line, ErrorMsg])
+        %% Outputs: "Lexer error at line 0: unclosed comment at depth 1"
+end.
+```
+
 ### Example Topos Code Tokenization
 
 ```topos
@@ -274,13 +486,118 @@ end
 
 Produces tokens for all language elements including keywords (`shape`, `flow`, `match`, `end`), operators (`->`, `|`), identifiers, and delimiters.
 
+## Building the Lexer
+
+The lexer is generated automatically from the `.xrl` definition file using the build automation system.
+
+### Automatic Build (Recommended)
+
+When using rebar3 or compiling the project, the lexer is generated automatically via pre-compile hooks:
+
+```bash
+# Using rebar3 (if available):
+rebar3 compile
+
+# Using erlc directly:
+erlc -o ebin src/compiler/lexer/*.erl test/*.erl
+```
+
+The build script (`scripts/build_lexer.sh`) runs automatically before compilation and:
+1. Checks if `topos_lexer_gen.erl` is up to date (compares timestamps)
+2. If outdated, compiles `topos_lexer.xrl` using leex
+3. Renames the output to `topos_lexer_gen.erl`
+4. Fixes the module name from `topos_lexer` to `topos_lexer_gen`
+
+### Manual Build
+
+To manually regenerate the lexer (e.g., after modifying `topos_lexer.xrl`):
+
+```bash
+./scripts/build_lexer.sh
+```
+
+Output:
+- **If up to date**: `Lexer is up to date, skipping generation`
+- **If regenerated**: `✓ Lexer generated successfully: src/compiler/lexer/topos_lexer_gen.erl`
+
+### Build Workflow
+
+```
+topos_lexer.xrl  (source - edit this)
+      ↓
+build_lexer.sh  (automatic via rebar3 hooks)
+      ↓
+topos_lexer_gen.erl  (generated - do not edit)
+```
+
+**Important**: Never edit `topos_lexer_gen.erl` directly. Always modify `topos_lexer.xrl` and regenerate.
+
+### Running Tests
+
+```bash
+# Compile and run tests:
+erlc -o ebin src/compiler/lexer/*.erl test/*.erl
+erl -pa ebin -noshell -eval 'eunit:test(topos_lexer_tests, [verbose])' -s init stop
+```
+
+All 68 tests should pass.
+
 ## Known Limitations
 
 1. **Multi-line string literals**: Not yet implemented (planned for future enhancement)
 2. **String interpolation**: Not yet implemented (planned for future enhancement)
 3. **Raw strings**: Not yet implemented (planned for future enhancement)
-4. **Unicode support**: Basic ASCII only (Unicode support planned)
-5. **Column tracking**: Only line numbers tracked (column numbers planned for better error messages)
+4. **Unicode identifiers**: Only ASCII identifiers supported (unicode intentionally rejected to maintain compatibility)
+5. **Special whitespace**: BOM, zero-width spaces, and other special unicode whitespace rejected as illegal characters
+6. **Column tracking**: Only line numbers tracked (column numbers planned for better error messages)
+
+## Unicode Support
+
+### ✅ Supported: Unicode in String Literals
+String literals fully support unicode characters including:
+- **UTF-8 text**: Russian (Привет), Arabic (مرحبا), Greek (Γεια σου)
+- **Emoji**: 👋 🎉 🚀 ✨
+- **CJK characters**: Chinese (你好), Japanese (こんにちは), Korean (안녕하세요)
+- **Special symbols**: Mathematical (∑∫), currency (€¥£), arrows (→⇒)
+
+**Examples**:
+```topos
+greeting = "Hello 👋 World"
+russian = "Привет мир"
+chinese = "你好世界"
+```
+
+### ❌ Not Supported: Unicode in Identifiers
+Identifiers are restricted to ASCII characters only: `[a-zA-Z0-9_']`
+- **Rationale**: Maintains compatibility with BEAM VM and existing Erlang tooling
+- **Behavior**: Unicode identifiers produce "illegal characters" error
+- **Examples of rejected identifiers**: `привет`, `变量名`, `hello👋`
+
+### ❌ Not Supported: Special Unicode Whitespace
+Special whitespace characters are rejected as illegal:
+- **Byte Order Mark (BOM)**: U+FEFF
+- **Zero-width spaces**: U+200B, U+200C, U+200D
+- **Non-breaking space**: U+00A0
+- **Other unicode spaces**: U+2000-U+200A, U+202F, U+205F, U+3000
+
+**Regular whitespace supported**: Space (U+0020), Tab (U+0009), Newline (U+000A), Carriage Return (U+000D)
+
+## Security Features
+
+1. **Configurable Input Size Limit**: Default 10 MB (configurable) to prevent memory exhaustion attacks
+   - Protects against attempts to load multi-gigabyte files
+   - Can be adjusted for projects with legitimate large files
+2. **Configurable Nesting Depth Limit**: Default 100 levels (configurable) to prevent stack overflow
+   - Protects against deeply nested comment attacks
+   - Typical code uses 2-3 levels max; 100 is extremely generous
+3. **Configurable Identifier Length Limit**: Default 255 characters (configurable) to prevent resource exhaustion
+   - Protects against pathological identifiers designed to consume resources
+   - Matches industry-standard limits (Java, C#, Python)
+4. **Configuration API**: Limits adjustable via application environment
+   - Allows per-deployment security tuning
+   - Production can use tighter limits; development can be more permissive
+5. **Clear Error Messages**: All limits provide informative error messages with actual vs. maximum values
+6. **Special Whitespace Rejection**: Prevents hidden characters (BOM, zero-width spaces) from causing security issues
 
 ## Performance Characteristics
 
@@ -314,6 +631,7 @@ With Task 1.1.1 complete, the next tasks in Phase 1 are:
 3. **Nested comments**: Best handled as post-processing step rather than in leex rules
 4. **Test-driven development**: Writing tests first helped catch edge cases early
 5. **Line numbering**: Careful tracking needed through comment filtering
+6. **Test helper functions**: Adding `token_types/1` helper reduced code duplication across 4 tests, improving maintainability
 
 ## Conclusion
 
@@ -321,10 +639,11 @@ Task 1.1.1 (Token Recognition) is successfully complete with all acceptance crit
 
 The implementation demonstrates:
 - Correct lexical analysis using leex
-- Comprehensive test coverage (45 tests, 100% pass rate)
+- Comprehensive test coverage (68 tests, 100% pass rate)
 - Robust error handling for malformed input
 - Clean API through wrapper module
 - Proper handling of Erlang reserved words
 - Support for nested comments (unique among many language lexers)
+- Test helper functions reducing code duplication
 
 This completes the first subtask of Phase 1.1 (Lexer and Parser), establishing the tokenization pipeline that all subsequent compiler phases will build upon.
