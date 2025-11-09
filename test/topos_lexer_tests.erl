@@ -39,6 +39,13 @@ all_keywords_test() ->
                 private, trait, instance, forall, actor, supervisor],
     ?assertEqual(Expected, token_types(Tokens)).
 
+effect_keywords_test() ->
+    %% Test effect system keywords (Task 1.1.5)
+    Input = "effect operation perform try with",
+    {ok, Tokens} = topos_lexer:tokenize(Input),
+    Expected = [effect, operation, perform, 'try', with],
+    ?assertEqual(Expected, token_types(Tokens)).
+
 operators_two_char_test() ->
     %% Test two-character operators
     {ok, Tokens} = topos_lexer:tokenize("|> >>= -> => <> == /= <= >= || && :: <- .."),
@@ -313,6 +320,28 @@ composition_operators_test() ->
         {bind, 1},
         {lower_ident, 1, "persist"}
     ], Tokens).
+
+effect_syntax_test() ->
+    %% Test effect declaration syntax (Task 1.1.5)
+    Code = "effect FileIO\n"
+           "  operation readFile\n"
+           "end\n"
+           "flow loadConfig = perform FileIO readFile\n"
+           "try\n"
+           "  loadConfig\n"
+           "with FileIO",
+    {ok, Tokens} = topos_lexer:tokenize(Code),
+    %% Verify effect keywords are recognized
+    EffectCount = length([T || T = {effect, _} <- Tokens]),
+    OperationCount = length([T || T = {operation, _} <- Tokens]),
+    PerformCount = length([T || T = {perform, _} <- Tokens]),
+    TryCount = length([T || T = {'try', _} <- Tokens]),
+    WithCount = length([T || T = {with, _} <- Tokens]),
+    ?assertEqual(1, EffectCount),
+    ?assertEqual(1, OperationCount),
+    ?assertEqual(1, PerformCount),
+    ?assertEqual(1, TryCount),
+    ?assertEqual(1, WithCount).
 
 identifiers_test() ->
     %% Test lowercase and uppercase identifiers

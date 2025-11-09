@@ -76,6 +76,13 @@ forall : {token, {forall, TokenLine}}.
 actor : {token, {actor, TokenLine}}.
 supervisor : {token, {supervisor, TokenLine}}.
 
+%% Effect system keywords (Task 1.1.5)
+effect : {token, {effect, TokenLine}}.
+operation : {token, {operation, TokenLine}}.
+perform : {token, {perform, TokenLine}}.
+try : {token, {'try', TokenLine}}.
+with : {token, {with, TokenLine}}.
+
 %% Two-character operators (must come before single-character)
 \|> : {token, {pipe_right, TokenLine}}.
 >>= : {token, {bind, TokenLine}}.
