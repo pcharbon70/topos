@@ -6,13 +6,19 @@
 
 ## Phase Documents
 
-This proof-of-concept is organized into 5 detailed phase documents with comprehensive task breakdowns:
+This implementation plan consists of a **12-week proof-of-concept** (Phases 1-5) demonstrating minimal viable algebraic effects, plus a **5-week completion phase** (Phase 6) implementing advanced effect features:
 
-- **[Phase 1: Core Language Infrastructure](phase-01.md)** (Weeks 1-3) - Lexer, Parser, Type System, Code Generation
-- **[Phase 2: REPL and Basic Runtime](phase-02.md)** (Weeks 4-5) - Interactive Development, Standard Prelude
-- **[Phase 3: Pattern Matching Engine](phase-03.md)** (Weeks 6-8) - Advanced Patterns, Decision Trees, Exhaustiveness
-- **[Phase 4: Module System](phase-04.md)** (Weeks 9-10) - Modules, Imports, Separate Compilation
-- **[Phase 5: Actor Model Integration](phase-05.md)** (Weeks 11-12) - Actors, Supervision, Fault Tolerance
+### Proof-of-Concept (12 weeks)
+
+- **[Phase 1: Core Language Infrastructure](phase-01.md)** (Weeks 1-6.5) - Lexer, Parser, Type-and-Effect System, Effect Runtime, Code Generation
+- **[Phase 2: REPL and Basic Runtime](phase-02.md)** (Weeks 7-10.5) - Effect-Aware REPL, Prelude, Builtin Effects (IO, Process)
+- **[Phase 3: Pattern Matching Engine](phase-03.md)** (Weeks 11-14.5) - Advanced Patterns, Pure Guards, Decision Trees, Exhaustiveness
+- **[Phase 4: Module System](phase-04.md)** (Weeks 15-17) - Modules, Effect Propagation, Interface Files, Separate Compilation
+- **[Phase 5: Actor Model Integration](phase-05.md)** (Weeks 18-21.5) - Actor-Effect Unification, Supervision, Fault Tolerance
+
+### Effect System Completion (5 weeks)
+
+- **[Phase 6: Effect System Completion](phase-06-effect-completion.md)** (Weeks 22-26) - Effect Polymorphism, Effect Library, Optimizations, Advanced Features
 
 Each phase document includes:
 - Detailed section and task breakdowns with subtasks
@@ -25,7 +31,9 @@ Each phase document includes:
 
 ## Executive Overview
 
-This plan outlines the development of Topos, a new category-theory-based functional programming language for the BEAM virtual machine. The minimal PoC will demonstrate Topos's core concepts: categorical abstractions (`shape` for types, `flow` for morphisms), immutability by default, advanced pattern matching, and compilation to BEAM bytecode via Core Erlang.
+This plan outlines the development of Topos, a new category-theory-based functional programming language for the BEAM virtual machine. The proof-of-concept demonstrates Topos's core innovations: categorical abstractions (`shape` for types, `flow` for morphisms), **algebraic effects with handlers for principled side-effect management**, immutability by default, advanced pattern matching, **actor-effect unification** showing actors as effect handlers, and compilation to BEAM bytecode via Core Erlang.
+
+**Key Innovation**: Algebraic effects provide a mathematically sound approach to side effects while integrating seamlessly with BEAM's process model. The PoC implements minimal viable effects (monomorphic tracking, IO/Process effects, process-based runtime) sufficient to demonstrate the core concepts, with Phase 6 completing the effect system for production use.
 
 ## Phase 1: Core Language Infrastructure (Weeks 1-3)
 
@@ -746,6 +754,12 @@ The PoC succeeds when:
 
 ## Conclusion
 
-This implementation plan provides a structured path to building Topos as a category-theory-based functional language for the BEAM. By focusing on the essential features that demonstrate the language's unique value—categorical abstractions, advanced pattern matching, and actor model integration—we can deliver a working proof-of-concept in 12 weeks.
+This implementation plan provides a structured path to building Topos as a category-theory-based functional language for the BEAM with algebraic effects as a first-class feature. The plan consists of:
 
-The phased approach ensures each component builds on solid foundations, while the focus on BEAM integration leverages decades of distributed systems expertise. Most importantly, this plan creates a language that bridges the gap between mathematical elegance and practical systems programming.
+**12-Week Proof-of-Concept** (Phases 1-5): Demonstrates the language's unique value—categorical abstractions, **algebraic effects with process-based runtime**, **actor-effect unification**, advanced pattern matching, and BEAM integration. Delivers minimal viable effect system sufficient to prove the core concepts.
+
+**5-Week Effect Completion** (Phase 6): Elevates the effect system to production-ready status with effect polymorphism, comprehensive effect library (State, Reader, Writer, Async, Error), optimizations achieving <5% overhead, and advanced features like delimited continuations and scoped effects.
+
+**Total: ~17 weeks (~4.25 months)** to deliver a complete functional programming language with production-ready algebraic effects on BEAM.
+
+The phased approach ensures each component builds on solid foundations, while the focus on BEAM integration leverages decades of distributed systems expertise. Most importantly, this plan creates a language that bridges the gap between mathematical elegance (category theory + algebraic effects) and practical systems programming (BEAM concurrency + fault tolerance), demonstrating that theoretical soundness and production readiness are not mutually exclusive.

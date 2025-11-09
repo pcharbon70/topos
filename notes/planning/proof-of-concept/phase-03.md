@@ -4,9 +4,9 @@
 
 This phase implements Topos's advanced pattern matching system, going beyond basic constructor matching to include guards, or-patterns, nested patterns, and as-patterns. Pattern matching is fundamental to functional programming, providing both data destructuring and control flow. We extend the basic pattern compilation from Phase 1 into a sophisticated system that handles complex patterns efficiently while maintaining categorical semantics—patterns are morphisms in the category of data types.
 
-The pattern compiler transforms high-level patterns into efficient decision trees that minimize runtime checks. We implement exhaustiveness checking to warn when patterns don't cover all cases, and redundancy detection to identify unreachable clauses. This phase also adds pattern guards that allow boolean conditions within patterns, enabling more expressive case analysis.
+The pattern compiler transforms high-level patterns into efficient decision trees that minimize runtime checks. We implement exhaustiveness checking to warn when patterns don't cover all cases, and redundancy detection to identify unreachable clauses. This phase also adds pattern guards that allow boolean conditions within patterns, enabling more expressive case analysis. **Pattern guards must be pure** (effect-free) in the PoC—effectful guards are deferred to Phase 6.
 
-This phase runs for 3 weeks and focuses on correctness, completeness, and helpful error messages. By the end, Topos will support pattern matching comparable to ML-family languages, with strong static guarantees and optimal runtime performance.
+This phase runs for **3.5 weeks** and focuses on correctness, completeness, and helpful error messages. By the end, Topos will support pattern matching comparable to ML-family languages, with strong static guarantees and optimal runtime performance.
 
 ---
 
@@ -18,12 +18,12 @@ Advanced patterns go beyond simple constructor matching to include guards (boole
 ### 3.1.1 Pattern Guards
 - [ ] **Task 3.1.1 Complete**
 
-Guards extend patterns with boolean conditions evaluated after successful pattern match. Syntax: `| pattern when condition -> expression`. Guards enable filtering based on computed properties of matched values, like `| (x, y) when x > y -> ...`. Multiple guards on the same pattern create independent alternatives. Guards must not have side effects (enforceable through purity checking).
+Guards extend patterns with boolean conditions evaluated after successful pattern match. Syntax: `| pattern when condition -> expression`. Guards enable filtering based on computed properties of matched values, like `| (x, y) when x > y -> ...`. Multiple guards on the same pattern create independent alternatives. **Guards must be pure** (no effects) in the PoC—we enforce this through effect checking, rejecting guards with non-empty effect sets.
 
 - [ ] 3.1.1.1 Implement guard syntax parsing extending pattern clauses with `when` keyword and boolean expressions
 - [ ] 3.1.1.2 Implement guard evaluation in pattern compiler generating conditional tests after pattern binding
 - [ ] 3.1.1.3 Implement guard failure handling causing pattern to fail and try next clause
-- [ ] 3.1.1.4 Implement purity checking for guard expressions ensuring no side effects in guards
+- [ ] 3.1.1.4 Implement effect checking for guard expressions ensuring guards have empty effect set (pure only, effectful guards deferred to Phase 6)
 
 ### 3.1.2 Or-Patterns
 - [ ] **Task 3.1.2 Complete**
@@ -58,6 +58,7 @@ As-patterns bind names to both the whole matched value and its destructured part
 ### Unit Tests - Section 3.1
 - [ ] **Unit Tests 3.1 Complete**
 - [ ] Test pattern guards with various boolean conditions succeeding and failing appropriately
+- [ ] Test guard purity checking rejecting guards with non-empty effect sets
 - [ ] Test or-patterns with multiple alternatives ensuring correct matching and variable binding
 - [ ] Test nested patterns at various depths destructuring complex data structures correctly
 - [ ] Test as-patterns binding both whole values and parts with correct types

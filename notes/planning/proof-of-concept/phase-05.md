@@ -2,11 +2,11 @@
 
 ## Overview
 
-This phase integrates Topos with BEAM's actor model, bringing together functional programming and concurrent processes. Actors provide isolated state, message-based communication, and fault tolerance—the foundation of Erlang's legendary reliability. We design actor syntax that makes category theory concepts explicit while compiling to standard OTP behaviors. Actors maintain immutable state between messages, update state functionally, and handle failures gracefully through supervision trees.
+This phase integrates Topos with BEAM's actor model, bringing together functional programming and concurrent processes. **This phase unifies actors with the algebraic effect system**—actors are revealed as handlers for the Process effect introduced in Phase 2, demonstrating how effects elegantly capture stateful concurrent computation. Actors provide isolated state, message-based communication, and fault tolerance—the foundation of Erlang's legendary reliability. We design actor syntax that makes category theory concepts explicit while compiling to standard OTP behaviors. Actors maintain immutable state between messages, update state functionally, and handle failures gracefully through supervision trees.
 
-The actor system treats processes as objects in a category where morphisms are message handlers. State transitions become pure functions from (Message, State) to (NewState, Reply). This functional approach to actors preserves referential transparency while leveraging BEAM's process isolation and fault recovery. We implement both low-level process primitives and high-level supervision abstractions, enabling everything from simple stateful servers to complex distributed systems.
+The actor system treats processes as objects in a category where morphisms are message handlers. **Actor message handlers ARE effect handlers** for the Process effect, with state transitions becoming effectful computations. State transitions are pure functions from (Message, State) to (NewState, Reply), but spawn/send/receive operations are effects handled by the BEAM runtime. This functional approach to actors preserves referential transparency while leveraging BEAM's process isolation and fault recovery through the effect system. We implement both low-level process primitives (as effect operations) and high-level supervision abstractions, enabling everything from simple stateful servers to complex distributed systems.
 
-This phase runs for 2 weeks and completes the proof-of-concept by demonstrating Topos's unique value proposition: marrying category theory's mathematical rigor with BEAM's practical distributed computing. By the end, developers can write concurrent, fault-tolerant systems using familiar functional patterns backed by battle-tested BEAM infrastructure.
+This phase runs for **3.5 weeks** and completes the proof-of-concept by demonstrating Topos's unique value proposition: marrying category theory's mathematical rigor with BEAM's practical distributed computing through algebraic effects. By the end, developers can write concurrent, fault-tolerant systems using familiar functional patterns backed by battle-tested BEAM infrastructure, with effects making the boundaries between pure and concurrent computation explicit.
 
 ---
 
@@ -38,29 +38,30 @@ Message protocols define what messages an actor accepts, using sum types (varian
 ### 5.1.3 Handler Implementation
 - [ ] **Task 5.1.3 Complete**
 
-Message handlers are pure functions: `handle : Message -> State -> (State, Maybe Reply)`. They pattern match on messages, compute new state, and optionally produce replies. Handlers cannot perform side effects directly—they return state changes and replies that the runtime applies. This functional approach makes handlers testable without spawning processes. We compile handlers to gen_server handle_call/handle_cast callbacks.
+Message handlers have signature: `handle : Message -> State -> (State, Maybe Reply) / {Process}`. **Actor handlers ARE effect handlers for the Process effect**—they can use process operations (spawn, send, receive) within handler logic. The Process effect tracks stateful concurrent operations while keeping the core state transition logic explicit. Handlers pattern match on messages, compute new state using pure logic and process effects, and optionally produce replies. This approach makes the pure/effectful boundary clear while enabling testability. We compile handlers to gen_server handle_call/handle_cast callbacks that execute with the Process effect runtime.
 
-- [ ] 5.1.3.1 Implement handler function type checking ensuring correct signature
+- [ ] 5.1.3.1 Implement handler function type-and-effect checking ensuring `Message -> State -> (State, Maybe Reply) / {Process}` signature
 - [ ] 5.1.3.2 Implement handler pattern matching compiling to efficient message dispatch
 - [ ] 5.1.3.3 Implement reply generation handling synchronous and asynchronous messages
-- [ ] 5.1.3.4 Implement handler purity checking preventing side effects in handler functions
+- [ ] 5.1.3.4 Implement Process effect integration allowing handlers to spawn, send, and receive during message handling
 
 ### 5.1.4 Process Primitives
 - [ ] **Task 5.1.4 Complete**
 
-Low-level primitives enable process creation and communication. `spawn` creates new processes from actor definitions. `send` (written `!`) sends asynchronous messages. `call` (written `?`) sends synchronous messages and waits for replies. `link` and `monitor` establish failure detection relationships. These primitives map directly to BEAM operations but integrate with Topos's type system for safety.
+**Process primitives are operations of the Process effect** from Phase 2. `spawn` creates new processes from actor definitions (operation signature: `spawn : Flow -> ProcessId / {Process}`). `send` (written `!`) sends asynchronous messages (`send : ProcessId -> Message -> Unit / {Process}`). `call` (written `?`) sends synchronous messages and waits for replies. `link` and `monitor` establish failure detection relationships. These effect operations map directly to BEAM operations, leveraging the process-based effect runtime while providing type safety through the effect system.
 
-- [ ] 5.1.4.1 Implement `spawn` primitive creating new actor processes from definitions
-- [ ] 5.1.4.2 Implement `send` (!) operator for asynchronous message sending with type checking
-- [ ] 5.1.4.3 Implement `call` (?) operator for synchronous request-reply with timeout handling
-- [ ] 5.1.4.4 Implement `link` and `monitor` primitives for failure detection and supervision
+- [ ] 5.1.4.1 Implement `spawn` as Process effect operation creating new actor processes from definitions
+- [ ] 5.1.4.2 Implement `send` (!) as Process effect operation for asynchronous message sending with type checking
+- [ ] 5.1.4.3 Implement `call` (?) as Process effect operation for synchronous request-reply with timeout handling
+- [ ] 5.1.4.4 Implement `link` and `monitor` as Process effect operations for failure detection and supervision
 
 ### Unit Tests - Section 5.1
 - [ ] **Unit Tests 5.1 Complete**
 - [ ] Test actor state type checking enforcing immutability and serializability
 - [ ] Test message protocol definition and pattern matching in handlers
-- [ ] Test handler function purity and correct state transitions
-- [ ] Test process primitives (spawn, send, call) with type safety
+- [ ] Test handler function type-and-effect checking including Process effect tracking
+- [ ] Test process primitives (spawn, send, call) as Process effect operations with effect tracking
+- [ ] Test actor-effect unification demonstrating actors as Process effect handlers
 
 ---
 
@@ -217,38 +218,52 @@ We test actors across multiple BEAM nodes (distributed Erlang). Spawn actors on 
 - [ ] 5.4.4.3 Test distributed failure detection using links and monitors across nodes
 - [ ] 5.4.4.4 Test network partition handling and recovery when nodes disconnect
 
+### 5.4.5 Actor-Effect System Integration
+- [ ] **Task 5.4.5 Complete**
+
+We validate the unification of actors with the Process effect system. Test that actor handlers correctly use Process effect operations, that effect tracking works in actor contexts, and that the actor model and effect system compose seamlessly. This demonstrates the key innovation: actors as effect handlers.
+
+- [ ] 5.4.5.1 Test actor handlers using Process effect operations (spawn, send, receive) with correct effect tracking
+- [ ] 5.4.5.2 Test effect composition with actors using both Process and IO effects in handlers
+- [ ] 5.4.5.3 Test actor lifecycle integration with effect runtime (handler processes, effect propagation)
+- [ ] 5.4.5.4 Test supervision as effect handling demonstrating fault tolerance through effect boundaries
+
 ---
 
 ## Success Criteria
 
 1. **Actor Syntax**: Clean functional syntax for actors compiling to OTP behaviors
-2. **State Immutability**: Type-enforced immutable state with functional updates
-3. **Supervision Trees**: Declarative supervision with all OTP restart strategies
-4. **Communication Patterns**: Synchronous and asynchronous messaging with type safety
-5. **Fault Tolerance**: Working supervision with automatic restart and recovery
-6. **Performance**: Actor overhead under 10% compared to native Erlang gen_servers
-7. **BEAM Integration**: Seamless interoperability with existing OTP applications
+2. **Actor-Effect Unification**: Actors demonstrated as handlers for the Process effect
+3. **State Immutability**: Type-enforced immutable state with functional updates
+4. **Supervision Trees**: Declarative supervision with all OTP restart strategies
+5. **Communication Patterns**: Synchronous and asynchronous messaging with type-and-effect safety
+6. **Fault Tolerance**: Working supervision with automatic restart and recovery
+7. **Performance**: Actor overhead under 10% compared to native Erlang gen_servers
+8. **BEAM Integration**: Seamless interoperability with existing OTP applications
 
 ## Provides Foundation
 
 This phase completes the proof-of-concept by demonstrating:
 - **Category Theory + BEAM**: Functional abstractions running on battle-tested infrastructure
-- **Type Safety + Concurrency**: Static types preventing common concurrency bugs
-- **Fault Tolerance**: "Let it crash" philosophy with automatic recovery
-- **Distributed Computing**: Foundation for building distributed Topos applications
-- **Production Readiness**: Real systems can be built using Topos actors
+- **Algebraic Effects + Actors**: Unifying actors as effect handlers for stateful concurrent computation
+- **Type-and-Effect Safety + Concurrency**: Static type-and-effect checking preventing common concurrency bugs
+- **Fault Tolerance**: "Let it crash" philosophy with automatic recovery through effect boundaries
+- **Distributed Computing**: Foundation for building distributed Topos applications with effect safety
+- **Production Readiness**: Real systems can be built using Topos actors and effects
+- **Phase 6**: Advanced effect features building on Process effect and actor integration
 
 ## Key Outputs
 
-- Actor definition syntax with state types and message protocols
-- Pure functional message handlers with (Message, State) -> (NewState, Reply) signature
-- Process primitives (spawn, send, call, link, monitor) with type safety
+- Actor definition syntax with state types, message protocols, and effect signatures
+- Effectful message handlers with `(Message, State) -> (NewState, Reply) / {Process}` signature
+- Process primitives (spawn, send, call, link, monitor) as Process effect operations with type-and-effect safety
+- Actor-effect unification demonstrating actors as handlers for Process effect
 - Supervision tree syntax compiling to OTP supervisors
 - All OTP restart strategies (one-for-one, one-for-all, rest-for-one)
-- Communication patterns (request-reply, fire-and-forget, selective receive)
+- Communication patterns (request-reply, fire-and-forget, selective receive) with effect tracking
 - Process registration and name-based messaging
-- Complete actor system test suite
-- Performance benchmarks validating efficiency
+- Complete actor system test suite including effect integration tests
+- Performance benchmarks validating efficiency of effect-based actors
 - Distributed actor examples demonstrating scalability
 - Integration with OTP application structure
-- Documentation of actor model usage patterns
+- Documentation of actor model usage patterns and actor-effect unification

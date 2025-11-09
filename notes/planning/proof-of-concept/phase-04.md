@@ -2,13 +2,11 @@
 
 ## Overview
 
-This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. We design the module system following ML traditions (drawing inspiration from OCaml and Standard ML semantics) while integrating smoothly with BEAM's module structure and Erlang interoperability.
+This phase implements Topos's hierarchical module system, enabling code organization across files and namespaces. Modules provide encapsulation through visibility control (private vs. exported definitions), namespace management to avoid naming conflicts, and separate compilation to support large codebases. **The module system handles effect propagation across module boundaries**, ensuring effect sets are tracked correctly in cross-module calls. We design the module system following ML traditions (drawing inspiration from OCaml and Standard ML semantics) while integrating smoothly with BEAM's module structure and Erlang interoperability.
 
-Each Topos module compiles to a BEAM module with explicit exports. The import system supports qualified imports (prefixed with module name), selective imports (choosing specific definitions), and module aliases. We implement name resolution that handles shadowing correctly, prevents circular dependencies, and provides clear error messages for unresolved names. The module system must support both
+Each Topos module compiles to a BEAM module with explicit exports. The import system supports qualified imports (prefixed with module name), selective imports (choosing specific definitions), and module aliases. **Module interfaces include effect signatures for all exported functions**, enabling type-and-effect checking across modules. We implement name resolution that handles shadowing correctly, prevents circular dependencies, and provides clear error messages for unresolved names. The module system must support both hierarchical organization (Data.List, Data.Set) and flat structure (Prelude) as needed.
 
- hierarchical organization (Data.List, Data.Set) and flat structure (Prelude) as needed.
-
-This phase runs for 2 weeks and prioritizes clean semantics and developer ergonomics. By the end, developers can organize Topos code into reusable modules, manage dependencies explicitly, and interoperate with existing BEAM libraries.
+This phase runs for **2.5 weeks** and prioritizes clean semantics and developer ergonomics. By the end, developers can organize Topos code into reusable modules, manage dependencies explicitly, and interoperate with existing BEAM libraries while maintaining effect safety across module boundaries.
 
 ---
 
@@ -30,10 +28,10 @@ Module declarations specify the module name and what it exports. Syntax: `module
 ### 4.1.2 Export System
 - [ ] **Task 4.1.2 Complete**
 
-The export system determines a module's public API. We support exporting types (with or without constructors), functions, and trait instances. Selective constructor export allows hiding internal representation—exporting type name but not constructors creates abstract types. Re-exports enable module facades that aggregate multiple modules. Export validation ensures all exported names exist and have correct kinds (type vs value).
+The export system determines a module's public API. We support exporting types (with or without constructors), functions, and trait instances. **Exported functions include effect signatures** in their type information. Selective constructor export allows hiding internal representation—exporting type name but not constructors creates abstract types. Re-exports enable module facades that aggregate multiple modules. Export validation ensures all exported names exist and have correct kinds (type vs value).
 
 - [ ] 4.1.2.1 Implement type export with constructor visibility control (all, specific, or none)
-- [ ] 4.1.2.2 Implement function export with type signature inclusion for documentation
+- [ ] 4.1.2.2 Implement function export with complete type-and-effect signatures including effect sets for documentation and type checking
 - [ ] 4.1.2.3 Implement re-export syntax allowing modules to re-export imports creating facades
 - [ ] 4.1.2.4 Implement export validation checking all exported names exist and are correctly qualified
 
@@ -128,12 +126,12 @@ Multi-module compilation requires coordinating compilation order, sharing type i
 ### 4.3.1 Interface Files
 - [ ] **Task 4.3.1 Complete**
 
-Interface files (`.tps.interface`) store a module's public API without implementation details. They contain type signatures for exported functions, definitions for exported types, and trait instances. Importing modules read interfaces to type-check cross-module references without recompiling dependencies. Interfaces enable parallel compilation and protect against internal changes breaking dependents.
+Interface files (`.tps.interface`) store a module's public API without implementation details. They contain **type-and-effect signatures** for exported functions, definitions for exported types, and trait instances. **Effect sets are included in function signatures** enabling cross-module effect checking. Importing modules read interfaces to type-check cross-module references without recompiling dependencies. Interfaces enable parallel compilation and protect against internal changes breaking dependents.
 
-- [ ] 4.3.1.1 Implement interface file format encoding type signatures, types, and exports compactly
-- [ ] 4.3.1.2 Implement interface generation extracting public API from compiled modules
-- [ ] 4.3.1.3 Implement interface loading reading interface files for imported modules
-- [ ] 4.3.1.4 Implement interface validation detecting version mismatches and incompatibilities
+- [ ] 4.3.1.1 Implement interface file format encoding type-and-effect signatures, types, and exports compactly including effect set information
+- [ ] 4.3.1.2 Implement interface generation extracting public API with effect signatures from compiled modules
+- [ ] 4.3.1.3 Implement interface loading reading interface files for imported modules and reconstructing effect information
+- [ ] 4.3.1.4 Implement interface validation detecting version mismatches, incompatibilities, and effect signature changes
 
 ### 4.3.2 Separate Compilation
 - [ ] **Task 4.3.2 Complete**
@@ -148,11 +146,11 @@ Separate compilation compiles each module independently. The compiler reads inte
 ### 4.3.3 Cross-Module References
 - [ ] **Task 4.3.3 Complete**
 
-Functions can call functions in other modules. At compile time, we verify the target function exists and has compatible type. At runtime, calls use qualified names (Module:function/arity). The code generator emits module-qualified calls for imported functions. We handle both direct module calls and calls through variables holding function references.
+Functions can call functions in other modules. At compile time, we verify the target function exists and has compatible type **and effect signature**. **Effect sets propagate across module boundaries**—calling an effectful function from another module introduces those effects into the caller's effect set. At runtime, calls use qualified names (Module:function/arity). The code generator emits module-qualified calls for imported functions. We handle both direct module calls and calls through variables holding function references.
 
 - [ ] 4.3.3.1 Implement cross-module call generation using module-qualified function names
-- [ ] 4.3.3.2 Implement type checking for cross-module calls verifying signatures match
-- [ ] 4.3.3.3 Implement function reference handling for higher-order cross-module functions
+- [ ] 4.3.3.2 Implement type-and-effect checking for cross-module calls verifying signatures match and propagating effect sets correctly
+- [ ] 4.3.3.3 Implement function reference handling for higher-order cross-module functions preserving effect information
 - [ ] 4.3.3.4 Implement hot code loading support allowing modules to upgrade independently
 
 ### 4.3.4 Standard Library Organization
@@ -167,10 +165,11 @@ The standard library organizes into hierarchical modules: Data.List, Data.Set, C
 
 ### Unit Tests - Section 4.3
 - [ ] **Unit Tests 4.3 Complete**
-- [ ] Test interface file generation and loading preserving type information correctly
-- [ ] Test incremental compilation recompiling only changed modules
-- [ ] Test cross-module function calls working correctly with type checking
-- [ ] Test standard library organization with Prelude auto-import
+- [ ] Test interface file generation and loading preserving type-and-effect information correctly
+- [ ] Test incremental compilation recompiling only changed modules including when effect signatures change
+- [ ] Test cross-module function calls working correctly with type-and-effect checking
+- [ ] Test effect propagation across module boundaries tracking effect sets correctly
+- [ ] Test standard library organization with Prelude auto-import including builtin effects
 
 ---
 
@@ -209,34 +208,46 @@ Topos modules must interoperate with Erlang code. We test calling Erlang functio
 - [ ] 4.4.3.3 Test type conversions between Topos types and Erlang terms
 - [ ] 4.4.3.4 Test mixed projects combining Topos and Erlang modules
 
+### 4.4.4 Effect System Integration Across Modules
+- [ ] **Task 4.4.4 Complete**
+
+We validate that the effect system works correctly across module boundaries. Tests verify that effect signatures propagate through imports, that cross-module calls track effects properly, and that interface files preserve effect information. This ensures effect safety is maintained in multi-module programs.
+
+- [ ] 4.4.4.1 Test cross-module effect propagation where calling effectful function from another module correctly introduces effects
+- [ ] 4.4.4.2 Test interface file preservation of effect signatures ensuring effect sets survive compilation boundaries
+- [ ] 4.4.4.3 Test effect signature mismatches catching incompatibilities when modules change effect signatures
+- [ ] 4.4.4.4 Test multi-module effectful programs with effect handlers spanning module boundaries
+
 ---
 
 ## Success Criteria
 
 1. **Module Organization**: Hierarchical module system with namespace management and visibility control
 2. **Import System**: Qualified and selective imports working correctly with name resolution
-3. **Separate Compilation**: Incremental and parallel compilation using interface files
+3. **Separate Compilation**: Incremental and parallel compilation using interface files with effect signatures
 4. **Dependency Management**: Cycle detection and topological sorting for compilation order
-5. **Interoperability**: Seamless integration with Erlang codebases
-6. **Standard Library**: Organized standard library with Prelude auto-import
+5. **Effect Propagation**: Cross-module effect tracking and interface file preservation of effect signatures
+6. **Interoperability**: Seamless integration with Erlang codebases
+7. **Standard Library**: Organized standard library with Prelude auto-import including builtin effects
 
 ## Provides Foundation
 
 This phase establishes the infrastructure for:
-- **Phase 5**: Actor model requiring module-level actor definitions and supervision
+- **Phase 5**: Actor model requiring module-level actor definitions, supervision, and effect-based message passing
+- **Phase 6**: Advanced effect features building on cross-module effect propagation
 - Future development of module functors (ML-style parameterized modules)
-- Package management and distribution of Topos libraries
-- Large-scale application development with clean module boundaries
+- Package management and distribution of Topos libraries with effect safety
+- Large-scale application development with clean module boundaries and effect tracking
 
 ## Key Outputs
 
-- Module declaration and export system with visibility control
+- Module declaration and export system with visibility control and effect signatures
 - Import system supporting qualified and selective imports
 - Name resolution with shadowing and qualified names
 - Circular dependency detection and compilation ordering
-- Interface files for separate compilation
-- Incremental and parallel compilation infrastructure
-- Cross-module type checking and call generation
-- Standard library organization with hierarchical modules
-- Comprehensive module system test suite
+- Interface files for separate compilation including type-and-effect signatures
+- Incremental and parallel compilation infrastructure with effect-aware recompilation
+- Cross-module type-and-effect checking and call generation with effect propagation
+- Standard library organization with hierarchical modules and builtin effects
+- Comprehensive module system test suite including effect system integration tests
 - Interoperability guidelines for Erlang integration

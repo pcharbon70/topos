@@ -2,11 +2,13 @@
 
 ## Overview
 
-This phase establishes the foundational compiler infrastructure for Topos, transforming source code into executable BEAM bytecode. We build the lexer for tokenization, the parser for AST generation, and the type inference engine based on Hindley-Milner with categorical extensions. The goal is to create a robust compilation pipeline that can parse basic Topos syntax (`shape` for types, `flow` for morphisms), perform type checking with support for parametric polymorphism, and generate Core Erlang code that executes on the BEAM VM.
+This phase establishes the foundational compiler infrastructure for Topos, transforming source code into executable BEAM bytecode. We build the lexer for tokenization, the parser for AST generation, the type inference engine based on Hindley-Milner with categorical extensions, and the **minimal viable algebraic effect system**. The goal is to create a robust compilation pipeline that can parse basic Topos syntax (`shape` for types, `flow` for morphisms, `effect` for side-effect declarations), perform type-and-effect checking with support for parametric polymorphism, and generate Core Erlang code that executes on the BEAM VM.
 
-By the end of this phase, we will have a working compiler that can take simple Topos programs, infer their types automatically, and produce valid `.beam` files. This establishes the technical foundation for all subsequent phases, enabling iterative development of language features while maintaining a working compilation pathway.
+By the end of this phase, we will have a working compiler that can take simple Topos programs with effects, infer their types and track their effects automatically, and produce valid `.beam` files. This establishes the technical foundation for all subsequent phases, including the effect system that makes Topos unique: category-theoretic purity meeting BEAM pragmatism through algebraic effects.
 
-This phase runs for 3 weeks and focuses on correctness over optimization, establishing clean abstractions and comprehensive testing to support future feature additions without architectural rework.
+**Effect System Scope for PoC**: This phase implements minimal viable effects with monomorphic effect tracking (no effect polymorphism), basic effect inference, process-based effect runtime, and IO/Process effects only. Full effect features (polymorphism, standard library, optimizations) are deferred to Phase 6.
+
+This phase runs for **6.5 weeks** and focuses on correctness over optimization, establishing clean abstractions and comprehensive testing to support future feature additions without architectural rework.
 
 ---
 
@@ -55,49 +57,66 @@ High-quality error messages are essential for developer experience. When syntax 
 - [ ] 1.1.4.3 Create helpful error messages with suggestions for common mistakes (e.g., missing `end`, unmatched delimiters)
 - [ ] 1.1.4.4 Add colored terminal output and code snippet formatting for error display
 
+### 1.1.5 Effect Syntax Support
+- [ ] **Task 1.1.5 Complete**
+
+Support for algebraic effects syntax including effect declarations, effect operations, and effect handlers. This extends the lexer and parser to recognize effect-specific keywords and constructs, enabling Topos's category-theoretic approach to side effects.
+
+- [ ] 1.1.5.1 Add `effect`, `operation`, `perform`, `with` keywords to lexer and extend parser with effect declaration grammar producing EffectDecl and EffectOperation AST nodes (success: parse `effect FileIO { operation read(path: String): String }`)
+- [ ] 1.1.5.2 Add perform expression grammar and AST node PerformExpr enabling effectful operation invocations (success: parse `perform FileIO.read(path)`)
+- [ ] 1.1.5.3 Add try/with handler syntax and AST nodes TryWithExpr and HandlerCase for effect handlers with pattern matching on operation names (success: parse complete handler blocks with multiple operation cases)
+- [ ] 1.1.5.4 Add effect annotation syntax using `/` operator for effect sets in type signatures and EffectAnnotation AST node (success: parse `String / {FileIO, Process}` in function signatures)
+
 ### Unit Tests - Section 1.1
 - [ ] **Unit Tests 1.1 Complete**
 - [ ] Test lexer tokenization of all keywords, operators, delimiters, and literals with edge cases
 - [ ] Test parser handling of valid Topos programs generating correct ASTs
 - [ ] Test parser error recovery with intentionally malformed input producing multiple error reports
 - [ ] Test source location tracking ensuring accurate line/column information in AST nodes
+- [ ] Test effect syntax parsing for effect declarations, perform expressions, handlers, and effect annotations
+- [ ] Test nested handler syntax and operation pattern matching with complete coverage
 
 ---
 
 ## 1.2 Core Type System
 - [ ] **Section 1.2 Complete**
 
-The type system is the heart of Topos, providing static guarantees while inferring types automatically. We implement Hindley-Milner type inference using Algorithm W, extended with support for type classes (traits), row polymorphism for extensible records, and higher-kinded types for functors. The type system ensures that well-typed programs cannot go wrong while minimizing type annotations required from programmers. Type errors must be clear and localized, pointing to the exact source of type mismatches.
+The type system is the heart of Topos, providing static guarantees while inferring types automatically. We implement Hindley-Milner type inference using Algorithm W, extended with support for type classes (traits), row polymorphism for extensible records, higher-kinded types for functors, and **algebraic effects tracking**. This becomes a **type-and-effect system** where function signatures include both their result type and the set of effects they may perform. The type system ensures that well-typed programs cannot go wrong while minimizing type annotations required from programmers. Type errors must be clear and localized, pointing to the exact source of type mismatches or unhandled effects.
+
+**Effect System for PoC**: Effect tracking is monomorphic (no effect variables or polymorphism). Effects are tracked alongside types during inference, perform operations introduce effects, and handlers resolve effects. Full effect polymorphism and advanced inference are deferred to Phase 6.
 
 ### 1.2.1 Type Representation
 - [ ] **Task 1.2.1 Complete**
 
-We define the internal representation of types, including type variables (α, β, γ), type constructors (`List`, `Maybe`, `Process`), function types (τ₁ -> τ₂), record types, and variant types. Type schemes represent polymorphic types with forall quantification. We implement type equality checking, substitution operations, and pretty-printing for type expressions used in error messages.
+We define the internal representation of types, including type variables (α, β, γ), type constructors (`List`, `Maybe`, `Process`), function types (τ₁ -> τ₂), record types, and variant types. Type schemes represent polymorphic types with forall quantification. **We extend this with effect sets** to create a type-and-effect system where function types include effect annotations. We implement type equality checking, substitution operations, and pretty-printing for type expressions used in error messages.
 
 - [ ] 1.2.1.1 Define type term representation with type variables, constructors, functions, records, and variants
 - [ ] 1.2.1.2 Implement type substitution operations for unification and instantiation
 - [ ] 1.2.1.3 Implement type scheme representation for polymorphic types with quantified variables
 - [ ] 1.2.1.4 Implement type pretty-printing for human-readable error messages and REPL output
+- [ ] 1.2.1.5 Define EffectSet type as `{effect_set, [EffectName]}` and extend function types to `{fun_type, Param, Return, EffectSet}` where empty set `{}` represents pure functions (success: can represent and manipulate type-and-effect signatures)
 
 ### 1.2.2 Algorithm W Implementation
 - [ ] **Task 1.2.2 Complete**
 
-Algorithm W is the standard approach to Hindley-Milner type inference, combining constraint generation with unification. We traverse the AST, generating type constraints, then solve them using Robinson's unification algorithm with occurs check. The algorithm infers the most general (principal) type for each expression. We handle let-polymorphism correctly, allowing generalization only at let bindings.
+Algorithm W is the standard approach to Hindley-Milner type inference, combining constraint generation with unification. We traverse the AST, generating type constraints, then solve them using Robinson's unification algorithm with occurs check. The algorithm infers the most general (principal) type for each expression. We handle let-polymorphism correctly, allowing generalization only at let bindings. **We extend Algorithm W to track effects alongside types**, propagating effect sets through the AST.
 
 - [ ] 1.2.2.1 Implement constraint generation traversing AST and collecting type equations
 - [ ] 1.2.2.2 Implement unification algorithm with occurs check preventing infinite types
 - [ ] 1.2.2.3 Implement type generalization for let bindings introducing forall quantifiers
 - [ ] 1.2.2.4 Implement type instantiation for polymorphic function applications
+- [ ] 1.2.2.5 Track effect annotations during type inference where perform operations introduce effects into function signatures, function application propagates effect sets via union, and PoC limitation allows only monomorphic effects without effect variables (defer polymorphism to Phase 6)
 
 ### 1.2.3 Constraint Solving
 - [ ] **Task 1.2.3 Complete**
 
-Beyond simple unification, we need constraint solving for type classes (traits like `Functor`, `Monad`, `Ord`). When a function uses operations from a trait, we generate trait constraints that must be satisfied. Constraint solving searches for trait instances and resolves ambiguous type variables. We implement instance resolution with backtracking and check for coherence (no overlapping instances).
+Beyond simple unification, we need constraint solving for type classes (traits like `Functor`, `Monad`, `Ord`). When a function uses operations from a trait, we generate trait constraints that must be satisfied. Constraint solving searches for trait instances and resolves ambiguous type variables. We implement instance resolution with backtracking and check for coherence (no overlapping instances). **We also add effect handler checking** to verify that try/with blocks correctly handle declared effects.
 
 - [ ] 1.2.3.1 Implement trait constraint representation and generation from trait-polymorphic functions
 - [ ] 1.2.3.2 Implement instance resolution searching trait instances and unifying with constraints
 - [ ] 1.2.3.3 Implement constraint simplification reducing complex constraints to canonical form
 - [ ] 1.2.3.4 Implement coherence checking ensuring unique instance resolution without ambiguity
+- [ ] 1.2.3.5 Verify effect handlers match declared effect operations, check handler exhaustiveness ensuring all operations covered, and resolve effects when handled by removing them from effect set (success: type-check simple handler blocks correctly)
 
 ### 1.2.4 Error Messages
 - [ ] **Task 1.2.4 Complete**
@@ -109,12 +128,25 @@ Type errors are among the most common errors developers encounter. We provide cl
 - [ ] 1.2.4.3 Implement error explanation providing context for common type errors with suggestions
 - [ ] 1.2.4.4 Implement error recovery attempting to continue type checking after errors to report multiple issues
 
+### 1.2.5 Effect-Specific Error Messages
+- [ ] **Task 1.2.5 Complete**
+
+Effect system errors require specialized messages to help developers understand which effects are unhandled, which handler operations are missing or mismatched, and where effects were introduced. We provide clear explanations of effect requirements and handler mismatches.
+
+- [ ] 1.2.5.1 Implement unhandled effect errors showing "Unhandled effect E in function f" with perform site location where effect was introduced
+- [ ] 1.2.5.2 Implement handler mismatch errors for incorrect arities ("Handler for E.operation expects N arguments, got M") and missing operations ("Missing handler for operation E.op")
+- [ ] 1.2.5.3 Implement effect annotation errors for mismatched effect sets between declared and inferred effects
+- [ ] 1.2.5.4 Implement effect context explanation showing effect propagation chain from perform through callers
+
 ### Unit Tests - Section 1.2
 - [ ] **Unit Tests 1.2 Complete**
 - [ ] Test type inference for simple expressions inferring correct types without annotations
 - [ ] Test type inference for polymorphic functions with proper generalization and instantiation
 - [ ] Test type checking catching type errors with clear error messages
 - [ ] Test trait constraint solving resolving instances correctly and detecting missing instances
+- [ ] Test effect tracking in type inference correctly propagating effect sets through expressions
+- [ ] Test effect handler checking detecting unhandled effects and missing handler operations
+- [ ] Test effect error messages for unhandled effects, handler mismatches, and effect annotation errors
 
 ---
 
@@ -126,12 +158,13 @@ After parsing and type checking, we generate Core Erlang code that executes on t
 ### 1.3.1 Expression Translation
 - [ ] **Task 1.3.1 Complete**
 
-We translate Topos expressions to equivalent Core Erlang expressions. Function applications become Core Erlang calls, let bindings become Core Erlang let expressions, and composition operators become function call chains. We must handle tail-call optimization correctly, ensuring recursive functions don't overflow the stack. Literals translate directly, and variables map to Core Erlang variables.
+We translate Topos expressions to equivalent Core Erlang expressions. Function applications become Core Erlang calls, let bindings become Core Erlang let expressions, and composition operators become function call chains. **Effect operations (perform and try/with) translate to process-based message passing.** We must handle tail-call optimization correctly, ensuring recursive functions don't overflow the stack. Literals translate directly, and variables map to Core Erlang variables.
 
 - [ ] 1.3.1.1 Implement translation of function applications to Core Erlang call expressions
 - [ ] 1.3.1.2 Implement translation of let bindings to Core Erlang let expressions with proper scoping
 - [ ] 1.3.1.3 Implement translation of composition operators (|>) to nested function calls
 - [ ] 1.3.1.4 Implement translation of literals (numbers, strings, atoms) to Core Erlang constants
+- [ ] 1.3.1.5 Implement translation of perform operations to process send/receive messages and try/with handlers to process spawning and message handling (success: generate Core Erlang that executes effects via BEAM processes)
 
 ### 1.3.2 Pattern Compilation
 - [ ] **Task 1.3.2 Complete**
@@ -163,12 +196,25 @@ Each Topos module compiles to a BEAM module with exports, imports, and module at
 - [ ] 1.3.4.3 Implement export list generation including only public functions with correct arities
 - [ ] 1.3.4.4 Implement Core Erlang file output writing valid .core files that erlc can compile
 
+### 1.3.5 Effect Runtime System
+- [ ] **Task 1.3.5 Complete**
+
+The effect runtime implements process-based effect handlers leveraging BEAM's lightweight processes. Each try/with handler spawns a handler process that receives perform messages, executes handler operations, and sends results back. This provides true effect isolation and leverages BEAM's strengths in concurrency and message passing. **PoC implements minimal runtime with IO and Process effects only.**
+
+- [ ] 1.3.5.1 Implement handler process spawning where try/with blocks spawn handler process with operation implementations and register for effect operations
+- [ ] 1.3.5.2 Implement perform operation compilation translating perform to send message to handler process and receive result with timeout handling
+- [ ] 1.3.5.3 Implement effect message protocol using tagged tuples `{perform, EffectName, Operation, Args, ReplyPid}` and `{effect_result, Value}` for bidirectional communication
+- [ ] 1.3.5.4 Implement builtin IO effect handler providing readFile, writeFile, print operations as baseline demonstrating process-based effect handling (success: can execute simple programs with IO effects)
+
 ### Unit Tests - Section 1.3
 - [ ] **Unit Tests 1.3 Complete**
 - [ ] Test expression translation generating correct Core Erlang for all expression forms
 - [ ] Test pattern compilation producing optimal decision trees with exhaustiveness checking
 - [ ] Test type erasure preserving semantics while removing all type information
 - [ ] Test module generation producing valid .core files that compile to working .beam modules
+- [ ] Test effect runtime system spawning handler processes and routing perform messages correctly
+- [ ] Test builtin IO effect handler executing file operations and returning results via message passing
+- [ ] Test effect translation generating correct Core Erlang for perform operations and try/with handlers
 
 ---
 
@@ -207,30 +253,44 @@ We test that errors at each compiler stage are caught and reported appropriately
 - [ ] 1.4.3.3 Test exhaustiveness warnings for non-exhaustive pattern matches
 - [ ] 1.4.3.4 Test error recovery allowing compiler to report multiple errors in single pass
 
+### 1.4.4 Effect System Integration
+- [ ] **Task 1.4.4 Complete**
+
+End-to-end testing of the algebraic effect system from parsing through execution. We validate that effect declarations, perform operations, and try/with handlers work cohesively, that effect tracking catches unhandled effects at compile time, and that the process-based runtime correctly executes effectful programs.
+
+- [ ] 1.4.4.1 Test compilation and execution of simple effectful programs using IO effect (file read/write operations) producing correct results
+- [ ] 1.4.4.2 Test effect type checking catching unhandled effects with clear error messages pointing to perform sites
+- [ ] 1.4.4.3 Test handler exhaustiveness checking detecting missing operation handlers and reporting them clearly
+- [ ] 1.4.4.4 Test process-based effect runtime spawning handlers, routing messages, and returning results correctly without process leaks
+
 ---
 
 ## Success Criteria
 
-1. **Lexer and Parser**: Successfully parse valid Topos programs into ASTs with error recovery for malformed input
-2. **Type Inference**: Correctly infer types for polymorphic functions and detect type errors with clear messages
-3. **Code Generation**: Generate valid Core Erlang that compiles to working .beam modules
-4. **Integration**: Compile and run example programs (factorial, list processing) producing correct outputs
-5. **Error Messages**: Provide helpful, localized error messages for syntax and type errors
-6. **Test Coverage**: 85% test coverage with comprehensive unit and integration tests
+1. **Lexer and Parser**: Successfully parse valid Topos programs including effect syntax into ASTs with error recovery for malformed input
+2. **Type-and-Effect Inference**: Correctly infer types and track effects for polymorphic functions, detecting both type errors and unhandled effects with clear messages
+3. **Code Generation**: Generate valid Core Erlang that compiles to working .beam modules including process-based effect runtime
+4. **Integration**: Compile and run example programs (factorial, list processing, simple IO effects) producing correct outputs
+5. **Effect System**: Parse effect declarations, track effects through inference, and execute effectful programs via process-based handlers
+6. **Error Messages**: Provide helpful, localized error messages for syntax, type, and effect errors
+7. **Test Coverage**: 85% test coverage with comprehensive unit and integration tests including effect system
 
 ## Provides Foundation
 
 This phase establishes the infrastructure for:
-- **Phase 2**: REPL and standard library requiring working compilation and type inference
+- **Phase 2**: REPL and standard library requiring working compilation, type-and-effect inference, and effect execution
 - **Phase 3**: Advanced pattern matching building on pattern compilation infrastructure
-- **Phase 4**: Module system extending import/export mechanisms
-- **Phase 5**: Actor model integration compiling actor syntax to OTP behaviors
+- **Phase 4**: Module system extending import/export mechanisms and effect propagation across modules
+- **Phase 5**: Actor model integration leveraging effect runtime infrastructure and compiling actor syntax to OTP behaviors
+- **Phase 6**: Advanced effect features building on minimal viable effect system (polymorphism, optimization, expanded standard library)
 
 ## Key Outputs
 
-- Lexer and parser producing structured ASTs from Topos source code
-- Type inference engine supporting Hindley-Milner with traits and row polymorphism
-- Core Erlang code generator producing valid .beam modules
-- Comprehensive test suite covering all compiler phases
-- Error reporting infrastructure with source locations and helpful messages
-- Working compilation pipeline from source to executable bytecode
+- Lexer and parser producing structured ASTs from Topos source code including effect syntax
+- Type-and-effect inference engine supporting Hindley-Milner with traits, row polymorphism, and monomorphic effect tracking
+- Process-based effect runtime leveraging BEAM processes for effect handler execution
+- Core Erlang code generator producing valid .beam modules with effect compilation
+- Builtin IO effect handler demonstrating effect system capabilities
+- Comprehensive test suite covering all compiler phases including effect system
+- Error reporting infrastructure with source locations and helpful messages for type and effect errors
+- Working compilation pipeline from source to executable bytecode with effect support

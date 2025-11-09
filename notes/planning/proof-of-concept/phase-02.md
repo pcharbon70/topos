@@ -2,11 +2,11 @@
 
 ## Overview
 
-This phase creates an interactive development environment through a Read-Eval-Print Loop (REPL) and establishes the standard prelude library with essential types and functions. The REPL enables developers to experiment with Topos interactively, evaluate expressions, inspect types, and load modules without full compilation cycles. This rapid feedback loop is crucial for language exploration and debugging.
+This phase creates an interactive development environment through a Read-Eval-Print Loop (REPL) and establishes the standard prelude library with essential types and functions. The REPL enables developers to experiment with Topos interactively, evaluate expressions, inspect types and effects, and load modules without full compilation cycles. **The REPL fully supports the algebraic effect system from Phase 1**, allowing developers to execute effectful programs interactively and see effect sets in type signatures. This rapid feedback loop is crucial for language exploration and debugging.
 
-The standard prelude provides foundational category-theoretic abstractions (functors, monads, applicatives) and basic data structures (lists, maybes, results) that all Topos programs build upon. We implement these using the compilation infrastructure from Phase 1, creating the first real Topos library code. The prelude demonstrates how category theory concepts translate to practical programming patterns, serving as both a utility library and a reference implementation.
+The standard prelude provides foundational category-theoretic abstractions (functors, monads, applicatives) and basic data structures (lists, maybes, results) that all Topos programs build upon. **It also includes builtin effect definitions for IO and Process operations**, establishing the standard effect library. We implement these using the compilation infrastructure from Phase 1, creating the first real Topos library code. The prelude demonstrates how category theory concepts and algebraic effects translate to practical programming patterns, serving as both a utility library and a reference implementation.
 
-This phase runs for 2 weeks and prioritizes developer experience—making the REPL responsive, error messages helpful, and the prelude API intuitive. By the end, developers can write and test Topos code interactively, significantly accelerating development velocity.
+This phase runs for **3.5 weeks** and prioritizes developer experience—making the REPL responsive and effect-aware, error messages helpful, and the prelude API intuitive. By the end, developers can write and test Topos code interactively including effectful programs, significantly accelerating development velocity.
 
 ---
 
@@ -38,12 +38,13 @@ Special commands provide introspection and control. `:type expr` shows the infer
 ### 2.1.3 Pretty Printing
 - [ ] **Task 2.1.3 Complete**
 
-Results must display clearly and readably. We format values according to their types: lists show as `[1, 2, 3]`, records as `{x: 1.0, y: 2.0}`, algebraic data types as `Some 42` or `None`. Types display using mathematical notation where appropriate (`∀a. a -> a` for polymorphic identity). We use colors to highlight different syntactic categories (types in blue, values in green, errors in red) and limit output length for large values.
+Results must display clearly and readably. We format values according to their types: lists show as `[1, 2, 3]`, records as `{x: 1.0, y: 2.0}`, algebraic data types as `Some 42` or `None`. **Types display with effect annotations** showing function signatures as `String -> Config / {FileIO}` for effectful functions. Types display using mathematical notation where appropriate (`∀a. a -> a` for polymorphic identity). We use colors to highlight different syntactic categories (types in blue, values in green, effects in yellow, errors in red) and limit output length for large values.
 
 - [ ] 2.1.3.1 Implement value pretty-printing rendering values in human-readable format matching source syntax
 - [ ] 2.1.3.2 Implement type pretty-printing formatting types with proper precedence and forall quantifiers
 - [ ] 2.1.3.3 Implement syntax highlighting using ANSI colors for types, values, and errors
 - [ ] 2.1.3.4 Implement output truncation for large values with expansion on request
+- [ ] 2.1.3.5 Implement effect set pretty-printing displaying effect annotations in type signatures as `/ {Effect1, Effect2}` with empty set `/ {}` elided for pure functions
 
 ### 2.1.4 History and Completion
 - [ ] **Task 2.1.4 Complete**
@@ -55,12 +56,25 @@ Command history allows users to recall previous inputs using up/down arrows. We 
 - [ ] 2.1.4.3 Implement tab completion for keywords, built-in functions, and defined identifiers
 - [ ] 2.1.4.4 Implement context-aware completion suggesting appropriate completions based on parse context
 
+### 2.1.5 Effect Execution in REPL
+- [ ] **Task 2.1.5 Complete**
+
+The REPL executes effectful expressions using the process-based effect runtime from Phase 1. When users evaluate expressions with effects like `perform IO.print("Hello")`, the REPL spawns handler processes, routes effect operations, and displays results. **Effect handlers are automatically provided for builtin effects** (IO, Process) so developers can experiment with effects interactively without manual handler setup. The REPL shows which effects are being performed and handles effect errors gracefully.
+
+- [ ] 2.1.5.1 Integrate effect runtime into REPL evaluation pipeline spawning handler processes for effectful expressions
+- [ ] 2.1.5.2 Provide default handlers for builtin effects (IO, Process) automatically wrapping REPL evaluation in try/with blocks
+- [ ] 2.1.5.3 Display effect execution feedback showing which effects are being performed during evaluation (optional verbose mode)
+- [ ] 2.1.5.4 Handle effect runtime errors gracefully catching handler failures and displaying error messages without crashing REPL
+
 ### Unit Tests - Section 2.1
 - [ ] **Unit Tests 2.1 Complete**
 - [ ] Test REPL evaluation of simple expressions returning correct values and types
 - [ ] Test REPL definition accumulation with functions remaining available across inputs
 - [ ] Test REPL command execution (`:type`, `:load`, `:browse`) with correct behavior
 - [ ] Test REPL error handling recovering from syntax and type errors without crashing
+- [ ] Test REPL effect execution evaluating effectful expressions with automatic handler provision
+- [ ] Test REPL effect pretty-printing displaying effect sets in type signatures correctly
+- [ ] Test REPL `:type` command showing effect annotations for effectful functions
 
 ---
 
@@ -109,12 +123,25 @@ Beyond core operations, the prelude includes convenient helpers that simplify co
 - [ ] 2.2.4.3 Implement `head : List a -> Maybe a` and `tail : List a -> Maybe (List a)` safe list access
 - [ ] 2.2.4.4 Implement `length : List a -> Natural`, `reverse : List a -> List a`, and `take : Natural -> List a -> List a`
 
+### 2.2.5 Builtin Effect Definitions
+- [ ] **Task 2.2.5 Complete**
+
+The prelude defines standard effects that programs use for I/O and process interaction. **IO effect** provides file operations (read, write) and console output (print, println). **Process effect** enables process spawning and message passing for actor-style concurrency. These effects are implemented using the process-based runtime from Phase 1, with handlers that invoke actual BEAM operations. The prelude makes these effects universally available.
+
+- [ ] 2.2.5.1 Define IO effect with operations `readFile : String -> String`, `writeFile : String -> String -> Unit`, `print : String -> Unit`, and `println : String -> Unit`
+- [ ] 2.2.5.2 Define Process effect with operations `spawn : Flow -> ProcessId`, `send : ProcessId -> Message -> Unit`, and `receive : Message` for actor-style concurrency
+- [ ] 2.2.5.3 Implement builtin IO effect handler using Erlang file module and io module for actual file and console operations
+- [ ] 2.2.5.4 Implement builtin Process effect handler using Erlang spawn, send (!) and receive for actual process operations
+
 ### Unit Tests - Section 2.2
 - [ ] **Unit Tests 2.2 Complete**
 - [ ] Test core type construction and pattern matching for Bool, Maybe, Result, and List
 - [ ] Test Functor, Applicative, and Monad instances obeying categorical laws
 - [ ] Test list operations (map, filter, fold) producing correct results on various inputs
 - [ ] Test helper functions with edge cases (empty lists, identity elements, composition)
+- [ ] Test builtin effect definitions (IO, Process) with correct operation signatures and effect tracking
+- [ ] Test builtin effect handlers executing actual I/O operations and process operations correctly
+- [ ] Test effect handler integration with REPL and compilation pipeline
 
 ---
 
@@ -153,32 +180,46 @@ We develop small but complete programs interactively in the REPL, testing realis
 - [ ] 2.3.3.3 Implement and test simple expression evaluator using Result for error handling
 - [ ] 2.3.3.4 Implement and test tree traversal functions using Maybe for safe navigation
 
+### 2.3.4 Effect System Integration in REPL
+- [ ] **Task 2.3.4 Complete**
+
+We validate that the REPL correctly executes effectful programs using builtin effects from the prelude. Tests verify that IO operations execute properly, effect sets display correctly in type signatures, and the REPL handles effect errors gracefully. This ensures the effect system is fully usable in interactive development.
+
+- [ ] 2.3.4.1 Test interactive effectful programs using IO effect for file reading and console output in REPL
+- [ ] 2.3.4.2 Test effect type inspection with `:type` command showing correct effect sets for effectful functions
+- [ ] 2.3.4.3 Test effect error handling in REPL catching unhandled effects and handler errors with clear messages
+- [ ] 2.3.4.4 Test Process effect in REPL spawning processes and sending messages interactively
+
 ---
 
 ## Success Criteria
 
-1. **Functional REPL**: Interactive environment supporting expression evaluation, definitions, and commands
-2. **Type Inspection**: `:type` command correctly showing inferred types for all expressions
+1. **Functional REPL**: Interactive environment supporting expression evaluation, definitions, commands, and effect execution
+2. **Type-and-Effect Inspection**: `:type` command correctly showing inferred types and effect sets for all expressions
 3. **Module Loading**: `:load` command compiling and importing external modules successfully
-4. **Complete Prelude**: Standard library with Bool, List, Maybe, Result, and Functor/Monad traits
+4. **Complete Prelude**: Standard library with Bool, List, Maybe, Result, Functor/Monad traits, and builtin effects (IO, Process)
 5. **Law Compliance**: All typeclass instances satisfying categorical laws (verified through property tests)
-6. **Developer Experience**: Smooth REPL interaction with history, completion, and helpful error messages
+6. **Effect System**: Builtin IO and Process effects with working handlers executing actual operations
+7. **Developer Experience**: Smooth REPL interaction with history, completion, effect execution, and helpful error messages
 
 ## Provides Foundation
 
 This phase establishes the infrastructure for:
-- **Phase 3**: Pattern matching testing benefiting from REPL for rapid iteration
-- **Phase 4**: Module system requiring prelude as base library and testing imports in REPL
-- **Phase 5**: Actor model needing standard types (Maybe, Result) for message protocols
-- All future development relying on prelude abstractions and REPL-based testing
+- **Phase 3**: Pattern matching testing benefiting from REPL for rapid iteration including effectful patterns
+- **Phase 4**: Module system requiring prelude as base library and testing imports/effects in REPL
+- **Phase 5**: Actor model leveraging Process effect and needing standard types (Maybe, Result) for message protocols
+- **Phase 6**: Advanced effect features building on builtin effects established here
+- All future development relying on prelude abstractions, builtin effects, and REPL-based testing
 
 ## Key Outputs
 
-- Working REPL with expression evaluation, definitions, and introspection commands
+- Working REPL with expression evaluation, definitions, introspection commands, and effect execution
 - Command system supporting `:type`, `:load`, `:browse`, `:reload`, and `:help`
-- Pretty printing for values and types with syntax highlighting
+- Pretty printing for values, types, and effect sets with syntax highlighting
+- Effect-aware REPL with automatic handler provision for builtin effects
 - Command history and tab completion for improved user experience
 - Standard prelude with core types (Bool, List, Maybe, Result)
 - Functor, Applicative, and Monad traits with lawful instances
 - Essential list operations and helper functions
-- Comprehensive test suite covering REPL functionality and prelude correctness
+- Builtin IO and Process effect definitions with working handlers
+- Comprehensive test suite covering REPL functionality, prelude correctness, and effect system integration
