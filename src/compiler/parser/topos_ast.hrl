@@ -37,7 +37,7 @@
 %% Declarations
 %%====================================================================
 
--type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{}.
+-type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} | #effect_decl{}.
 
 %% Shape declaration (algebraic data type)
 -record(shape_decl, {
@@ -77,6 +77,19 @@
     location :: location()
 }).
 
+%% Effect declaration (algebraic effect interface)
+-record(effect_decl, {
+    name :: atom(),
+    operations :: [#effect_operation{}],
+    location :: location()
+}).
+
+-record(effect_operation, {
+    name :: atom(),
+    type_sig :: type_expr() | undefined,
+    location :: location()
+}).
+
 %%====================================================================
 %% Expressions
 %%====================================================================
@@ -84,7 +97,7 @@
 -type expr() :: #literal{} | #var{} | #app{} | #lambda{} | #let_expr{} |
                 #match_expr{} | #if_expr{} | #do_expr{} | #record_expr{} |
                 #record_access{} | #binary_op{} | #unary_op{} | #list_expr{} |
-                #tuple_expr{}.
+                #tuple_expr{} | #perform_expr{} | #try_with_expr{}.
 
 %% Literal values
 -record(literal, {
@@ -190,6 +203,34 @@
     location :: location()
 }).
 
+%% Perform expression (invoke effect operation)
+-record(perform_expr, {
+    effect :: atom(),
+    operation :: atom(),
+    args :: [expr()],
+    location :: location()
+}).
+
+%% Try-with expression (effect handler)
+-record(try_with_expr, {
+    body :: expr(),
+    handlers :: [#handler_clause{}],
+    location :: location()
+}).
+
+-record(handler_clause, {
+    effect :: atom(),
+    operations :: [#operation_case{}],
+    location :: location()
+}).
+
+-record(operation_case, {
+    operation :: atom(),
+    params :: [pattern()],
+    body :: expr(),
+    location :: location()
+}).
+
 %%====================================================================
 %% Patterns
 %%====================================================================
@@ -254,7 +295,7 @@
 
 -type type_expr() :: #type_var{} | #type_con{} | #type_app{} |
                      #type_fun{} | #type_record{} | #type_forall{} |
-                     #type_tuple{}.
+                     #type_tuple{} | #type_effect{}.
 
 %% Type variable
 -record(type_var, {
@@ -299,5 +340,12 @@
 %% Tuple type
 -record(type_tuple, {
     elements :: [type_expr()],
+    location :: location()
+}).
+
+%% Effect annotation (Type / {Effect1, Effect2})
+-record(type_effect, {
+    type :: type_expr(),
+    effects :: [atom()],
     location :: location()
 }).

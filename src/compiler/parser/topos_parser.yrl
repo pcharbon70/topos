@@ -19,8 +19,9 @@ Header
 Nonterminals
   topos_module
   declarations declaration
-  shape_decl flow_decl
+  shape_decl flow_decl effect_decl
   type_params type_params_nonempty constructors constructor constructor_fields
+  effect_operations effect_operation
   flow_signature flow_clauses flow_clause
   match_clauses match_clause
   pattern_list pattern_list_nonempty pattern tuple_pattern_list
@@ -29,6 +30,9 @@ Nonterminals
   record_fields record_field
   record_pattern_fields record_pattern_field
   literal
+  perform_expr try_with_expr
+  handler_clauses handler_clause operation_cases operation_case
+  effect_list effect_list_nonempty
   type_expr type_expr_primary type_expr_app
   type_list type_record_fields type_record_field
   .
@@ -44,6 +48,7 @@ Terminals
   module import export exports as qualified private
   trait instance forall
   actor supervisor
+  effect operation perform 'try' with
 
   %% Operators
   pipe_right bind arrow double_arrow concat
@@ -99,6 +104,7 @@ declarations -> declaration declarations :
 
 declaration -> shape_decl : '$1'.
 declaration -> flow_decl : '$1'.
+declaration -> effect_decl : '$1'.
 
 %%----------------------------------------------------------------------------
 %% Shape Declarations (Algebraic Data Types)
@@ -143,6 +149,33 @@ constructor_fields -> type_expr_primary :
     ['$1'].
 constructor_fields -> type_expr_primary constructor_fields :
     ['$1' | '$2'].
+
+%%----------------------------------------------------------------------------
+%% Effect Declarations (Algebraic Effects)
+%%----------------------------------------------------------------------------
+
+effect_decl -> effect upper_ident effect_operations 'end' :
+    {effect_decl,
+        extract_atom('$2'),
+        '$3',
+        extract_location('$1')}.
+
+effect_operations -> '$empty' :
+    [].
+effect_operations -> effect_operation effect_operations :
+    ['$1' | '$2'].
+
+effect_operation -> operation lower_ident :
+    {effect_operation,
+        extract_atom('$2'),
+        undefined,
+        extract_location('$1')}.
+
+effect_operation -> operation lower_ident colon type_expr :
+    {effect_operation,
+        extract_atom('$2'),
+        '$4',
+        extract_location('$1')}.
 
 %%----------------------------------------------------------------------------
 %% Flow Declarations (Function Definitions)
@@ -391,6 +424,10 @@ expr_primary -> 'let' lower_ident equals expr 'in' expr :
 expr_primary -> 'if' expr 'then' expr 'else' expr :
     {if_expr, '$2', '$4', '$6', extract_location('$1')}.
 
+expr_primary -> perform_expr : '$1'.
+
+expr_primary -> try_with_expr : '$1'.
+
 expr_primary -> lbracket rbracket :
     {list_expr, [], extract_location('$1')}.
 
@@ -432,6 +469,71 @@ literal -> string :
     {literal, extract_value('$1'), string, extract_location('$1')}.
 
 %%----------------------------------------------------------------------------
+%% Effect Expressions
+%%----------------------------------------------------------------------------
+
+%% Perform expression: perform Effect.operation(args)
+perform_expr -> perform upper_ident dot lower_ident lparen rparen :
+    {perform_expr,
+        extract_atom('$2'),
+        extract_atom('$4'),
+        [],
+        extract_location('$1')}.
+
+perform_expr -> perform upper_ident dot lower_ident lparen expr_list rparen :
+    {perform_expr,
+        extract_atom('$2'),
+        extract_atom('$4'),
+        '$6',
+        extract_location('$1')}.
+
+perform_expr -> perform upper_ident dot lower_ident :
+    {perform_expr,
+        extract_atom('$2'),
+        extract_atom('$4'),
+        [],
+        extract_location('$1')}.
+
+%% Try-with expression: try { expr } with handlers end
+try_with_expr -> 'try' expr with handler_clauses 'end' :
+    {try_with_expr,
+        '$2',
+        '$4',
+        extract_location('$1')}.
+
+%% Handler clauses: Effect { operation cases }
+handler_clauses -> handler_clause :
+    ['$1'].
+handler_clauses -> handler_clause handler_clauses :
+    ['$1' | '$2'].
+
+handler_clause -> upper_ident lbrace operation_cases rbrace :
+    {handler_clause,
+        extract_atom('$1'),
+        '$3',
+        extract_location('$1')}.
+
+%% Operation cases: operation(params) -> expr
+operation_cases -> operation_case :
+    ['$1'].
+operation_cases -> operation_case operation_cases :
+    ['$1' | '$2'].
+
+operation_case -> lower_ident lparen pattern_list rparen arrow expr :
+    {operation_case,
+        extract_atom('$1'),
+        '$3',
+        '$6',
+        extract_location('$1')}.
+
+operation_case -> lower_ident arrow expr :
+    {operation_case,
+        extract_atom('$1'),
+        [],
+        '$3',
+        extract_location('$1')}.
+
+%%----------------------------------------------------------------------------
 %% Type Expressions
 %%----------------------------------------------------------------------------
 
@@ -440,6 +542,9 @@ type_expr -> type_expr arrow type_expr :
 
 type_expr -> forall type_params dot type_expr :
     {type_forall, '$2', '$4', extract_location('$1')}.
+
+type_expr -> type_expr_app slash lbrace effect_list_nonempty rbrace :
+    {type_effect, '$1', '$4', extract_location('$2')}.
 
 type_expr -> type_expr_app : '$1'.
 
@@ -485,6 +590,17 @@ type_record_fields -> type_record_field comma type_record_fields :
 
 type_record_field -> lower_ident colon type_expr :
     {extract_atom('$1'), '$3'}.
+
+%% Effect lists (for effect annotations)
+effect_list -> '$empty' :
+    [].
+effect_list -> effect_list_nonempty :
+    '$1'.
+
+effect_list_nonempty -> upper_ident :
+    [extract_atom('$1')].
+effect_list_nonempty -> upper_ident comma effect_list_nonempty :
+    [extract_atom('$1') | '$3'].
 
 %%============================================================================
 %% Erlang Code - Helper Functions
@@ -539,6 +655,13 @@ extract_location({record_expr, _Fields, _Base, Loc}) -> Loc;
 extract_location({shape_decl, _Name, _Params, _Constructors, _Traits, Loc}) -> Loc;
 extract_location({constructor, _Name, _Fields, Loc}) -> Loc;
 extract_location({flow_decl, _Name, _Type, _Clauses, Loc}) -> Loc;
+extract_location({effect_decl, _Name, _Operations, Loc}) -> Loc;
+extract_location({effect_operation, _Name, _Type, Loc}) -> Loc;
+extract_location({perform_expr, _Effect, _Operation, _Args, Loc}) -> Loc;
+extract_location({try_with_expr, _Body, _Handlers, Loc}) -> Loc;
+extract_location({handler_clause, _Effect, _Operations, Loc}) -> Loc;
+extract_location({operation_case, _Operation, _Params, _Body, Loc}) -> Loc;
+extract_location({type_effect, _Type, _Effects, Loc}) -> Loc;
 extract_location(Tuple) when is_tuple(Tuple) ->
     %% Generic case: location is usually the last element
     Loc = element(tuple_size(Tuple), Tuple),
