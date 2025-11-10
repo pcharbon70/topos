@@ -254,3 +254,112 @@ format_error_large_line_number_test() ->
     Err = topos_error:new_error('E001', "Error", {99999, 1}, "test.topos"),
     Result = lists:flatten(topos_error_formatter:format_error(Err)),
     ?assert(string:find(Result, "99999") /= nomatch).
+
+%%====================================================================
+%% Security - ANSI Injection Prevention Tests
+%%====================================================================
+
+sanitize_ansi_simple_test() ->
+    Input = "normal text",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("normal text", Result).
+
+sanitize_ansi_red_escape_test() ->
+    % Test that red ANSI code is stripped
+    Input = "\e[31mred text\e[0m",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("red text", Result).
+
+sanitize_ansi_bold_escape_test() ->
+    % Test that bold ANSI code is stripped
+    Input = "\e[1mbold\e[0m text",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("bold text", Result).
+
+sanitize_ansi_multiple_escapes_test() ->
+    % Test multiple ANSI codes in one string
+    Input = "\e[31mred\e[0m and \e[33myellow\e[0m",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("red and yellow", Result).
+
+sanitize_ansi_malicious_clear_screen_test() ->
+    % Test that clear screen command is stripped (security)
+    Input = "Before\e[2JAfter",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("BeforeAfter", Result).
+
+sanitize_ansi_malicious_cursor_move_test() ->
+    % Test that cursor movement is stripped (security)
+    Input = "Text\e[5;10Hhere",
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("Texthere", Result).
+
+sanitize_ansi_binary_input_test() ->
+    % Test binary input handling
+    Input = <<"text with \e[31mcolor\e[0m">>,
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("text with color", Result).
+
+sanitize_ansi_iolist_input_test() ->
+    % Test iolist input handling
+    Input = ["text ", "with ", "\e[31m", "color", "\e[0m"],
+    Result = topos_error_formatter:sanitize_ansi(Input),
+    ?assertEqual("text with color", Result).
+
+format_error_ansi_injection_in_message_test() ->
+    % Test that malicious ANSI codes in error message are stripped
+    topos_error_formatter:set_color_mode(never),
+    MaliciousMsg = "Error: \e[31mInjected Red\e[0m text",
+    Err = topos_error:new_error('E001', MaliciousMsg, {1, 1}, "test.topos"),
+    Result = lists:flatten(topos_error_formatter:format_error(Err)),
+    % Should not contain ANSI escape sequences from message
+    ?assertEqual(nomatch, string:find(Result, "\e[31mInjected")),
+    % Should contain sanitized message
+    ?assertNotEqual(nomatch, string:find(Result, "Injected Red text")).
+
+format_error_ansi_injection_in_filename_test() ->
+    % Test that malicious ANSI codes in filename are stripped
+    topos_error_formatter:set_color_mode(never),
+    MaliciousFile = "test\e[2J.topos",  % Clear screen in filename
+    Err = topos_error:new_error('E001', "Error", {1, 1}, MaliciousFile),
+    Result = lists:flatten(topos_error_formatter:format_error(Err)),
+    % Should not contain clear screen code
+    ?assertEqual(nomatch, string:find(Result, "\e[2J")),
+    % Should contain sanitized filename
+    ?assertNotEqual(nomatch, string:find(Result, "test.topos")).
+
+format_error_ansi_injection_in_source_line_test() ->
+    % Test that malicious ANSI codes in source line are stripped
+    topos_error_formatter:set_color_mode(never),
+    MaliciousSource = "let x = \e[5;10Hmalicious",
+    Err = topos_error:new_error('E001', "Error", {1, 1}, "test.topos"),
+    Err2 = topos_error:add_context(Err, [], MaliciousSource, []),
+    Result = lists:flatten(topos_error_formatter:format_error(Err2)),
+    % Should not contain cursor movement
+    ?assertEqual(nomatch, string:find(Result, "\e[5;10H")),
+    % Should contain sanitized source
+    ?assertNotEqual(nomatch, string:find(Result, "let x = malicious")).
+
+format_error_ansi_injection_in_suggestion_test() ->
+    % Test that malicious ANSI codes in suggestion are stripped
+    topos_error_formatter:set_color_mode(never),
+    MaliciousSugg = "Try \e[1mbold\e[0m instead",
+    Err = topos_error:new_error('E001', "Error", {1, 1}, "test.topos"),
+    Err2 = topos_error:add_suggestion(Err, MaliciousSugg),
+    Result = lists:flatten(topos_error_formatter:format_error(Err2)),
+    % Should not contain bold codes from user input
+    ?assertEqual(nomatch, string:find(Result, "\e[1mbold\e[0m instead")),
+    % Should contain sanitized suggestion
+    ?assertNotEqual(nomatch, string:find(Result, "Try bold instead")).
+
+format_error_ansi_injection_in_context_lines_test() ->
+    % Test that malicious ANSI codes in context lines are stripped
+    topos_error_formatter:set_color_mode(never),
+    MaliciousBefore = ["line 1", "line \e[31mred\e[0m 2"],
+    Err = topos_error:new_error('E001', "Error", {3, 1}, "test.topos"),
+    Err2 = topos_error:add_context(Err, MaliciousBefore, "error line", []),
+    Result = lists:flatten(topos_error_formatter:format_error(Err2)),
+    % Should not contain red code from context
+    ?assertEqual(nomatch, string:find(Result, "\e[31mred\e[0m")),
+    % Should contain sanitized context
+    ?assertNotEqual(nomatch, string:find(Result, "line red 2")).

@@ -64,6 +64,9 @@ Terminals
   %% Literals and identifiers
   integer float string
   lower_ident upper_ident
+
+  %% Error token for error recovery
+  error
   .
 
 %%============================================================================
@@ -106,6 +109,14 @@ declaration -> shape_decl : '$1'.
 declaration -> flow_decl : '$1'.
 declaration -> effect_decl : '$1'.
 
+%% Error recovery: skip malformed declaration and continue with next
+declaration -> error shape :
+    make_error_declaration(extract_location('$2'), "Malformed declaration before 'shape'", '$1').
+declaration -> error flow :
+    make_error_declaration(extract_location('$2'), "Malformed declaration before 'flow'", '$1').
+declaration -> error effect :
+    make_error_declaration(extract_location('$2'), "Malformed declaration before 'effect'", '$1').
+
 %%----------------------------------------------------------------------------
 %% Shape Declarations (Algebraic Data Types)
 %%----------------------------------------------------------------------------
@@ -117,6 +128,14 @@ shape_decl -> shape upper_ident type_params equals constructors :
         '$5',
         [],
         extract_location('$1')}.
+
+%% Error recovery for incomplete shape declarations
+shape_decl -> shape error equals constructors :
+    make_error_declaration(extract_location('$1'), "Invalid shape name", '$2').
+shape_decl -> shape upper_ident type_params error :
+    make_error_declaration(extract_location('$1'), "Missing '=' or constructors in shape declaration", '$4').
+shape_decl -> shape error :
+    make_error_declaration(extract_location('$1'), "Incomplete shape declaration", '$2').
 
 type_params -> '$empty' :
     [].
@@ -159,6 +178,10 @@ effect_decl -> effect upper_ident effect_operations 'end' :
         extract_atom('$2'),
         '$3',
         extract_location('$1')}.
+
+%% Error recovery for incomplete effect declarations
+effect_decl -> effect error :
+    make_error_declaration(extract_location('$1'), "Incomplete effect declaration", '$2').
 
 effect_operations -> '$empty' :
     [].
@@ -209,6 +232,14 @@ flow_decl -> flow lower_ident pattern_list equals match match_clauses 'end' :
         undefined,
         [{flow_clause, '$3', undefined, {match_expr, '$6', extract_location('$5')}, extract_location('$1')}],
         extract_location('$1')}.
+
+%% Error recovery for incomplete flow declarations
+flow_decl -> flow error equals expr :
+    make_error_declaration(extract_location('$1'), "Invalid flow name", '$2').
+flow_decl -> flow lower_ident pattern_list error :
+    make_error_declaration(extract_location('$1'), "Missing '=' or expression in flow declaration", '$4').
+flow_decl -> flow error :
+    make_error_declaration(extract_location('$1'), "Incomplete flow declaration", '$2').
 
 flow_signature -> flow lower_ident colon type_expr :
     {flow_sig, extract_atom('$2'), '$4', extract_location('$1')}.
@@ -679,3 +710,10 @@ extract_flow_name({flow_sig, Name, _Type, _Loc}) -> Name.
 
 %% @doc Extract flow type from flow signature
 extract_flow_type({flow_sig, _Name, Type, _Loc}) -> Type.
+
+%% @doc Create an error declaration node for error recovery
+%% Returns a special AST node that marks a parsing error
+make_error_declaration(Location, Message, _ErrorInfo) ->
+    {error_decl,
+        Message,
+        Location}.

@@ -25,8 +25,49 @@
     cyan/1,
     bold/1,
     dim/1,
-    reset/0
+    reset/0,
+
+    % Security functions (exported for testing)
+    sanitize_ansi/1
 ]).
+
+%%====================================================================
+%% Security - ANSI Sanitization
+%%====================================================================
+
+%% @doc Sanitize user-controlled strings to prevent ANSI injection attacks
+%% Removes all ANSI escape sequences from input text
+-spec sanitize_ansi(iolist() | string() | binary()) -> string().
+sanitize_ansi(Text) when is_binary(Text) ->
+    sanitize_ansi(binary_to_list(Text));
+sanitize_ansi(Text) when is_list(Text) ->
+    % Handle both strings and iolists
+    FlatText = lists:flatten(Text),
+    % Remove ANSI escape sequences using regex-like pattern matching
+    strip_ansi_codes(FlatText).
+
+%% @doc Strip ANSI escape codes from a flat string
+-spec strip_ansi_codes(string()) -> string().
+strip_ansi_codes([]) ->
+    [];
+strip_ansi_codes([$\e | Rest]) ->
+    % Found escape sequence, skip until we find a letter (end of ANSI code)
+    strip_ansi_codes(skip_ansi_sequence(Rest));
+strip_ansi_codes([C | Rest]) ->
+    [C | strip_ansi_codes(Rest)].
+
+%% @doc Skip characters until we find the end of an ANSI sequence
+%% ANSI sequences end with a letter (a-zA-Z)
+-spec skip_ansi_sequence(string()) -> string().
+skip_ansi_sequence([]) ->
+    [];
+skip_ansi_sequence([C | Rest]) when (C >= $a andalso C =< $z) orelse
+                                     (C >= $A andalso C =< $Z) ->
+    % Found end of ANSI sequence (letter), continue from next char
+    Rest;
+skip_ansi_sequence([_ | Rest]) ->
+    % Still in ANSI sequence, keep skipping
+    skip_ansi_sequence(Rest).
 
 %%====================================================================
 %% Color Mode State
@@ -66,15 +107,19 @@ format_error_list(Errors) when is_list(Errors) ->
 -spec format_error_simple(#error{}) -> iolist().
 format_error_simple(#error{severity = Sev, code = Code, message = Msg, file = File, line = Line, column = Col}) ->
     SevStr = severity_string(Sev),
+    % Sanitize user-controlled content
+    SafeMsg = sanitize_ansi(Msg),
     Location = case File of
         undefined -> io_lib:format("~p", [Line]);
-        _ -> io_lib:format("~s:~p", [File, Line])
+        _ ->
+            SafeFile = sanitize_ansi(File),
+            io_lib:format("~s:~p", [SafeFile, Line])
     end,
     ColStr = case Col of
         undefined -> "";
         _ -> io_lib:format(":~p", [Col])
     end,
-    [colorize_severity(Sev, SevStr), " [", atom_to_list(Code), "]: ", Msg, " at ", Location, ColStr, "\n"].
+    [colorize_severity(Sev, SevStr), " [", atom_to_list(Code), "]: ", SafeMsg, " at ", Location, ColStr, "\n"].
 
 %%====================================================================
 %% Color Support Detection
@@ -165,10 +210,12 @@ colorize(AnsiCode, Text) ->
 format_error_header(#error{severity = Sev, code = Code, message = Msg}) ->
     SevStr = severity_string(Sev),
     CodeStr = atom_to_list(Code),
+    % Sanitize user-controlled message to prevent ANSI injection
+    SafeMsg = sanitize_ansi(Msg),
     [
         colorize_severity(Sev, [bold([SevStr, "[", CodeStr, "]"])]),
         ": ",
-        Msg,
+        SafeMsg,
         "\n"
     ].
 
@@ -176,9 +223,13 @@ format_error_header(#error{severity = Sev, code = Code, message = Msg}) ->
 format_location(#error{file = undefined}) ->
     [];
 format_location(#error{file = File, line = Line, column = undefined}) ->
-    [dim(["  --> ", File, ":", integer_to_list(Line), "\n"])];
+    % Sanitize filename to prevent ANSI injection
+    SafeFile = sanitize_ansi(File),
+    [dim(["  --> ", SafeFile, ":", integer_to_list(Line), "\n"])];
 format_location(#error{file = File, line = Line, column = Col}) ->
-    [dim(["  --> ", File, ":", integer_to_list(Line), ":", integer_to_list(Col), "\n"])].
+    % Sanitize filename to prevent ANSI injection
+    SafeFile = sanitize_ansi(File),
+    [dim(["  --> ", SafeFile, ":", integer_to_list(Line), ":", integer_to_list(Col), "\n"])].
 
 %% @doc Format source code context with highlighting
 format_source_context(#error{context_before = [], source_line = undefined, context_after = []}) ->
@@ -198,7 +249,9 @@ format_context_lines(Lines, StartLine) ->
     Formatted = lists:map(
         fun({LineNum, Text}) ->
             LineNumStr = string:pad(integer_to_list(LineNum), 4, leading, $ ),
-            [dim([LineNumStr, " | ", Text, "\n"])]
+            % Sanitize context line text to prevent ANSI injection
+            SafeText = sanitize_ansi(Text),
+            [dim([LineNumStr, " | ", SafeText, "\n"])]
         end,
         lists:zip(lists:seq(StartLine, StartLine + length(Lines) - 1), Lines)
     ),
@@ -209,10 +262,12 @@ format_error_line(undefined, _Line, _Col) ->
     [];
 format_error_line(SourceLine, Line, Col) ->
     LineNumStr = string:pad(integer_to_list(Line), 4, leading, $ ),
-    Highlight = format_highlight(SourceLine, Col),
+    % Sanitize source line to prevent ANSI injection
+    SafeSourceLine = sanitize_ansi(SourceLine),
+    Highlight = format_highlight(SafeSourceLine, Col),
     [
         dim([LineNumStr, " | "]),
-        SourceLine,
+        SafeSourceLine,
         "\n",
         dim(["     | "]),
         Highlight,
@@ -233,7 +288,9 @@ format_highlight(_SourceLine, _Col) ->
 format_suggestion(#error{suggestion = undefined}) ->
     [];
 format_suggestion(#error{suggestion = Sugg}) ->
-    [cyan(["help: ", Sugg, "\n"])].
+    % Sanitize suggestion to prevent ANSI injection
+    SafeSugg = sanitize_ansi(Sugg),
+    [cyan(["help: ", SafeSugg, "\n"])].
 
 %% @doc Format related errors/notes
 format_related(#error{related = []}) ->
