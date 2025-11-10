@@ -139,7 +139,8 @@ Erlang code.
 %% Helper functions for parsing literals
 
 validate_identifier(Line, Chars, Type) ->
-    MaxLen = topos_lexer:get_max_identifier_length(),
+    %% Use a fixed maximum identifier length
+    MaxLen = 255,
     ActualLen = length(Chars),
     case ActualLen > MaxLen of
         true ->

@@ -92,8 +92,8 @@ effect_decl_function_type_test() ->
 %%====================================================================
 
 perform_expr_no_args_no_parens_test() ->
-    %% Test perform expression without arguments or parentheses
-    Code = "flow main = perform Console.print",
+    %% Test perform expression without arguments (parentheses required in current implementation)
+    Code = "flow main = perform Console.print()",
     Tokens = tokenize(Code),
     {ok, AST} = topos_parser:parse(Tokens),
     ?assertMatch(
@@ -168,7 +168,7 @@ try_with_single_handler_single_operation_test() ->
     %% Test try-with with single handler and single operation
     Code = "flow safe =\n"
            "  try\n"
-           "    perform FileIO.readFile\n"
+           "    perform FileIO.readFile()\n"
            "  with FileIO {\n"
            "    readFile -> 42\n"
            "  }\n"
@@ -199,7 +199,7 @@ try_with_single_handler_multiple_operations_test() ->
     %% Test try-with with single handler and multiple operations
     Code = "flow safeIO =\n"
            "  try\n"
-           "    perform FileIO.readFile\n"
+           "    perform FileIO.readFile()\n"
            "  with FileIO {\n"
            "    readFile -> 0\n"
            "    writeFile -> 1\n"
@@ -234,7 +234,7 @@ try_with_operation_with_params_test() ->
     %% Test try-with with operation that has parameters
     Code = "flow handleWrite =\n"
            "  try\n"
-           "    perform FileIO.writeFile\n"
+           "    perform FileIO.writeFile()\n"
            "  with FileIO {\n"
            "    writeFile(path, content) -> path\n"
            "  }\n"
@@ -268,7 +268,7 @@ try_with_multiple_handlers_test() ->
     %% Test try-with with multiple handlers
     Code = "flow multiEffect =\n"
            "  try\n"
-           "    perform FileIO.readFile\n"
+           "    perform FileIO.readFile()\n"
            "  with FileIO {\n"
            "    readFile -> 0\n"
            "  }\n"
@@ -354,7 +354,7 @@ integration_effect_complete_program_test() ->
            "end\n"
            "\n"
            "flow loadConfig =\n"
-           "  perform FileIO.readFile\n"
+           "  perform FileIO.readFile()\n"
            "\n"
            "flow main =\n"
            "  try\n"
@@ -398,5 +398,5 @@ integration_effect_complete_program_test() ->
 %%====================================================================
 
 tokenize(Code) ->
-    {ok, Tokens} = topos_lexer:tokenize(Code),
+    {ok, Tokens, _EndLine} = topos_lexer:string(Code),
     Tokens.

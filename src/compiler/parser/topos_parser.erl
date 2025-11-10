@@ -1,9 +1,9 @@
 %% This file is generated from topos_parser.yrl. Do not edit directly.
--file("src/compiler/parser/topos_parser.yrl", 0).
+-file("topos_parser.yrl", 0).
 -module(topos_parser).
--file("src/compiler/parser/topos_parser.erl", 4).
+-file("topos_parser.erl", 4).
 -export([parse/1, parse_and_scan/1, format_error/1]).
--file("src/compiler/parser/topos_parser.yrl", 632).
+-file("topos_parser.yrl", 640).
 
 %% @doc Extract atom from token
 extract_atom({_Tag, _Line, Atom}) when is_atom(Atom) -> Atom;
@@ -272,7 +272,7 @@ yecctoken2string1(Other) ->
 
 
 
--file("src/compiler/parser/topos_parser.erl", 275).
+-file("topos_parser.erl", 275).
 
 -dialyzer({nowarn_function, yeccpars2/7}).
 -compile({nowarn_unused_function,  yeccpars2/7}).
@@ -756,54 +756,56 @@ yeccpars2(238=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_238(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(239=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_239(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(240=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_240(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(240=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_240(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(241=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_241(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(242=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_242(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(242=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_242(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(243=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_243(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(244=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_244(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(245=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_27(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(245=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_245(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(246=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_246(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(247=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_247(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(248=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_248(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(247=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_247(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(248=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_248(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(249=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_249(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(250=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_250(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(251=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_251(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(251=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_251(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(252=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_252(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(253=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_253(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(254=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_254(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(253=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_253(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(254=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_254(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(255=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_255(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(256=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_107(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(256=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_256(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(257=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%% yeccpars2(257=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_257(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(258=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_107(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(258=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_258(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(259=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_259(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(260=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%% yeccpars2(260=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_260(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(261=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_221(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(261=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_261(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(262=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_262(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(263=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_263(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(262=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_262(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(263=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_263(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(264=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_264(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(Other, _, _, _, _, _, _) ->
  erlang:error({yecc_bug,"1.4",{missing_state_in_action_table, Other}}).
 
@@ -836,7 +838,7 @@ yeccpars2_2(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 -dialyzer({nowarn_function, yeccpars2_3/7}).
 -compile({nowarn_unused_function,  yeccpars2_3/7}).
 yeccpars2_3(S, 'flow', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 251, Ss, Stack, T, Ts, Tzr);
+ yeccpars1(S, 252, Ss, Stack, T, Ts, Tzr);
 yeccpars2_3(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
@@ -874,8 +876,10 @@ yeccpars2_7(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 
 -dialyzer({nowarn_function, yeccpars2_8/7}).
 -compile({nowarn_unused_function,  yeccpars2_8/7}).
-yeccpars2_8(S, 'upper_ident', Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_8(S, 'error', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 239, Ss, Stack, T, Ts, Tzr);
+yeccpars2_8(S, 'upper_ident', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 240, Ss, Stack, T, Ts, Tzr);
 yeccpars2_8(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
@@ -912,8 +916,10 @@ yeccpars2_11(_, _, _, _, T, _, _) ->
 -compile({nowarn_unused_function,  yeccpars2_12/7}).
 yeccpars2_12(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 65, Ss, Stack, T, Ts, Tzr);
-yeccpars2_12(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_12(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_|Nss] = Ss,
+ NewStack = yeccpars2_12_(Stack),
+ yeccgoto_shape_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_13/7}).
 -compile({nowarn_unused_function,  yeccpars2_13/7}).
@@ -1309,8 +1315,10 @@ yeccpars2_66(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 -compile({nowarn_unused_function,  yeccpars2_67/7}).
 yeccpars2_67(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 234, Ss, Stack, T, Ts, Tzr);
-yeccpars2_67(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_67(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_|Nss] = Ss,
+ NewStack = yeccpars2_67_(Stack),
+ yeccgoto_flow_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_68/7}).
 -compile({nowarn_unused_function,  yeccpars2_68/7}).
@@ -3764,178 +3772,152 @@ yeccpars2_238(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 
 -dialyzer({nowarn_function, yeccpars2_239/7}).
 -compile({nowarn_unused_function,  yeccpars2_239/7}).
-yeccpars2_239(S, 'operation', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 242, Ss, Stack, T, Ts, Tzr);
 yeccpars2_239(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_|Nss] = Ss,
  NewStack = yeccpars2_239_(Stack),
- yeccpars2_240(240, Cat, [239 | Ss], NewStack, T, Ts, Tzr).
+ yeccgoto_effect_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_240/7}).
 -compile({nowarn_unused_function,  yeccpars2_240/7}).
-yeccpars2_240(S, 'end', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 247, Ss, Stack, T, Ts, Tzr);
-yeccpars2_240(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_240(S, 'operation', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 243, Ss, Stack, T, Ts, Tzr);
+yeccpars2_240(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ NewStack = yeccpars2_240_(Stack),
+ yeccpars2_241(241, Cat, [240 | Ss], NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_241/7}).
 -compile({nowarn_unused_function,  yeccpars2_241/7}).
-yeccpars2_241(S, 'operation', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 242, Ss, Stack, T, Ts, Tzr);
-yeccpars2_241(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- NewStack = yeccpars2_241_(Stack),
- yeccpars2_246(_S, Cat, [241 | Ss], NewStack, T, Ts, Tzr).
+yeccpars2_241(S, 'end', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 248, Ss, Stack, T, Ts, Tzr);
+yeccpars2_241(_, _, _, _, T, _, _) ->
+ yeccerror(T).
 
 -dialyzer({nowarn_function, yeccpars2_242/7}).
 -compile({nowarn_unused_function,  yeccpars2_242/7}).
-yeccpars2_242(S, 'lower_ident', Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_242(S, 'operation', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 243, Ss, Stack, T, Ts, Tzr);
-yeccpars2_242(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_242(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ NewStack = yeccpars2_242_(Stack),
+ yeccpars2_247(_S, Cat, [242 | Ss], NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_243/7}).
 -compile({nowarn_unused_function,  yeccpars2_243/7}).
-yeccpars2_243(S, 'colon', Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_243(S, 'lower_ident', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 244, Ss, Stack, T, Ts, Tzr);
-yeccpars2_243(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_243(_, _, _, _, T, _, _) ->
+ yeccerror(T).
+
+-dialyzer({nowarn_function, yeccpars2_244/7}).
+-compile({nowarn_unused_function,  yeccpars2_244/7}).
+yeccpars2_244(S, 'colon', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 245, Ss, Stack, T, Ts, Tzr);
+yeccpars2_244(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  [_|Nss] = Ss,
- NewStack = yeccpars2_243_(Stack),
+ NewStack = yeccpars2_244_(Stack),
  yeccgoto_effect_operation(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
-%% yeccpars2_244: see yeccpars2_27
-
--dialyzer({nowarn_function, yeccpars2_245/7}).
--compile({nowarn_unused_function,  yeccpars2_245/7}).
-yeccpars2_245(S, 'arrow', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 39, Ss, Stack, T, Ts, Tzr);
-yeccpars2_245(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_,_|Nss] = Ss,
- NewStack = yeccpars2_245_(Stack),
- yeccgoto_effect_operation(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+%% yeccpars2_245: see yeccpars2_27
 
 -dialyzer({nowarn_function, yeccpars2_246/7}).
 -compile({nowarn_unused_function,  yeccpars2_246/7}).
+yeccpars2_246(S, 'arrow', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 39, Ss, Stack, T, Ts, Tzr);
 yeccpars2_246(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_|Nss] = Ss,
+ [_,_,_|Nss] = Ss,
  NewStack = yeccpars2_246_(Stack),
- yeccgoto_effect_operations(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+ yeccgoto_effect_operation(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_247/7}).
 -compile({nowarn_unused_function,  yeccpars2_247/7}).
 yeccpars2_247(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_,_|Nss] = Ss,
+ [_|Nss] = Ss,
  NewStack = yeccpars2_247_(Stack),
- yeccgoto_effect_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+ yeccgoto_effect_operations(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_248/7}).
 -compile({nowarn_unused_function,  yeccpars2_248/7}).
 yeccpars2_248(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_|Nss] = Ss,
+ [_,_,_|Nss] = Ss,
  NewStack = yeccpars2_248_(Stack),
- yeccgoto_declarations(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+ yeccgoto_effect_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_249/7}).
 -compile({nowarn_unused_function,  yeccpars2_249/7}).
 yeccpars2_249(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  [_|Nss] = Ss,
  NewStack = yeccpars2_249_(Stack),
- yeccgoto_flow_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+ yeccgoto_declarations(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_250/7}).
 -compile({nowarn_unused_function,  yeccpars2_250/7}).
-yeccpars2_250(S, 'flow', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 251, Ss, Stack, T, Ts, Tzr);
 yeccpars2_250(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_|Nss] = Ss,
  NewStack = yeccpars2_250_(Stack),
- yeccgoto_flow_clauses(hd(Ss), Cat, Ss, NewStack, T, Ts, Tzr).
+ yeccgoto_flow_decl(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_251/7}).
 -compile({nowarn_unused_function,  yeccpars2_251/7}).
-yeccpars2_251(S, 'lower_ident', Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_251(S, 'flow', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 252, Ss, Stack, T, Ts, Tzr);
-yeccpars2_251(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_251(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ NewStack = yeccpars2_251_(Stack),
+ yeccgoto_flow_clauses(hd(Ss), Cat, Ss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_252/7}).
 -compile({nowarn_unused_function,  yeccpars2_252/7}).
-yeccpars2_252(S, 'float', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 73, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'integer', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 74, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'lbrace', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 75, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'lbracket', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 76, Ss, Stack, T, Ts, Tzr);
 yeccpars2_252(S, 'lower_ident', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 77, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'lparen', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 78, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'string', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 79, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'underscore', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 80, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(S, 'upper_ident', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 81, Ss, Stack, T, Ts, Tzr);
-yeccpars2_252(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- NewStack = yeccpars2_252_(Stack),
- yeccpars2_253(253, Cat, [252 | Ss], NewStack, T, Ts, Tzr).
+ yeccpars1(S, 253, Ss, Stack, T, Ts, Tzr);
+yeccpars2_252(_, _, _, _, T, _, _) ->
+ yeccerror(T).
 
 -dialyzer({nowarn_function, yeccpars2_253/7}).
 -compile({nowarn_unused_function,  yeccpars2_253/7}).
-yeccpars2_253(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 254, Ss, Stack, T, Ts, Tzr);
-yeccpars2_253(S, 'when', Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_253(S, 'float', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 73, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'integer', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 74, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'lbrace', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 75, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'lbracket', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 76, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'lower_ident', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 77, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'lparen', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 78, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'string', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 79, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'underscore', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 80, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(S, 'upper_ident', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 81, Ss, Stack, T, Ts, Tzr);
+yeccpars2_253(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ NewStack = yeccpars2_253_(Stack),
+ yeccpars2_254(254, Cat, [253 | Ss], NewStack, T, Ts, Tzr).
+
+-dialyzer({nowarn_function, yeccpars2_254/7}).
+-compile({nowarn_unused_function,  yeccpars2_254/7}).
+yeccpars2_254(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 255, Ss, Stack, T, Ts, Tzr);
-yeccpars2_253(_, _, _, _, T, _, _) ->
+yeccpars2_254(S, 'when', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 256, Ss, Stack, T, Ts, Tzr);
+yeccpars2_254(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
-yeccpars2_254(S, 'match', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 260, Ss, Stack, T, Ts, Tzr);
-yeccpars2_254(S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_255(S, 'match', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 261, Ss, Stack, T, Ts, Tzr);
+yeccpars2_255(S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_107(S, Cat, Ss, Stack, T, Ts, Tzr).
 
-%% yeccpars2_255: see yeccpars2_107
+%% yeccpars2_256: see yeccpars2_107
 
--dialyzer({nowarn_function, yeccpars2_256/7}).
--compile({nowarn_unused_function,  yeccpars2_256/7}).
-yeccpars2_256(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 257, Ss, Stack, T, Ts, Tzr);
-yeccpars2_256(_, _, _, _, T, _, _) ->
+-dialyzer({nowarn_function, yeccpars2_257/7}).
+-compile({nowarn_unused_function,  yeccpars2_257/7}).
+yeccpars2_257(S, 'equals', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 258, Ss, Stack, T, Ts, Tzr);
+yeccpars2_257(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
-%% yeccpars2_257: see yeccpars2_107
-
--dialyzer({nowarn_function, yeccpars2_258/7}).
--compile({nowarn_unused_function,  yeccpars2_258/7}).
-yeccpars2_258(S, 'bind', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 129, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'concat', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 130, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'eq', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 131, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'gt', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 132, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'gte', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 133, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'lt', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 134, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'lte', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 135, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'minus', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 136, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'neq', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 137, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'pipe_right', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 138, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'plus', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 139, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'slash', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 140, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(S, 'star', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 141, Ss, Stack, T, Ts, Tzr);
-yeccpars2_258(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_,_,_,_,_|Nss] = Ss,
- NewStack = yeccpars2_258_(Stack),
- yeccgoto_flow_clause(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+%% yeccpars2_258: see yeccpars2_107
 
 -dialyzer({nowarn_function, yeccpars2_259/7}).
 -compile({nowarn_unused_function,  yeccpars2_259/7}).
@@ -3966,31 +3948,64 @@ yeccpars2_259(S, 'slash', Ss, Stack, T, Ts, Tzr) ->
 yeccpars2_259(S, 'star', Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 141, Ss, Stack, T, Ts, Tzr);
 yeccpars2_259(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_,_,_|Nss] = Ss,
+ [_,_,_,_,_,_|Nss] = Ss,
  NewStack = yeccpars2_259_(Stack),
  yeccgoto_flow_clause(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
-%% yeccpars2_260: see yeccpars2_221
+-dialyzer({nowarn_function, yeccpars2_260/7}).
+-compile({nowarn_unused_function,  yeccpars2_260/7}).
+yeccpars2_260(S, 'bind', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 129, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'concat', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 130, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'eq', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 131, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'gt', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 132, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'gte', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 133, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'lt', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 134, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'lte', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 135, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'minus', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 136, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'neq', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 137, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'pipe_right', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 138, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'plus', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 139, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'slash', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 140, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(S, 'star', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 141, Ss, Stack, T, Ts, Tzr);
+yeccpars2_260(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_,_,_,_|Nss] = Ss,
+ NewStack = yeccpars2_260_(Stack),
+ yeccgoto_flow_clause(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
--dialyzer({nowarn_function, yeccpars2_261/7}).
--compile({nowarn_unused_function,  yeccpars2_261/7}).
-yeccpars2_261(S, 'end', Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 262, Ss, Stack, T, Ts, Tzr);
-yeccpars2_261(_, _, _, _, T, _, _) ->
- yeccerror(T).
+%% yeccpars2_261: see yeccpars2_221
 
 -dialyzer({nowarn_function, yeccpars2_262/7}).
 -compile({nowarn_unused_function,  yeccpars2_262/7}).
-yeccpars2_262(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_,_,_,_,_|Nss] = Ss,
- NewStack = yeccpars2_262_(Stack),
- yeccgoto_flow_clause(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+yeccpars2_262(S, 'end', Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 263, Ss, Stack, T, Ts, Tzr);
+yeccpars2_262(_, _, _, _, T, _, _) ->
+ yeccerror(T).
 
 -dialyzer({nowarn_function, yeccpars2_263/7}).
 -compile({nowarn_unused_function,  yeccpars2_263/7}).
 yeccpars2_263(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_|Nss] = Ss,
+ [_,_,_,_,_,_|Nss] = Ss,
  NewStack = yeccpars2_263_(Stack),
+ yeccgoto_flow_clause(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+
+-dialyzer({nowarn_function, yeccpars2_264/7}).
+-compile({nowarn_unused_function,  yeccpars2_264/7}).
+yeccpars2_264(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_|Nss] = Ss,
+ NewStack = yeccpars2_264_(Stack),
  yeccgoto_flow_clauses(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_constructor/7}).
@@ -4030,7 +4045,7 @@ yeccgoto_declaration(7, Cat, Ss, Stack, T, Ts, Tzr) ->
 yeccgoto_declarations(0=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_6(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_declarations(7=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_248(_S, Cat, Ss, Stack, T, Ts, Tzr).
+ yeccpars2_249(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_effect_decl/7}).
 -compile({nowarn_unused_function,  yeccgoto_effect_decl/7}).
@@ -4048,17 +4063,17 @@ yeccgoto_effect_list_nonempty(49=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 
 -dialyzer({nowarn_function, yeccgoto_effect_operation/7}).
 -compile({nowarn_unused_function,  yeccgoto_effect_operation/7}).
-yeccgoto_effect_operation(239, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_241(241, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_effect_operation(241, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_241(241, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_effect_operation(240, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_242(242, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_effect_operation(242, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_242(242, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_effect_operations/7}).
 -compile({nowarn_unused_function,  yeccgoto_effect_operations/7}).
-yeccgoto_effect_operations(239, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_240(240, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_effect_operations(241=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_246(_S, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_effect_operations(240, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_241(241, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_effect_operations(242=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_247(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_expr/7}).
 -compile({nowarn_unused_function,  yeccgoto_expr/7}).
@@ -4132,12 +4147,12 @@ yeccgoto_expr(229, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_230(230, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr(234, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_235(235, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr(254, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_259(259, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr(255, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_260(260, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_expr(256, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_115(115, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr(257, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_258(258, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_expr(258, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_259(259, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_expr_app/7}).
 -compile({nowarn_unused_function,  yeccgoto_expr_app/7}).
@@ -4211,11 +4226,11 @@ yeccgoto_expr_app(229, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr_app(234, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr_app(254, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr_app(255, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr_app(257, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_expr_app(256, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_expr_app(258, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_114(114, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_expr_list/7}).
@@ -4301,26 +4316,26 @@ yeccgoto_expr_primary(229=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr_primary(234=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr_primary(254=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_expr_primary(255=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_expr_primary(257=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_expr_primary(256=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_expr_primary(258=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_113(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_flow_clause/7}).
 -compile({nowarn_unused_function,  yeccgoto_flow_clause/7}).
 yeccgoto_flow_clause(3, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_250(250, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_flow_clause(250, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_250(250, Cat, Ss, Stack, T, Ts, Tzr).
+ yeccpars2_251(251, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_flow_clause(251, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_251(251, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_flow_clauses/7}).
 -compile({nowarn_unused_function,  yeccgoto_flow_clauses/7}).
 yeccgoto_flow_clauses(3=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_249(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_flow_clauses(250=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_263(_S, Cat, Ss, Stack, T, Ts, Tzr).
+ yeccpars2_250(_S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_flow_clauses(251=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_264(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_flow_decl/7}).
 -compile({nowarn_unused_function,  yeccgoto_flow_decl/7}).
@@ -4344,7 +4359,7 @@ yeccgoto_guard(216, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_112(112, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_guard(227, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_112(112, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_guard(255, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_guard(256, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_112(112, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_guards/7}).
@@ -4355,8 +4370,8 @@ yeccgoto_guards(216=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_217(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_guards(227, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_228(228, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_guards(255, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_256(256, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_guards(256, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_257(257, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_handler_clause/7}).
 -compile({nowarn_unused_function,  yeccgoto_handler_clause/7}).
@@ -4446,11 +4461,11 @@ yeccgoto_literal(229=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_literal(234=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_literal(254=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_literal(255=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_literal(257=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_literal(256=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_literal(258=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_110(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_match_clause/7}).
@@ -4459,7 +4474,7 @@ yeccgoto_match_clause(221, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_223(223, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_match_clause(223, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_223(223, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_match_clause(260, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_match_clause(261, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_223(223, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_match_clauses/7}).
@@ -4468,8 +4483,8 @@ yeccgoto_match_clauses(221, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_222(222, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_match_clauses(223=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_232(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_match_clauses(260, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_261(261, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_match_clauses(261, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_262(262, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_operation_case/7}).
 -compile({nowarn_unused_function,  yeccgoto_operation_case/7}).
@@ -4505,7 +4520,7 @@ yeccgoto_pattern(151, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_71(71, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_pattern(224, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_225(225, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_pattern(252, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_pattern(253, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_71(71, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_pattern_list/7}).
@@ -4518,8 +4533,8 @@ yeccgoto_pattern_list(82, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_83(83, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_pattern_list(151, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_152(152, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_pattern_list(252, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_253(253, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_pattern_list(253, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_254(254, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_pattern_list_nonempty/7}).
 -compile({nowarn_unused_function,  yeccgoto_pattern_list_nonempty/7}).
@@ -4533,7 +4548,7 @@ yeccgoto_pattern_list_nonempty(82=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_69(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_pattern_list_nonempty(151=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_69(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_pattern_list_nonempty(252=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_pattern_list_nonempty(253=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_69(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_perform_expr/7}).
@@ -4610,11 +4625,11 @@ yeccgoto_perform_expr(229=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_perform_expr(234=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_perform_expr(254=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_perform_expr(255=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_perform_expr(257=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_perform_expr(256=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_perform_expr(258=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_109(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_record_field/7}).
@@ -4731,11 +4746,11 @@ yeccgoto_try_with_expr(229=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_try_with_expr(234=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_try_with_expr(254=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_try_with_expr(255=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_try_with_expr(257=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_try_with_expr(256=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccgoto_try_with_expr(258=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_108(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_tuple_expr_list/7}).
@@ -4766,8 +4781,8 @@ yeccgoto_type_expr(57, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_58(58, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_type_expr(72, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_103(103, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_type_expr(244, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_245(245, Cat, Ss, Stack, T, Ts, Tzr).
+yeccgoto_type_expr(245, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_246(246, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_type_expr_app/7}).
 -compile({nowarn_unused_function,  yeccgoto_type_expr_app/7}).
@@ -4783,7 +4798,7 @@ yeccgoto_type_expr_app(57, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_31(31, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_type_expr_app(72, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_31(31, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_type_expr_app(244, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_type_expr_app(245, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_31(31, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_type_expr_primary/7}).
@@ -4806,7 +4821,7 @@ yeccgoto_type_expr_primary(57=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_30(_S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccgoto_type_expr_primary(72=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_30(_S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccgoto_type_expr_primary(244=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccgoto_type_expr_primary(245=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_30(_S, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccgoto_type_list/7}).
@@ -4849,7 +4864,7 @@ yeccgoto_type_record_fields(59=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
 -compile({inline,yeccpars2_2_/1}).
 -dialyzer({nowarn_function, yeccpars2_2_/1}).
 -compile({nowarn_unused_function,  yeccpars2_2_/1}).
--file("src/compiler/parser/topos_parser.yrl", 104).
+-file("topos_parser.yrl", 104).
 yeccpars2_2_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4859,7 +4874,7 @@ yeccpars2_2_(__Stack0) ->
 -compile({inline,yeccpars2_4_/1}).
 -dialyzer({nowarn_function, yeccpars2_4_/1}).
 -compile({nowarn_unused_function,  yeccpars2_4_/1}).
--file("src/compiler/parser/topos_parser.yrl", 105).
+-file("topos_parser.yrl", 105).
 yeccpars2_4_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4869,7 +4884,7 @@ yeccpars2_4_(__Stack0) ->
 -compile({inline,yeccpars2_5_/1}).
 -dialyzer({nowarn_function, yeccpars2_5_/1}).
 -compile({nowarn_unused_function,  yeccpars2_5_/1}).
--file("src/compiler/parser/topos_parser.yrl", 106).
+-file("topos_parser.yrl", 106).
 yeccpars2_5_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4879,7 +4894,7 @@ yeccpars2_5_(__Stack0) ->
 -compile({inline,yeccpars2_6_/1}).
 -dialyzer({nowarn_function, yeccpars2_6_/1}).
 -compile({nowarn_unused_function,  yeccpars2_6_/1}).
--file("src/compiler/parser/topos_parser.yrl", 96).
+-file("topos_parser.yrl", 96).
 yeccpars2_6_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4890,7 +4905,7 @@ yeccpars2_6_(__Stack0) ->
 -compile({inline,yeccpars2_7_/1}).
 -dialyzer({nowarn_function, yeccpars2_7_/1}).
 -compile({nowarn_unused_function,  yeccpars2_7_/1}).
--file("src/compiler/parser/topos_parser.yrl", 99).
+-file("topos_parser.yrl", 99).
 yeccpars2_7_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4898,10 +4913,21 @@ yeccpars2_7_(__Stack0) ->
     [___1]
   end | __Stack].
 
+-compile({inline,yeccpars2_12_/1}).
+-dialyzer({nowarn_function, yeccpars2_12_/1}).
+-compile({nowarn_unused_function,  yeccpars2_12_/1}).
+-file("topos_parser.yrl", 133).
+yeccpars2_12_(__Stack0) ->
+ [___2,___1 | __Stack] = __Stack0,
+ [begin
+                           
+    make_error_declaration(extract_location(___1), "Incomplete shape declaration", ___2)
+  end | __Stack].
+
 -compile({inline,yeccpars2_13_/1}).
 -dialyzer({nowarn_function, yeccpars2_13_/1}).
 -compile({nowarn_unused_function,  yeccpars2_13_/1}).
--file("src/compiler/parser/topos_parser.yrl", 134).
+-file("topos_parser.yrl", 136).
 yeccpars2_13_(__Stack0) ->
  [begin
                          
@@ -4911,7 +4937,7 @@ yeccpars2_13_(__Stack0) ->
 -compile({inline,yeccpars2_14_/1}).
 -dialyzer({nowarn_function, yeccpars2_14_/1}).
 -compile({nowarn_unused_function,  yeccpars2_14_/1}).
--file("src/compiler/parser/topos_parser.yrl", 136).
+-file("topos_parser.yrl", 138).
 yeccpars2_14_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4922,7 +4948,7 @@ yeccpars2_14_(__Stack0) ->
 -compile({inline,yeccpars2_16_/1}).
 -dialyzer({nowarn_function, yeccpars2_16_/1}).
 -compile({nowarn_unused_function,  yeccpars2_16_/1}).
--file("src/compiler/parser/topos_parser.yrl", 139).
+-file("topos_parser.yrl", 141).
 yeccpars2_16_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4933,7 +4959,7 @@ yeccpars2_16_(__Stack0) ->
 -compile({inline,yeccpars2_17_/1}).
 -dialyzer({nowarn_function, yeccpars2_17_/1}).
 -compile({nowarn_unused_function,  yeccpars2_17_/1}).
--file("src/compiler/parser/topos_parser.yrl", 141).
+-file("topos_parser.yrl", 143).
 yeccpars2_17_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -4944,7 +4970,7 @@ yeccpars2_17_(__Stack0) ->
 -compile({inline,yeccpars2_19_/1}).
 -dialyzer({nowarn_function, yeccpars2_19_/1}).
 -compile({nowarn_unused_function,  yeccpars2_19_/1}).
--file("src/compiler/parser/topos_parser.yrl", 131).
+-file("topos_parser.yrl", 131).
 yeccpars2_19_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -4955,7 +4981,7 @@ yeccpars2_19_(__Stack0) ->
 -compile({inline,yeccpars2_20_/1}).
 -dialyzer({nowarn_function, yeccpars2_20_/1}).
 -compile({nowarn_unused_function,  yeccpars2_20_/1}).
--file("src/compiler/parser/topos_parser.yrl", 120).
+-file("topos_parser.yrl", 120).
 yeccpars2_20_(__Stack0) ->
  [___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -4971,7 +4997,7 @@ yeccpars2_20_(__Stack0) ->
 -compile({inline,yeccpars2_21_/1}).
 -dialyzer({nowarn_function, yeccpars2_21_/1}).
 -compile({nowarn_unused_function,  yeccpars2_21_/1}).
--file("src/compiler/parser/topos_parser.yrl", 144).
+-file("topos_parser.yrl", 146).
 yeccpars2_21_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4982,7 +5008,7 @@ yeccpars2_21_(__Stack0) ->
 -compile({inline,yeccpars2_22_/1}).
 -dialyzer({nowarn_function, yeccpars2_22_/1}).
 -compile({nowarn_unused_function,  yeccpars2_22_/1}).
--file("src/compiler/parser/topos_parser.yrl", 149).
+-file("topos_parser.yrl", 151).
 yeccpars2_22_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -4996,7 +5022,7 @@ yeccpars2_22_(__Stack0) ->
 -compile({inline,yeccpars2_23_/1}).
 -dialyzer({nowarn_function, yeccpars2_23_/1}).
 -compile({nowarn_unused_function,  yeccpars2_23_/1}).
--file("src/compiler/parser/topos_parser.yrl", 161).
+-file("topos_parser.yrl", 163).
 yeccpars2_23_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5007,7 +5033,7 @@ yeccpars2_23_(__Stack0) ->
 -compile({inline,yeccpars2_24_/1}).
 -dialyzer({nowarn_function, yeccpars2_24_/1}).
 -compile({nowarn_unused_function,  yeccpars2_24_/1}).
--file("src/compiler/parser/topos_parser.yrl", 155).
+-file("topos_parser.yrl", 157).
 yeccpars2_24_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5021,7 +5047,7 @@ yeccpars2_24_(__Stack0) ->
 -compile({inline,yeccpars2_26_/1}).
 -dialyzer({nowarn_function, yeccpars2_26_/1}).
 -compile({nowarn_unused_function,  yeccpars2_26_/1}).
--file("src/compiler/parser/topos_parser.yrl", 581).
+-file("topos_parser.yrl", 589).
 yeccpars2_26_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5032,7 +5058,7 @@ yeccpars2_26_(__Stack0) ->
 -compile({inline,yeccpars2_28_/1}).
 -dialyzer({nowarn_function, yeccpars2_28_/1}).
 -compile({nowarn_unused_function,  yeccpars2_28_/1}).
--file("src/compiler/parser/topos_parser.yrl", 584).
+-file("topos_parser.yrl", 592).
 yeccpars2_28_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5043,7 +5069,7 @@ yeccpars2_28_(__Stack0) ->
 -compile({inline,yeccpars2_30_/1}).
 -dialyzer({nowarn_function, yeccpars2_30_/1}).
 -compile({nowarn_unused_function,  yeccpars2_30_/1}).
--file("src/compiler/parser/topos_parser.yrl", 577).
+-file("topos_parser.yrl", 585).
 yeccpars2_30_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5054,7 +5080,7 @@ yeccpars2_30_(__Stack0) ->
 -compile({inline,yeccpars2_31_/1}).
 -dialyzer({nowarn_function, yeccpars2_31_/1}).
 -compile({nowarn_unused_function,  yeccpars2_31_/1}).
--file("src/compiler/parser/topos_parser.yrl", 568).
+-file("topos_parser.yrl", 576).
 yeccpars2_31_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5064,7 +5090,7 @@ yeccpars2_31_(__Stack0) ->
 -compile({inline,yeccpars2_33_/1}).
 -dialyzer({nowarn_function, yeccpars2_33_/1}).
 -compile({nowarn_unused_function,  yeccpars2_33_/1}).
--file("src/compiler/parser/topos_parser.yrl", 134).
+-file("topos_parser.yrl", 136).
 yeccpars2_33_(__Stack0) ->
  [begin
                          
@@ -5074,7 +5100,7 @@ yeccpars2_33_(__Stack0) ->
 -compile({inline,yeccpars2_34_/1}).
 -dialyzer({nowarn_function, yeccpars2_34_/1}).
 -compile({nowarn_unused_function,  yeccpars2_34_/1}).
--file("src/compiler/parser/topos_parser.yrl", 584).
+-file("topos_parser.yrl", 592).
 yeccpars2_34_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5085,7 +5111,7 @@ yeccpars2_34_(__Stack0) ->
 -compile({inline,yeccpars2_35_/1}).
 -dialyzer({nowarn_function, yeccpars2_35_/1}).
 -compile({nowarn_unused_function,  yeccpars2_35_/1}).
--file("src/compiler/parser/topos_parser.yrl", 571).
+-file("topos_parser.yrl", 579).
 yeccpars2_35_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5099,7 +5125,7 @@ yeccpars2_35_(__Stack0) ->
 -compile({inline,yeccpars2_38_/1}).
 -dialyzer({nowarn_function, yeccpars2_38_/1}).
 -compile({nowarn_unused_function,  yeccpars2_38_/1}).
--file("src/compiler/parser/topos_parser.yrl", 562).
+-file("topos_parser.yrl", 570).
 yeccpars2_38_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5110,7 +5136,7 @@ yeccpars2_38_(__Stack0) ->
 -compile({inline,yeccpars2_40_/1}).
 -dialyzer({nowarn_function, yeccpars2_40_/1}).
 -compile({nowarn_unused_function,  yeccpars2_40_/1}).
--file("src/compiler/parser/topos_parser.yrl", 559).
+-file("topos_parser.yrl", 567).
 yeccpars2_40_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5121,7 +5147,7 @@ yeccpars2_40_(__Stack0) ->
 -compile({inline,yeccpars2_42_/1}).
 -dialyzer({nowarn_function, yeccpars2_42_/1}).
 -compile({nowarn_unused_function,  yeccpars2_42_/1}).
--file("src/compiler/parser/topos_parser.yrl", 587).
+-file("topos_parser.yrl", 595).
 yeccpars2_42_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5132,7 +5158,7 @@ yeccpars2_42_(__Stack0) ->
 -compile({inline,yeccpars2_43_/1}).
 -dialyzer({nowarn_function, yeccpars2_43_/1}).
 -compile({nowarn_unused_function,  yeccpars2_43_/1}).
--file("src/compiler/parser/topos_parser.yrl", 601).
+-file("topos_parser.yrl", 609).
 yeccpars2_43_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5143,7 +5169,7 @@ yeccpars2_43_(__Stack0) ->
 -compile({inline,yeccpars2_44_/1}).
 -dialyzer({nowarn_function, yeccpars2_44_/1}).
 -compile({nowarn_unused_function,  yeccpars2_44_/1}).
--file("src/compiler/parser/topos_parser.yrl", 599).
+-file("topos_parser.yrl", 607).
 yeccpars2_44_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5154,7 +5180,7 @@ yeccpars2_44_(__Stack0) ->
 -compile({inline,yeccpars2_48_/1}).
 -dialyzer({nowarn_function, yeccpars2_48_/1}).
 -compile({nowarn_unused_function,  yeccpars2_48_/1}).
--file("src/compiler/parser/topos_parser.yrl", 619).
+-file("topos_parser.yrl", 627).
 yeccpars2_48_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5165,7 +5191,7 @@ yeccpars2_48_(__Stack0) ->
 -compile({inline,yeccpars2_50_/1}).
 -dialyzer({nowarn_function, yeccpars2_50_/1}).
 -compile({nowarn_unused_function,  yeccpars2_50_/1}).
--file("src/compiler/parser/topos_parser.yrl", 621).
+-file("topos_parser.yrl", 629).
 yeccpars2_50_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5176,7 +5202,7 @@ yeccpars2_50_(__Stack0) ->
 -compile({inline,yeccpars2_51_/1}).
 -dialyzer({nowarn_function, yeccpars2_51_/1}).
 -compile({nowarn_unused_function,  yeccpars2_51_/1}).
--file("src/compiler/parser/topos_parser.yrl", 565).
+-file("topos_parser.yrl", 573).
 yeccpars2_51_(__Stack0) ->
  [___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5187,7 +5213,7 @@ yeccpars2_51_(__Stack0) ->
 -compile({inline,yeccpars2_52_/1}).
 -dialyzer({nowarn_function, yeccpars2_52_/1}).
 -compile({nowarn_unused_function,  yeccpars2_52_/1}).
--file("src/compiler/parser/topos_parser.yrl", 590).
+-file("topos_parser.yrl", 598).
 yeccpars2_52_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5198,7 +5224,7 @@ yeccpars2_52_(__Stack0) ->
 -compile({inline,yeccpars2_54_/1}).
 -dialyzer({nowarn_function, yeccpars2_54_/1}).
 -compile({nowarn_unused_function,  yeccpars2_54_/1}).
--file("src/compiler/parser/topos_parser.yrl", 605).
+-file("topos_parser.yrl", 613).
 yeccpars2_54_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5209,7 +5235,7 @@ yeccpars2_54_(__Stack0) ->
 -compile({inline,yeccpars2_56_/1}).
 -dialyzer({nowarn_function, yeccpars2_56_/1}).
 -compile({nowarn_unused_function,  yeccpars2_56_/1}).
--file("src/compiler/parser/topos_parser.yrl", 593).
+-file("topos_parser.yrl", 601).
 yeccpars2_56_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5220,7 +5246,7 @@ yeccpars2_56_(__Stack0) ->
 -compile({inline,yeccpars2_58_/1}).
 -dialyzer({nowarn_function, yeccpars2_58_/1}).
 -compile({nowarn_unused_function,  yeccpars2_58_/1}).
--file("src/compiler/parser/topos_parser.yrl", 610).
+-file("topos_parser.yrl", 618).
 yeccpars2_58_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5231,7 +5257,7 @@ yeccpars2_58_(__Stack0) ->
 -compile({inline,yeccpars2_60_/1}).
 -dialyzer({nowarn_function, yeccpars2_60_/1}).
 -compile({nowarn_unused_function,  yeccpars2_60_/1}).
--file("src/compiler/parser/topos_parser.yrl", 607).
+-file("topos_parser.yrl", 615).
 yeccpars2_60_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5242,7 +5268,7 @@ yeccpars2_60_(__Stack0) ->
 -compile({inline,yeccpars2_61_/1}).
 -dialyzer({nowarn_function, yeccpars2_61_/1}).
 -compile({nowarn_unused_function,  yeccpars2_61_/1}).
--file("src/compiler/parser/topos_parser.yrl", 596).
+-file("topos_parser.yrl", 604).
 yeccpars2_61_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5253,7 +5279,7 @@ yeccpars2_61_(__Stack0) ->
 -compile({inline,yeccpars2_62_/1}).
 -dialyzer({nowarn_function, yeccpars2_62_/1}).
 -compile({nowarn_unused_function,  yeccpars2_62_/1}).
--file("src/compiler/parser/topos_parser.yrl", 163).
+-file("topos_parser.yrl", 165).
 yeccpars2_62_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5264,7 +5290,7 @@ yeccpars2_62_(__Stack0) ->
 -compile({inline,yeccpars2_64_/1}).
 -dialyzer({nowarn_function, yeccpars2_64_/1}).
 -compile({nowarn_unused_function,  yeccpars2_64_/1}).
--file("src/compiler/parser/topos_parser.yrl", 146).
+-file("topos_parser.yrl", 148).
 yeccpars2_64_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5275,7 +5301,7 @@ yeccpars2_64_(__Stack0) ->
 -compile({inline,yeccpars2_66_/1}).
 -dialyzer({nowarn_function, yeccpars2_66_/1}).
 -compile({nowarn_unused_function,  yeccpars2_66_/1}).
--file("src/compiler/parser/topos_parser.yrl", 129).
+-file("topos_parser.yrl", 129).
 yeccpars2_66_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5283,10 +5309,21 @@ yeccpars2_66_(__Stack0) ->
     make_error_declaration(extract_location(___1), "Invalid shape name", ___2)
   end | __Stack].
 
+-compile({inline,yeccpars2_67_/1}).
+-dialyzer({nowarn_function, yeccpars2_67_/1}).
+-compile({nowarn_unused_function,  yeccpars2_67_/1}).
+-file("topos_parser.yrl", 237).
+yeccpars2_67_(__Stack0) ->
+ [___2,___1 | __Stack] = __Stack0,
+ [begin
+                         
+    make_error_declaration(extract_location(___1), "Incomplete flow declaration", ___2)
+  end | __Stack].
+
 -compile({inline,yeccpars2_68_/1}).
 -dialyzer({nowarn_function, yeccpars2_68_/1}).
 -compile({nowarn_unused_function,  yeccpars2_68_/1}).
--file("src/compiler/parser/topos_parser.yrl", 288).
+-file("topos_parser.yrl", 296).
 yeccpars2_68_(__Stack0) ->
  [begin
                           
@@ -5296,7 +5333,7 @@ yeccpars2_68_(__Stack0) ->
 -compile({inline,yeccpars2_69_/1}).
 -dialyzer({nowarn_function, yeccpars2_69_/1}).
 -compile({nowarn_unused_function,  yeccpars2_69_/1}).
--file("src/compiler/parser/topos_parser.yrl", 290).
+-file("topos_parser.yrl", 298).
 yeccpars2_69_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5307,7 +5344,7 @@ yeccpars2_69_(__Stack0) ->
 -compile({inline,yeccpars2_71_/1}).
 -dialyzer({nowarn_function, yeccpars2_71_/1}).
 -compile({nowarn_unused_function,  yeccpars2_71_/1}).
--file("src/compiler/parser/topos_parser.yrl", 293).
+-file("topos_parser.yrl", 301).
 yeccpars2_71_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5318,7 +5355,7 @@ yeccpars2_71_(__Stack0) ->
 -compile({inline,yeccpars2_73_/1}).
 -dialyzer({nowarn_function, yeccpars2_73_/1}).
 -compile({nowarn_unused_function,  yeccpars2_73_/1}).
--file("src/compiler/parser/topos_parser.yrl", 313).
+-file("topos_parser.yrl", 321).
 yeccpars2_73_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5329,7 +5366,7 @@ yeccpars2_73_(__Stack0) ->
 -compile({inline,yeccpars2_74_/1}).
 -dialyzer({nowarn_function, yeccpars2_74_/1}).
 -compile({nowarn_unused_function,  yeccpars2_74_/1}).
--file("src/compiler/parser/topos_parser.yrl", 310).
+-file("topos_parser.yrl", 318).
 yeccpars2_74_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5340,7 +5377,7 @@ yeccpars2_74_(__Stack0) ->
 -compile({inline,yeccpars2_77_/1}).
 -dialyzer({nowarn_function, yeccpars2_77_/1}).
 -compile({nowarn_unused_function,  yeccpars2_77_/1}).
--file("src/compiler/parser/topos_parser.yrl", 298).
+-file("topos_parser.yrl", 306).
 yeccpars2_77_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5351,7 +5388,7 @@ yeccpars2_77_(__Stack0) ->
 -compile({inline,yeccpars2_79_/1}).
 -dialyzer({nowarn_function, yeccpars2_79_/1}).
 -compile({nowarn_unused_function,  yeccpars2_79_/1}).
--file("src/compiler/parser/topos_parser.yrl", 316).
+-file("topos_parser.yrl", 324).
 yeccpars2_79_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5362,7 +5399,7 @@ yeccpars2_79_(__Stack0) ->
 -compile({inline,yeccpars2_80_/1}).
 -dialyzer({nowarn_function, yeccpars2_80_/1}).
 -compile({nowarn_unused_function,  yeccpars2_80_/1}).
--file("src/compiler/parser/topos_parser.yrl", 301).
+-file("topos_parser.yrl", 309).
 yeccpars2_80_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5373,7 +5410,7 @@ yeccpars2_80_(__Stack0) ->
 -compile({inline,yeccpars2_81_/1}).
 -dialyzer({nowarn_function, yeccpars2_81_/1}).
 -compile({nowarn_unused_function,  yeccpars2_81_/1}).
--file("src/compiler/parser/topos_parser.yrl", 304).
+-file("topos_parser.yrl", 312).
 yeccpars2_81_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5384,7 +5421,7 @@ yeccpars2_81_(__Stack0) ->
 -compile({inline,yeccpars2_82_/1}).
 -dialyzer({nowarn_function, yeccpars2_82_/1}).
 -compile({nowarn_unused_function,  yeccpars2_82_/1}).
--file("src/compiler/parser/topos_parser.yrl", 288).
+-file("topos_parser.yrl", 296).
 yeccpars2_82_(__Stack0) ->
  [begin
                           
@@ -5394,7 +5431,7 @@ yeccpars2_82_(__Stack0) ->
 -compile({inline,yeccpars2_84_/1}).
 -dialyzer({nowarn_function, yeccpars2_84_/1}).
 -compile({nowarn_unused_function,  yeccpars2_84_/1}).
--file("src/compiler/parser/topos_parser.yrl", 307).
+-file("topos_parser.yrl", 315).
 yeccpars2_84_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5405,7 +5442,7 @@ yeccpars2_84_(__Stack0) ->
 -compile({inline,yeccpars2_88_/1}).
 -dialyzer({nowarn_function, yeccpars2_88_/1}).
 -compile({nowarn_unused_function,  yeccpars2_88_/1}).
--file("src/compiler/parser/topos_parser.yrl", 337).
+-file("topos_parser.yrl", 345).
 yeccpars2_88_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5416,7 +5453,7 @@ yeccpars2_88_(__Stack0) ->
 -compile({inline,yeccpars2_89_/1}).
 -dialyzer({nowarn_function, yeccpars2_89_/1}).
 -compile({nowarn_unused_function,  yeccpars2_89_/1}).
--file("src/compiler/parser/topos_parser.yrl", 335).
+-file("topos_parser.yrl", 343).
 yeccpars2_89_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5427,7 +5464,7 @@ yeccpars2_89_(__Stack0) ->
 -compile({inline,yeccpars2_90_/1}).
 -dialyzer({nowarn_function, yeccpars2_90_/1}).
 -compile({nowarn_unused_function,  yeccpars2_90_/1}).
--file("src/compiler/parser/topos_parser.yrl", 325).
+-file("topos_parser.yrl", 333).
 yeccpars2_90_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5438,7 +5475,7 @@ yeccpars2_90_(__Stack0) ->
 -compile({inline,yeccpars2_92_/1}).
 -dialyzer({nowarn_function, yeccpars2_92_/1}).
 -compile({nowarn_unused_function,  yeccpars2_92_/1}).
--file("src/compiler/parser/topos_parser.yrl", 319).
+-file("topos_parser.yrl", 327).
 yeccpars2_92_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5449,7 +5486,7 @@ yeccpars2_92_(__Stack0) ->
 -compile({inline,yeccpars2_93_/1}).
 -dialyzer({nowarn_function, yeccpars2_93_/1}).
 -compile({nowarn_unused_function,  yeccpars2_93_/1}).
--file("src/compiler/parser/topos_parser.yrl", 322).
+-file("topos_parser.yrl", 330).
 yeccpars2_93_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5460,7 +5497,7 @@ yeccpars2_93_(__Stack0) ->
 -compile({inline,yeccpars2_95_/1}).
 -dialyzer({nowarn_function, yeccpars2_95_/1}).
 -compile({nowarn_unused_function,  yeccpars2_95_/1}).
--file("src/compiler/parser/topos_parser.yrl", 341).
+-file("topos_parser.yrl", 349).
 yeccpars2_95_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5471,7 +5508,7 @@ yeccpars2_95_(__Stack0) ->
 -compile({inline,yeccpars2_97_/1}).
 -dialyzer({nowarn_function, yeccpars2_97_/1}).
 -compile({nowarn_unused_function,  yeccpars2_97_/1}).
--file("src/compiler/parser/topos_parser.yrl", 328).
+-file("topos_parser.yrl", 336).
 yeccpars2_97_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5482,7 +5519,7 @@ yeccpars2_97_(__Stack0) ->
 -compile({inline,yeccpars2_99_/1}).
 -dialyzer({nowarn_function, yeccpars2_99_/1}).
 -compile({nowarn_unused_function,  yeccpars2_99_/1}).
--file("src/compiler/parser/topos_parser.yrl", 346).
+-file("topos_parser.yrl", 354).
 yeccpars2_99_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5493,7 +5530,7 @@ yeccpars2_99_(__Stack0) ->
 -compile({inline,yeccpars2_101_/1}).
 -dialyzer({nowarn_function, yeccpars2_101_/1}).
 -compile({nowarn_unused_function,  yeccpars2_101_/1}).
--file("src/compiler/parser/topos_parser.yrl", 343).
+-file("topos_parser.yrl", 351).
 yeccpars2_101_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5504,7 +5541,7 @@ yeccpars2_101_(__Stack0) ->
 -compile({inline,yeccpars2_102_/1}).
 -dialyzer({nowarn_function, yeccpars2_102_/1}).
 -compile({nowarn_unused_function,  yeccpars2_102_/1}).
--file("src/compiler/parser/topos_parser.yrl", 331).
+-file("topos_parser.yrl", 339).
 yeccpars2_102_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5515,7 +5552,7 @@ yeccpars2_102_(__Stack0) ->
 -compile({inline,yeccpars2_103_/1}).
 -dialyzer({nowarn_function, yeccpars2_103_/1}).
 -compile({nowarn_unused_function,  yeccpars2_103_/1}).
--file("src/compiler/parser/topos_parser.yrl", 232).
+-file("topos_parser.yrl", 240).
 yeccpars2_103_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5526,7 +5563,7 @@ yeccpars2_103_(__Stack0) ->
 -compile({inline,yeccpars2_104_/1}).
 -dialyzer({nowarn_function, yeccpars2_104_/1}).
 -compile({nowarn_unused_function,  yeccpars2_104_/1}).
--file("src/compiler/parser/topos_parser.yrl", 295).
+-file("topos_parser.yrl", 303).
 yeccpars2_104_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5537,7 +5574,7 @@ yeccpars2_104_(__Stack0) ->
 -compile({inline,yeccpars2_106_/1}).
 -dialyzer({nowarn_function, yeccpars2_106_/1}).
 -compile({nowarn_unused_function,  yeccpars2_106_/1}).
--file("src/compiler/parser/topos_parser.yrl", 229).
+-file("topos_parser.yrl", 235).
 yeccpars2_106_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5548,7 +5585,7 @@ yeccpars2_106_(__Stack0) ->
 -compile({inline,yeccpars2_108_/1}).
 -dialyzer({nowarn_function, yeccpars2_108_/1}).
 -compile({nowarn_unused_function,  yeccpars2_108_/1}).
--file("src/compiler/parser/topos_parser.yrl", 448).
+-file("topos_parser.yrl", 456).
 yeccpars2_108_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5558,7 +5595,7 @@ yeccpars2_108_(__Stack0) ->
 -compile({inline,yeccpars2_109_/1}).
 -dialyzer({nowarn_function, yeccpars2_109_/1}).
 -compile({nowarn_unused_function,  yeccpars2_109_/1}).
--file("src/compiler/parser/topos_parser.yrl", 446).
+-file("topos_parser.yrl", 454).
 yeccpars2_109_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5568,7 +5605,7 @@ yeccpars2_109_(__Stack0) ->
 -compile({inline,yeccpars2_110_/1}).
 -dialyzer({nowarn_function, yeccpars2_110_/1}).
 -compile({nowarn_unused_function,  yeccpars2_110_/1}).
--file("src/compiler/parser/topos_parser.yrl", 417).
+-file("topos_parser.yrl", 425).
 yeccpars2_110_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5578,7 +5615,7 @@ yeccpars2_110_(__Stack0) ->
 -compile({inline,yeccpars2_112_/1}).
 -dialyzer({nowarn_function, yeccpars2_112_/1}).
 -compile({nowarn_unused_function,  yeccpars2_112_/1}).
--file("src/compiler/parser/topos_parser.yrl", 353).
+-file("topos_parser.yrl", 361).
 yeccpars2_112_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5589,7 +5626,7 @@ yeccpars2_112_(__Stack0) ->
 -compile({inline,yeccpars2_113_/1}).
 -dialyzer({nowarn_function, yeccpars2_113_/1}).
 -compile({nowarn_unused_function,  yeccpars2_113_/1}).
--file("src/compiler/parser/topos_parser.yrl", 414).
+-file("topos_parser.yrl", 422).
 yeccpars2_113_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5599,7 +5636,7 @@ yeccpars2_113_(__Stack0) ->
 -compile({inline,yeccpars2_114_/1}).
 -dialyzer({nowarn_function, yeccpars2_114_/1}).
 -compile({nowarn_unused_function,  yeccpars2_114_/1}).
--file("src/compiler/parser/topos_parser.yrl", 405).
+-file("topos_parser.yrl", 413).
 yeccpars2_114_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5609,7 +5646,7 @@ yeccpars2_114_(__Stack0) ->
 -compile({inline,yeccpars2_115_/1}).
 -dialyzer({nowarn_function, yeccpars2_115_/1}).
 -compile({nowarn_unused_function,  yeccpars2_115_/1}).
--file("src/compiler/parser/topos_parser.yrl", 358).
+-file("topos_parser.yrl", 366).
 yeccpars2_115_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5619,7 +5656,7 @@ yeccpars2_115_(__Stack0) ->
 -compile({inline,yeccpars2_116_/1}).
 -dialyzer({nowarn_function, yeccpars2_116_/1}).
 -compile({nowarn_unused_function,  yeccpars2_116_/1}).
--file("src/compiler/parser/topos_parser.yrl", 484).
+-file("topos_parser.yrl", 492).
 yeccpars2_116_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5630,7 +5667,7 @@ yeccpars2_116_(__Stack0) ->
 -compile({inline,yeccpars2_118_/1}).
 -dialyzer({nowarn_function, yeccpars2_118_/1}).
 -compile({nowarn_unused_function,  yeccpars2_118_/1}).
--file("src/compiler/parser/topos_parser.yrl", 481).
+-file("topos_parser.yrl", 489).
 yeccpars2_118_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5641,7 +5678,7 @@ yeccpars2_118_(__Stack0) ->
 -compile({inline,yeccpars2_122_/1}).
 -dialyzer({nowarn_function, yeccpars2_122_/1}).
 -compile({nowarn_unused_function,  yeccpars2_122_/1}).
--file("src/compiler/parser/topos_parser.yrl", 419).
+-file("topos_parser.yrl", 427).
 yeccpars2_122_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5652,7 +5689,7 @@ yeccpars2_122_(__Stack0) ->
 -compile({inline,yeccpars2_125_/1}).
 -dialyzer({nowarn_function, yeccpars2_125_/1}).
 -compile({nowarn_unused_function,  yeccpars2_125_/1}).
--file("src/compiler/parser/topos_parser.yrl", 487).
+-file("topos_parser.yrl", 495).
 yeccpars2_125_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5663,7 +5700,7 @@ yeccpars2_125_(__Stack0) ->
 -compile({inline,yeccpars2_127_/1}).
 -dialyzer({nowarn_function, yeccpars2_127_/1}).
 -compile({nowarn_unused_function,  yeccpars2_127_/1}).
--file("src/compiler/parser/topos_parser.yrl", 422).
+-file("topos_parser.yrl", 430).
 yeccpars2_127_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5674,7 +5711,7 @@ yeccpars2_127_(__Stack0) ->
 -compile({inline,yeccpars2_144_/1}).
 -dialyzer({nowarn_function, yeccpars2_144_/1}).
 -compile({nowarn_unused_function,  yeccpars2_144_/1}).
--file("src/compiler/parser/topos_parser.yrl", 524).
+-file("topos_parser.yrl", 532).
 yeccpars2_144_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5685,7 +5722,7 @@ yeccpars2_144_(__Stack0) ->
 -compile({inline,yeccpars2_148_/1}).
 -dialyzer({nowarn_function, yeccpars2_148_/1}).
 -compile({nowarn_unused_function,  yeccpars2_148_/1}).
--file("src/compiler/parser/topos_parser.yrl", 536).
+-file("topos_parser.yrl", 544).
 yeccpars2_148_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -5696,7 +5733,7 @@ yeccpars2_148_(__Stack0) ->
 -compile({inline,yeccpars2_151_/1}).
 -dialyzer({nowarn_function, yeccpars2_151_/1}).
 -compile({nowarn_unused_function,  yeccpars2_151_/1}).
--file("src/compiler/parser/topos_parser.yrl", 288).
+-file("topos_parser.yrl", 296).
 yeccpars2_151_(__Stack0) ->
  [begin
                           
@@ -5706,7 +5743,7 @@ yeccpars2_151_(__Stack0) ->
 -compile({inline,yeccpars2_155_/1}).
 -dialyzer({nowarn_function, yeccpars2_155_/1}).
 -compile({nowarn_unused_function,  yeccpars2_155_/1}).
--file("src/compiler/parser/topos_parser.yrl", 541).
+-file("topos_parser.yrl", 549).
 yeccpars2_155_(__Stack0) ->
  [___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5721,7 +5758,7 @@ yeccpars2_155_(__Stack0) ->
 -compile({inline,yeccpars2_156_/1}).
 -dialyzer({nowarn_function, yeccpars2_156_/1}).
 -compile({nowarn_unused_function,  yeccpars2_156_/1}).
--file("src/compiler/parser/topos_parser.yrl", 548).
+-file("topos_parser.yrl", 556).
 yeccpars2_156_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5736,7 +5773,7 @@ yeccpars2_156_(__Stack0) ->
 -compile({inline,yeccpars2_157_/1}).
 -dialyzer({nowarn_function, yeccpars2_157_/1}).
 -compile({nowarn_unused_function,  yeccpars2_157_/1}).
--file("src/compiler/parser/topos_parser.yrl", 538).
+-file("topos_parser.yrl", 546).
 yeccpars2_157_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5747,7 +5784,7 @@ yeccpars2_157_(__Stack0) ->
 -compile({inline,yeccpars2_158_/1}).
 -dialyzer({nowarn_function, yeccpars2_158_/1}).
 -compile({nowarn_unused_function,  yeccpars2_158_/1}).
--file("src/compiler/parser/topos_parser.yrl", 529).
+-file("topos_parser.yrl", 537).
 yeccpars2_158_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5761,7 +5798,7 @@ yeccpars2_158_(__Stack0) ->
 -compile({inline,yeccpars2_159_/1}).
 -dialyzer({nowarn_function, yeccpars2_159_/1}).
 -compile({nowarn_unused_function,  yeccpars2_159_/1}).
--file("src/compiler/parser/topos_parser.yrl", 526).
+-file("topos_parser.yrl", 534).
 yeccpars2_159_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5772,7 +5809,7 @@ yeccpars2_159_(__Stack0) ->
 -compile({inline,yeccpars2_160_/1}).
 -dialyzer({nowarn_function, yeccpars2_160_/1}).
 -compile({nowarn_unused_function,  yeccpars2_160_/1}).
--file("src/compiler/parser/topos_parser.yrl", 517).
+-file("topos_parser.yrl", 525).
 yeccpars2_160_(__Stack0) ->
  [___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5786,7 +5823,7 @@ yeccpars2_160_(__Stack0) ->
 -compile({inline,yeccpars2_161_/1}).
 -dialyzer({nowarn_function, yeccpars2_161_/1}).
 -compile({nowarn_unused_function,  yeccpars2_161_/1}).
--file("src/compiler/parser/topos_parser.yrl", 378).
+-file("topos_parser.yrl", 386).
 yeccpars2_161_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5797,7 +5834,7 @@ yeccpars2_161_(__Stack0) ->
 -compile({inline,yeccpars2_162_/1}).
 -dialyzer({nowarn_function, yeccpars2_162_/1}).
 -compile({nowarn_unused_function,  yeccpars2_162_/1}).
--file("src/compiler/parser/topos_parser.yrl", 381).
+-file("topos_parser.yrl", 389).
 yeccpars2_162_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5808,7 +5845,7 @@ yeccpars2_162_(__Stack0) ->
 -compile({inline,yeccpars2_163_/1}).
 -dialyzer({nowarn_function, yeccpars2_163_/1}).
 -compile({nowarn_unused_function,  yeccpars2_163_/1}).
--file("src/compiler/parser/topos_parser.yrl", 372).
+-file("topos_parser.yrl", 380).
 yeccpars2_163_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5819,7 +5856,7 @@ yeccpars2_163_(__Stack0) ->
 -compile({inline,yeccpars2_164_/1}).
 -dialyzer({nowarn_function, yeccpars2_164_/1}).
 -compile({nowarn_unused_function,  yeccpars2_164_/1}).
--file("src/compiler/parser/topos_parser.yrl", 366).
+-file("topos_parser.yrl", 374).
 yeccpars2_164_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5830,7 +5867,7 @@ yeccpars2_164_(__Stack0) ->
 -compile({inline,'yeccpars2_165_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_165_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_165_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 'yeccpars2_165_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5841,7 +5878,7 @@ yeccpars2_164_(__Stack0) ->
 -compile({inline,yeccpars2_165_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_165_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5852,7 +5889,7 @@ yeccpars2_165_arrow(__Stack0) ->
 -compile({inline,yeccpars2_165_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_165_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5863,7 +5900,7 @@ yeccpars2_165_bind(__Stack0) ->
 -compile({inline,yeccpars2_165_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_165_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5874,7 +5911,7 @@ yeccpars2_165_comma(__Stack0) ->
 -compile({inline,yeccpars2_165_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_165_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5885,7 +5922,7 @@ yeccpars2_165_dot(__Stack0) ->
 -compile({inline,yeccpars2_165_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_165_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5896,7 +5933,7 @@ yeccpars2_165_effect(__Stack0) ->
 -compile({inline,yeccpars2_165_else/1}).
 -dialyzer({nowarn_function, yeccpars2_165_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5907,7 +5944,7 @@ yeccpars2_165_else(__Stack0) ->
 -compile({inline,yeccpars2_165_end/1}).
 -dialyzer({nowarn_function, yeccpars2_165_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5918,7 +5955,7 @@ yeccpars2_165_end(__Stack0) ->
 -compile({inline,yeccpars2_165_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_165_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5929,7 +5966,7 @@ yeccpars2_165_equals(__Stack0) ->
 -compile({inline,yeccpars2_165_error/1}).
 -dialyzer({nowarn_function, yeccpars2_165_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5940,7 +5977,7 @@ yeccpars2_165_error(__Stack0) ->
 -compile({inline,yeccpars2_165_float/1}).
 -dialyzer({nowarn_function, yeccpars2_165_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5951,7 +5988,7 @@ yeccpars2_165_float(__Stack0) ->
 -compile({inline,yeccpars2_165_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_165_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5962,7 +5999,7 @@ yeccpars2_165_flow(__Stack0) ->
 -compile({inline,yeccpars2_165_if/1}).
 -dialyzer({nowarn_function, yeccpars2_165_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5973,7 +6010,7 @@ yeccpars2_165_if(__Stack0) ->
 -compile({inline,yeccpars2_165_in/1}).
 -dialyzer({nowarn_function, yeccpars2_165_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5984,7 +6021,7 @@ yeccpars2_165_in(__Stack0) ->
 -compile({inline,yeccpars2_165_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_165_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -5995,7 +6032,7 @@ yeccpars2_165_integer(__Stack0) ->
 -compile({inline,yeccpars2_165_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_165_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6006,7 +6043,7 @@ yeccpars2_165_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_165_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_165_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6017,7 +6054,7 @@ yeccpars2_165_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_165_let/1}).
 -dialyzer({nowarn_function, yeccpars2_165_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6028,7 +6065,7 @@ yeccpars2_165_let(__Stack0) ->
 -compile({inline,yeccpars2_165_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_165_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6039,7 +6076,7 @@ yeccpars2_165_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_165_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_165_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6050,7 +6087,7 @@ yeccpars2_165_lparen(__Stack0) ->
 -compile({inline,yeccpars2_165_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_165_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6061,7 +6098,7 @@ yeccpars2_165_perform(__Stack0) ->
 -compile({inline,yeccpars2_165_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_165_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6072,7 +6109,7 @@ yeccpars2_165_pipe(__Stack0) ->
 -compile({inline,yeccpars2_165_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_165_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6083,7 +6120,7 @@ yeccpars2_165_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_165_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_165_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6094,7 +6131,7 @@ yeccpars2_165_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_165_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_165_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6105,7 +6142,7 @@ yeccpars2_165_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_165_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_165_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6116,7 +6153,7 @@ yeccpars2_165_rparen(__Stack0) ->
 -compile({inline,yeccpars2_165_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_165_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6127,7 +6164,7 @@ yeccpars2_165_shape(__Stack0) ->
 -compile({inline,yeccpars2_165_string/1}).
 -dialyzer({nowarn_function, yeccpars2_165_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6138,7 +6175,7 @@ yeccpars2_165_string(__Stack0) ->
 -compile({inline,yeccpars2_165_then/1}).
 -dialyzer({nowarn_function, yeccpars2_165_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6149,7 +6186,7 @@ yeccpars2_165_then(__Stack0) ->
 -compile({inline,yeccpars2_165_try/1}).
 -dialyzer({nowarn_function, yeccpars2_165_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6160,7 +6197,7 @@ yeccpars2_165_try(__Stack0) ->
 -compile({inline,yeccpars2_165_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_165_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6171,7 +6208,7 @@ yeccpars2_165_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_165_with/1}).
 -dialyzer({nowarn_function, yeccpars2_165_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_165_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 390).
+-file("topos_parser.yrl", 398).
 yeccpars2_165_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6182,7 +6219,7 @@ yeccpars2_165_with(__Stack0) ->
 -compile({inline,yeccpars2_166_/1}).
 -dialyzer({nowarn_function, yeccpars2_166_/1}).
 -compile({nowarn_unused_function,  yeccpars2_166_/1}).
--file("src/compiler/parser/topos_parser.yrl", 375).
+-file("topos_parser.yrl", 383).
 yeccpars2_166_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6193,7 +6230,7 @@ yeccpars2_166_(__Stack0) ->
 -compile({inline,'yeccpars2_167_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_167_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_167_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 'yeccpars2_167_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6204,7 +6241,7 @@ yeccpars2_166_(__Stack0) ->
 -compile({inline,yeccpars2_167_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_167_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6215,7 +6252,7 @@ yeccpars2_167_arrow(__Stack0) ->
 -compile({inline,yeccpars2_167_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_167_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6226,7 +6263,7 @@ yeccpars2_167_bind(__Stack0) ->
 -compile({inline,yeccpars2_167_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_167_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6237,7 +6274,7 @@ yeccpars2_167_comma(__Stack0) ->
 -compile({inline,yeccpars2_167_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_167_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6248,7 +6285,7 @@ yeccpars2_167_dot(__Stack0) ->
 -compile({inline,yeccpars2_167_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_167_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6259,7 +6296,7 @@ yeccpars2_167_effect(__Stack0) ->
 -compile({inline,yeccpars2_167_else/1}).
 -dialyzer({nowarn_function, yeccpars2_167_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6270,7 +6307,7 @@ yeccpars2_167_else(__Stack0) ->
 -compile({inline,yeccpars2_167_end/1}).
 -dialyzer({nowarn_function, yeccpars2_167_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6281,7 +6318,7 @@ yeccpars2_167_end(__Stack0) ->
 -compile({inline,yeccpars2_167_eq/1}).
 -dialyzer({nowarn_function, yeccpars2_167_eq/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_eq/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_eq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6292,7 +6329,7 @@ yeccpars2_167_eq(__Stack0) ->
 -compile({inline,yeccpars2_167_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_167_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6303,7 +6340,7 @@ yeccpars2_167_equals(__Stack0) ->
 -compile({inline,yeccpars2_167_error/1}).
 -dialyzer({nowarn_function, yeccpars2_167_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6314,7 +6351,7 @@ yeccpars2_167_error(__Stack0) ->
 -compile({inline,yeccpars2_167_float/1}).
 -dialyzer({nowarn_function, yeccpars2_167_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6325,7 +6362,7 @@ yeccpars2_167_float(__Stack0) ->
 -compile({inline,yeccpars2_167_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_167_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6336,7 +6373,7 @@ yeccpars2_167_flow(__Stack0) ->
 -compile({inline,yeccpars2_167_if/1}).
 -dialyzer({nowarn_function, yeccpars2_167_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6347,7 +6384,7 @@ yeccpars2_167_if(__Stack0) ->
 -compile({inline,yeccpars2_167_in/1}).
 -dialyzer({nowarn_function, yeccpars2_167_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6358,7 +6395,7 @@ yeccpars2_167_in(__Stack0) ->
 -compile({inline,yeccpars2_167_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_167_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6369,7 +6406,7 @@ yeccpars2_167_integer(__Stack0) ->
 -compile({inline,yeccpars2_167_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_167_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6380,7 +6417,7 @@ yeccpars2_167_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_167_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_167_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6391,7 +6428,7 @@ yeccpars2_167_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_167_let/1}).
 -dialyzer({nowarn_function, yeccpars2_167_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6402,7 +6439,7 @@ yeccpars2_167_let(__Stack0) ->
 -compile({inline,yeccpars2_167_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_167_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6413,7 +6450,7 @@ yeccpars2_167_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_167_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_167_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6424,7 +6461,7 @@ yeccpars2_167_lparen(__Stack0) ->
 -compile({inline,yeccpars2_167_neq/1}).
 -dialyzer({nowarn_function, yeccpars2_167_neq/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_neq/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_neq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6435,7 +6472,7 @@ yeccpars2_167_neq(__Stack0) ->
 -compile({inline,yeccpars2_167_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_167_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6446,7 +6483,7 @@ yeccpars2_167_perform(__Stack0) ->
 -compile({inline,yeccpars2_167_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_167_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6457,7 +6494,7 @@ yeccpars2_167_pipe(__Stack0) ->
 -compile({inline,yeccpars2_167_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_167_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6468,7 +6505,7 @@ yeccpars2_167_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_167_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_167_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6479,7 +6516,7 @@ yeccpars2_167_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_167_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_167_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6490,7 +6527,7 @@ yeccpars2_167_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_167_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_167_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6501,7 +6538,7 @@ yeccpars2_167_rparen(__Stack0) ->
 -compile({inline,yeccpars2_167_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_167_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6512,7 +6549,7 @@ yeccpars2_167_shape(__Stack0) ->
 -compile({inline,yeccpars2_167_string/1}).
 -dialyzer({nowarn_function, yeccpars2_167_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6523,7 +6560,7 @@ yeccpars2_167_string(__Stack0) ->
 -compile({inline,yeccpars2_167_then/1}).
 -dialyzer({nowarn_function, yeccpars2_167_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6534,7 +6571,7 @@ yeccpars2_167_then(__Stack0) ->
 -compile({inline,yeccpars2_167_try/1}).
 -dialyzer({nowarn_function, yeccpars2_167_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6545,7 +6582,7 @@ yeccpars2_167_try(__Stack0) ->
 -compile({inline,yeccpars2_167_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_167_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6556,7 +6593,7 @@ yeccpars2_167_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_167_with/1}).
 -dialyzer({nowarn_function, yeccpars2_167_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_167_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 399).
+-file("topos_parser.yrl", 407).
 yeccpars2_167_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6567,7 +6604,7 @@ yeccpars2_167_with(__Stack0) ->
 -compile({inline,'yeccpars2_168_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_168_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_168_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 'yeccpars2_168_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6578,7 +6615,7 @@ yeccpars2_167_with(__Stack0) ->
 -compile({inline,yeccpars2_168_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_168_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6589,7 +6626,7 @@ yeccpars2_168_arrow(__Stack0) ->
 -compile({inline,yeccpars2_168_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_168_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6600,7 +6637,7 @@ yeccpars2_168_bind(__Stack0) ->
 -compile({inline,yeccpars2_168_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_168_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6611,7 +6648,7 @@ yeccpars2_168_comma(__Stack0) ->
 -compile({inline,yeccpars2_168_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_168_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6622,7 +6659,7 @@ yeccpars2_168_dot(__Stack0) ->
 -compile({inline,yeccpars2_168_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_168_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6633,7 +6670,7 @@ yeccpars2_168_effect(__Stack0) ->
 -compile({inline,yeccpars2_168_else/1}).
 -dialyzer({nowarn_function, yeccpars2_168_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6644,7 +6681,7 @@ yeccpars2_168_else(__Stack0) ->
 -compile({inline,yeccpars2_168_end/1}).
 -dialyzer({nowarn_function, yeccpars2_168_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6655,7 +6692,7 @@ yeccpars2_168_end(__Stack0) ->
 -compile({inline,yeccpars2_168_eq/1}).
 -dialyzer({nowarn_function, yeccpars2_168_eq/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_eq/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_eq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6666,7 +6703,7 @@ yeccpars2_168_eq(__Stack0) ->
 -compile({inline,yeccpars2_168_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_168_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6677,7 +6714,7 @@ yeccpars2_168_equals(__Stack0) ->
 -compile({inline,yeccpars2_168_error/1}).
 -dialyzer({nowarn_function, yeccpars2_168_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6688,7 +6725,7 @@ yeccpars2_168_error(__Stack0) ->
 -compile({inline,yeccpars2_168_float/1}).
 -dialyzer({nowarn_function, yeccpars2_168_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6699,7 +6736,7 @@ yeccpars2_168_float(__Stack0) ->
 -compile({inline,yeccpars2_168_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_168_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6710,7 +6747,7 @@ yeccpars2_168_flow(__Stack0) ->
 -compile({inline,yeccpars2_168_if/1}).
 -dialyzer({nowarn_function, yeccpars2_168_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6721,7 +6758,7 @@ yeccpars2_168_if(__Stack0) ->
 -compile({inline,yeccpars2_168_in/1}).
 -dialyzer({nowarn_function, yeccpars2_168_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6732,7 +6769,7 @@ yeccpars2_168_in(__Stack0) ->
 -compile({inline,yeccpars2_168_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_168_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6743,7 +6780,7 @@ yeccpars2_168_integer(__Stack0) ->
 -compile({inline,yeccpars2_168_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_168_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6754,7 +6791,7 @@ yeccpars2_168_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_168_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_168_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6765,7 +6802,7 @@ yeccpars2_168_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_168_let/1}).
 -dialyzer({nowarn_function, yeccpars2_168_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6776,7 +6813,7 @@ yeccpars2_168_let(__Stack0) ->
 -compile({inline,yeccpars2_168_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_168_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6787,7 +6824,7 @@ yeccpars2_168_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_168_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_168_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6798,7 +6835,7 @@ yeccpars2_168_lparen(__Stack0) ->
 -compile({inline,yeccpars2_168_neq/1}).
 -dialyzer({nowarn_function, yeccpars2_168_neq/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_neq/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_neq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6809,7 +6846,7 @@ yeccpars2_168_neq(__Stack0) ->
 -compile({inline,yeccpars2_168_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_168_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6820,7 +6857,7 @@ yeccpars2_168_perform(__Stack0) ->
 -compile({inline,yeccpars2_168_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_168_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6831,7 +6868,7 @@ yeccpars2_168_pipe(__Stack0) ->
 -compile({inline,yeccpars2_168_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_168_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6842,7 +6879,7 @@ yeccpars2_168_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_168_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_168_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6853,7 +6890,7 @@ yeccpars2_168_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_168_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_168_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6864,7 +6901,7 @@ yeccpars2_168_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_168_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_168_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6875,7 +6912,7 @@ yeccpars2_168_rparen(__Stack0) ->
 -compile({inline,yeccpars2_168_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_168_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6886,7 +6923,7 @@ yeccpars2_168_shape(__Stack0) ->
 -compile({inline,yeccpars2_168_string/1}).
 -dialyzer({nowarn_function, yeccpars2_168_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6897,7 +6934,7 @@ yeccpars2_168_string(__Stack0) ->
 -compile({inline,yeccpars2_168_then/1}).
 -dialyzer({nowarn_function, yeccpars2_168_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6908,7 +6945,7 @@ yeccpars2_168_then(__Stack0) ->
 -compile({inline,yeccpars2_168_try/1}).
 -dialyzer({nowarn_function, yeccpars2_168_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6919,7 +6956,7 @@ yeccpars2_168_try(__Stack0) ->
 -compile({inline,yeccpars2_168_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_168_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6930,7 +6967,7 @@ yeccpars2_168_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_168_with/1}).
 -dialyzer({nowarn_function, yeccpars2_168_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_168_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 393).
+-file("topos_parser.yrl", 401).
 yeccpars2_168_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6941,7 +6978,7 @@ yeccpars2_168_with(__Stack0) ->
 -compile({inline,'yeccpars2_169_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_169_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_169_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 'yeccpars2_169_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6952,7 +6989,7 @@ yeccpars2_168_with(__Stack0) ->
 -compile({inline,yeccpars2_169_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_169_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6963,7 +7000,7 @@ yeccpars2_169_arrow(__Stack0) ->
 -compile({inline,yeccpars2_169_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_169_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6974,7 +7011,7 @@ yeccpars2_169_bind(__Stack0) ->
 -compile({inline,yeccpars2_169_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_169_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6985,7 +7022,7 @@ yeccpars2_169_comma(__Stack0) ->
 -compile({inline,yeccpars2_169_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_169_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -6996,7 +7033,7 @@ yeccpars2_169_dot(__Stack0) ->
 -compile({inline,yeccpars2_169_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_169_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7007,7 +7044,7 @@ yeccpars2_169_effect(__Stack0) ->
 -compile({inline,yeccpars2_169_else/1}).
 -dialyzer({nowarn_function, yeccpars2_169_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7018,7 +7055,7 @@ yeccpars2_169_else(__Stack0) ->
 -compile({inline,yeccpars2_169_end/1}).
 -dialyzer({nowarn_function, yeccpars2_169_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7029,7 +7066,7 @@ yeccpars2_169_end(__Stack0) ->
 -compile({inline,yeccpars2_169_eq/1}).
 -dialyzer({nowarn_function, yeccpars2_169_eq/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_eq/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_eq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7040,7 +7077,7 @@ yeccpars2_169_eq(__Stack0) ->
 -compile({inline,yeccpars2_169_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_169_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7051,7 +7088,7 @@ yeccpars2_169_equals(__Stack0) ->
 -compile({inline,yeccpars2_169_error/1}).
 -dialyzer({nowarn_function, yeccpars2_169_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7062,7 +7099,7 @@ yeccpars2_169_error(__Stack0) ->
 -compile({inline,yeccpars2_169_float/1}).
 -dialyzer({nowarn_function, yeccpars2_169_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7073,7 +7110,7 @@ yeccpars2_169_float(__Stack0) ->
 -compile({inline,yeccpars2_169_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_169_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7084,7 +7121,7 @@ yeccpars2_169_flow(__Stack0) ->
 -compile({inline,yeccpars2_169_if/1}).
 -dialyzer({nowarn_function, yeccpars2_169_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7095,7 +7132,7 @@ yeccpars2_169_if(__Stack0) ->
 -compile({inline,yeccpars2_169_in/1}).
 -dialyzer({nowarn_function, yeccpars2_169_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7106,7 +7143,7 @@ yeccpars2_169_in(__Stack0) ->
 -compile({inline,yeccpars2_169_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_169_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7117,7 +7154,7 @@ yeccpars2_169_integer(__Stack0) ->
 -compile({inline,yeccpars2_169_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_169_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7128,7 +7165,7 @@ yeccpars2_169_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_169_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_169_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7139,7 +7176,7 @@ yeccpars2_169_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_169_let/1}).
 -dialyzer({nowarn_function, yeccpars2_169_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7150,7 +7187,7 @@ yeccpars2_169_let(__Stack0) ->
 -compile({inline,yeccpars2_169_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_169_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7161,7 +7198,7 @@ yeccpars2_169_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_169_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_169_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7172,7 +7209,7 @@ yeccpars2_169_lparen(__Stack0) ->
 -compile({inline,yeccpars2_169_neq/1}).
 -dialyzer({nowarn_function, yeccpars2_169_neq/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_neq/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_neq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7183,7 +7220,7 @@ yeccpars2_169_neq(__Stack0) ->
 -compile({inline,yeccpars2_169_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_169_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7194,7 +7231,7 @@ yeccpars2_169_perform(__Stack0) ->
 -compile({inline,yeccpars2_169_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_169_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7205,7 +7242,7 @@ yeccpars2_169_pipe(__Stack0) ->
 -compile({inline,yeccpars2_169_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_169_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7216,7 +7253,7 @@ yeccpars2_169_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_169_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_169_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7227,7 +7264,7 @@ yeccpars2_169_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_169_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_169_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7238,7 +7275,7 @@ yeccpars2_169_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_169_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_169_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7249,7 +7286,7 @@ yeccpars2_169_rparen(__Stack0) ->
 -compile({inline,yeccpars2_169_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_169_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7260,7 +7297,7 @@ yeccpars2_169_shape(__Stack0) ->
 -compile({inline,yeccpars2_169_string/1}).
 -dialyzer({nowarn_function, yeccpars2_169_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7271,7 +7308,7 @@ yeccpars2_169_string(__Stack0) ->
 -compile({inline,yeccpars2_169_then/1}).
 -dialyzer({nowarn_function, yeccpars2_169_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7282,7 +7319,7 @@ yeccpars2_169_then(__Stack0) ->
 -compile({inline,yeccpars2_169_try/1}).
 -dialyzer({nowarn_function, yeccpars2_169_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7293,7 +7330,7 @@ yeccpars2_169_try(__Stack0) ->
 -compile({inline,yeccpars2_169_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_169_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7304,7 +7341,7 @@ yeccpars2_169_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_169_with/1}).
 -dialyzer({nowarn_function, yeccpars2_169_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_169_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 402).
+-file("topos_parser.yrl", 410).
 yeccpars2_169_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7315,7 +7352,7 @@ yeccpars2_169_with(__Stack0) ->
 -compile({inline,'yeccpars2_170_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_170_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_170_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 'yeccpars2_170_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7326,7 +7363,7 @@ yeccpars2_169_with(__Stack0) ->
 -compile({inline,yeccpars2_170_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_170_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7337,7 +7374,7 @@ yeccpars2_170_arrow(__Stack0) ->
 -compile({inline,yeccpars2_170_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_170_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7348,7 +7385,7 @@ yeccpars2_170_bind(__Stack0) ->
 -compile({inline,yeccpars2_170_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_170_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7359,7 +7396,7 @@ yeccpars2_170_comma(__Stack0) ->
 -compile({inline,yeccpars2_170_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_170_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7370,7 +7407,7 @@ yeccpars2_170_dot(__Stack0) ->
 -compile({inline,yeccpars2_170_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_170_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7381,7 +7418,7 @@ yeccpars2_170_effect(__Stack0) ->
 -compile({inline,yeccpars2_170_else/1}).
 -dialyzer({nowarn_function, yeccpars2_170_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7392,7 +7429,7 @@ yeccpars2_170_else(__Stack0) ->
 -compile({inline,yeccpars2_170_end/1}).
 -dialyzer({nowarn_function, yeccpars2_170_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7403,7 +7440,7 @@ yeccpars2_170_end(__Stack0) ->
 -compile({inline,yeccpars2_170_eq/1}).
 -dialyzer({nowarn_function, yeccpars2_170_eq/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_eq/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_eq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7414,7 +7451,7 @@ yeccpars2_170_eq(__Stack0) ->
 -compile({inline,yeccpars2_170_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_170_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7425,7 +7462,7 @@ yeccpars2_170_equals(__Stack0) ->
 -compile({inline,yeccpars2_170_error/1}).
 -dialyzer({nowarn_function, yeccpars2_170_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7436,7 +7473,7 @@ yeccpars2_170_error(__Stack0) ->
 -compile({inline,yeccpars2_170_float/1}).
 -dialyzer({nowarn_function, yeccpars2_170_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7447,7 +7484,7 @@ yeccpars2_170_float(__Stack0) ->
 -compile({inline,yeccpars2_170_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_170_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7458,7 +7495,7 @@ yeccpars2_170_flow(__Stack0) ->
 -compile({inline,yeccpars2_170_if/1}).
 -dialyzer({nowarn_function, yeccpars2_170_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7469,7 +7506,7 @@ yeccpars2_170_if(__Stack0) ->
 -compile({inline,yeccpars2_170_in/1}).
 -dialyzer({nowarn_function, yeccpars2_170_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7480,7 +7517,7 @@ yeccpars2_170_in(__Stack0) ->
 -compile({inline,yeccpars2_170_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_170_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7491,7 +7528,7 @@ yeccpars2_170_integer(__Stack0) ->
 -compile({inline,yeccpars2_170_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_170_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7502,7 +7539,7 @@ yeccpars2_170_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_170_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_170_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7513,7 +7550,7 @@ yeccpars2_170_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_170_let/1}).
 -dialyzer({nowarn_function, yeccpars2_170_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7524,7 +7561,7 @@ yeccpars2_170_let(__Stack0) ->
 -compile({inline,yeccpars2_170_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_170_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7535,7 +7572,7 @@ yeccpars2_170_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_170_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_170_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7546,7 +7583,7 @@ yeccpars2_170_lparen(__Stack0) ->
 -compile({inline,yeccpars2_170_neq/1}).
 -dialyzer({nowarn_function, yeccpars2_170_neq/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_neq/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_neq(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7557,7 +7594,7 @@ yeccpars2_170_neq(__Stack0) ->
 -compile({inline,yeccpars2_170_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_170_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7568,7 +7605,7 @@ yeccpars2_170_perform(__Stack0) ->
 -compile({inline,yeccpars2_170_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_170_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7579,7 +7616,7 @@ yeccpars2_170_pipe(__Stack0) ->
 -compile({inline,yeccpars2_170_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_170_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7590,7 +7627,7 @@ yeccpars2_170_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_170_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_170_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7601,7 +7638,7 @@ yeccpars2_170_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_170_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_170_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7612,7 +7649,7 @@ yeccpars2_170_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_170_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_170_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7623,7 +7660,7 @@ yeccpars2_170_rparen(__Stack0) ->
 -compile({inline,yeccpars2_170_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_170_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7634,7 +7671,7 @@ yeccpars2_170_shape(__Stack0) ->
 -compile({inline,yeccpars2_170_string/1}).
 -dialyzer({nowarn_function, yeccpars2_170_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7645,7 +7682,7 @@ yeccpars2_170_string(__Stack0) ->
 -compile({inline,yeccpars2_170_then/1}).
 -dialyzer({nowarn_function, yeccpars2_170_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7656,7 +7693,7 @@ yeccpars2_170_then(__Stack0) ->
 -compile({inline,yeccpars2_170_try/1}).
 -dialyzer({nowarn_function, yeccpars2_170_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7667,7 +7704,7 @@ yeccpars2_170_try(__Stack0) ->
 -compile({inline,yeccpars2_170_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_170_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7678,7 +7715,7 @@ yeccpars2_170_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_170_with/1}).
 -dialyzer({nowarn_function, yeccpars2_170_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_170_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 396).
+-file("topos_parser.yrl", 404).
 yeccpars2_170_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7689,7 +7726,7 @@ yeccpars2_170_with(__Stack0) ->
 -compile({inline,'yeccpars2_171_$end'/1}).
 -dialyzer({nowarn_function, 'yeccpars2_171_$end'/1}).
 -compile({nowarn_unused_function,  'yeccpars2_171_$end'/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 'yeccpars2_171_$end'(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7700,7 +7737,7 @@ yeccpars2_170_with(__Stack0) ->
 -compile({inline,yeccpars2_171_arrow/1}).
 -dialyzer({nowarn_function, yeccpars2_171_arrow/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_arrow/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_arrow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7711,7 +7748,7 @@ yeccpars2_171_arrow(__Stack0) ->
 -compile({inline,yeccpars2_171_bind/1}).
 -dialyzer({nowarn_function, yeccpars2_171_bind/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_bind/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_bind(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7722,7 +7759,7 @@ yeccpars2_171_bind(__Stack0) ->
 -compile({inline,yeccpars2_171_comma/1}).
 -dialyzer({nowarn_function, yeccpars2_171_comma/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_comma/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_comma(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7733,7 +7770,7 @@ yeccpars2_171_comma(__Stack0) ->
 -compile({inline,yeccpars2_171_dot/1}).
 -dialyzer({nowarn_function, yeccpars2_171_dot/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_dot/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_dot(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7744,7 +7781,7 @@ yeccpars2_171_dot(__Stack0) ->
 -compile({inline,yeccpars2_171_effect/1}).
 -dialyzer({nowarn_function, yeccpars2_171_effect/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_effect/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_effect(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7755,7 +7792,7 @@ yeccpars2_171_effect(__Stack0) ->
 -compile({inline,yeccpars2_171_else/1}).
 -dialyzer({nowarn_function, yeccpars2_171_else/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_else/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_else(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7766,7 +7803,7 @@ yeccpars2_171_else(__Stack0) ->
 -compile({inline,yeccpars2_171_end/1}).
 -dialyzer({nowarn_function, yeccpars2_171_end/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_end/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_end(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7777,7 +7814,7 @@ yeccpars2_171_end(__Stack0) ->
 -compile({inline,yeccpars2_171_equals/1}).
 -dialyzer({nowarn_function, yeccpars2_171_equals/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_equals/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_equals(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7788,7 +7825,7 @@ yeccpars2_171_equals(__Stack0) ->
 -compile({inline,yeccpars2_171_error/1}).
 -dialyzer({nowarn_function, yeccpars2_171_error/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_error/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_error(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7799,7 +7836,7 @@ yeccpars2_171_error(__Stack0) ->
 -compile({inline,yeccpars2_171_float/1}).
 -dialyzer({nowarn_function, yeccpars2_171_float/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_float/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_float(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7810,7 +7847,7 @@ yeccpars2_171_float(__Stack0) ->
 -compile({inline,yeccpars2_171_flow/1}).
 -dialyzer({nowarn_function, yeccpars2_171_flow/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_flow/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_flow(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7821,7 +7858,7 @@ yeccpars2_171_flow(__Stack0) ->
 -compile({inline,yeccpars2_171_if/1}).
 -dialyzer({nowarn_function, yeccpars2_171_if/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_if/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_if(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7832,7 +7869,7 @@ yeccpars2_171_if(__Stack0) ->
 -compile({inline,yeccpars2_171_in/1}).
 -dialyzer({nowarn_function, yeccpars2_171_in/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_in/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_in(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7843,7 +7880,7 @@ yeccpars2_171_in(__Stack0) ->
 -compile({inline,yeccpars2_171_integer/1}).
 -dialyzer({nowarn_function, yeccpars2_171_integer/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_integer/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_integer(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7854,7 +7891,7 @@ yeccpars2_171_integer(__Stack0) ->
 -compile({inline,yeccpars2_171_lbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_171_lbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_lbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_lbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7865,7 +7902,7 @@ yeccpars2_171_lbrace(__Stack0) ->
 -compile({inline,yeccpars2_171_lbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_171_lbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_lbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_lbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7876,7 +7913,7 @@ yeccpars2_171_lbracket(__Stack0) ->
 -compile({inline,yeccpars2_171_let/1}).
 -dialyzer({nowarn_function, yeccpars2_171_let/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_let/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_let(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7887,7 +7924,7 @@ yeccpars2_171_let(__Stack0) ->
 -compile({inline,yeccpars2_171_lower_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_171_lower_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_lower_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_lower_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7898,7 +7935,7 @@ yeccpars2_171_lower_ident(__Stack0) ->
 -compile({inline,yeccpars2_171_lparen/1}).
 -dialyzer({nowarn_function, yeccpars2_171_lparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_lparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_lparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7909,7 +7946,7 @@ yeccpars2_171_lparen(__Stack0) ->
 -compile({inline,yeccpars2_171_perform/1}).
 -dialyzer({nowarn_function, yeccpars2_171_perform/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_perform/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_perform(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7920,7 +7957,7 @@ yeccpars2_171_perform(__Stack0) ->
 -compile({inline,yeccpars2_171_pipe/1}).
 -dialyzer({nowarn_function, yeccpars2_171_pipe/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_pipe/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_pipe(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7931,7 +7968,7 @@ yeccpars2_171_pipe(__Stack0) ->
 -compile({inline,yeccpars2_171_pipe_right/1}).
 -dialyzer({nowarn_function, yeccpars2_171_pipe_right/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_pipe_right/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_pipe_right(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7942,7 +7979,7 @@ yeccpars2_171_pipe_right(__Stack0) ->
 -compile({inline,yeccpars2_171_rbrace/1}).
 -dialyzer({nowarn_function, yeccpars2_171_rbrace/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_rbrace/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_rbrace(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7953,7 +7990,7 @@ yeccpars2_171_rbrace(__Stack0) ->
 -compile({inline,yeccpars2_171_rbracket/1}).
 -dialyzer({nowarn_function, yeccpars2_171_rbracket/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_rbracket/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_rbracket(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7964,7 +8001,7 @@ yeccpars2_171_rbracket(__Stack0) ->
 -compile({inline,yeccpars2_171_rparen/1}).
 -dialyzer({nowarn_function, yeccpars2_171_rparen/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_rparen/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_rparen(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7975,7 +8012,7 @@ yeccpars2_171_rparen(__Stack0) ->
 -compile({inline,yeccpars2_171_shape/1}).
 -dialyzer({nowarn_function, yeccpars2_171_shape/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_shape/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_shape(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7986,7 +8023,7 @@ yeccpars2_171_shape(__Stack0) ->
 -compile({inline,yeccpars2_171_string/1}).
 -dialyzer({nowarn_function, yeccpars2_171_string/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_string/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_string(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -7997,7 +8034,7 @@ yeccpars2_171_string(__Stack0) ->
 -compile({inline,yeccpars2_171_then/1}).
 -dialyzer({nowarn_function, yeccpars2_171_then/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_then/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_then(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8008,7 +8045,7 @@ yeccpars2_171_then(__Stack0) ->
 -compile({inline,yeccpars2_171_try/1}).
 -dialyzer({nowarn_function, yeccpars2_171_try/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_try/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_try(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8019,7 +8056,7 @@ yeccpars2_171_try(__Stack0) ->
 -compile({inline,yeccpars2_171_upper_ident/1}).
 -dialyzer({nowarn_function, yeccpars2_171_upper_ident/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_upper_ident/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_upper_ident(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8030,7 +8067,7 @@ yeccpars2_171_upper_ident(__Stack0) ->
 -compile({inline,yeccpars2_171_with/1}).
 -dialyzer({nowarn_function, yeccpars2_171_with/1}).
 -compile({nowarn_unused_function,  yeccpars2_171_with/1}).
--file("src/compiler/parser/topos_parser.yrl", 387).
+-file("topos_parser.yrl", 395).
 yeccpars2_171_with(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8041,7 +8078,7 @@ yeccpars2_171_with(__Stack0) ->
 -compile({inline,yeccpars2_172_/1}).
 -dialyzer({nowarn_function, yeccpars2_172_/1}).
 -compile({nowarn_unused_function,  yeccpars2_172_/1}).
--file("src/compiler/parser/topos_parser.yrl", 384).
+-file("topos_parser.yrl", 392).
 yeccpars2_172_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8052,7 +8089,7 @@ yeccpars2_172_(__Stack0) ->
 -compile({inline,yeccpars2_173_/1}).
 -dialyzer({nowarn_function, yeccpars2_173_/1}).
 -compile({nowarn_unused_function,  yeccpars2_173_/1}).
--file("src/compiler/parser/topos_parser.yrl", 369).
+-file("topos_parser.yrl", 377).
 yeccpars2_173_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8063,7 +8100,7 @@ yeccpars2_173_(__Stack0) ->
 -compile({inline,yeccpars2_176_/1}).
 -dialyzer({nowarn_function, yeccpars2_176_/1}).
 -compile({nowarn_unused_function,  yeccpars2_176_/1}).
--file("src/compiler/parser/topos_parser.yrl", 509).
+-file("topos_parser.yrl", 517).
 yeccpars2_176_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8078,7 +8115,7 @@ yeccpars2_176_(__Stack0) ->
 -compile({inline,yeccpars2_179_/1}).
 -dialyzer({nowarn_function, yeccpars2_179_/1}).
 -compile({nowarn_unused_function,  yeccpars2_179_/1}).
--file("src/compiler/parser/topos_parser.yrl", 472).
+-file("topos_parser.yrl", 480).
 yeccpars2_179_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -8089,7 +8126,7 @@ yeccpars2_179_(__Stack0) ->
 -compile({inline,yeccpars2_180_/1}).
 -dialyzer({nowarn_function, yeccpars2_180_/1}).
 -compile({nowarn_unused_function,  yeccpars2_180_/1}).
--file("src/compiler/parser/topos_parser.yrl", 495).
+-file("topos_parser.yrl", 503).
 yeccpars2_180_(__Stack0) ->
  [___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8104,7 +8141,7 @@ yeccpars2_180_(__Stack0) ->
 -compile({inline,yeccpars2_182_/1}).
 -dialyzer({nowarn_function, yeccpars2_182_/1}).
 -compile({nowarn_unused_function,  yeccpars2_182_/1}).
--file("src/compiler/parser/topos_parser.yrl", 474).
+-file("topos_parser.yrl", 482).
 yeccpars2_182_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8115,7 +8152,7 @@ yeccpars2_182_(__Stack0) ->
 -compile({inline,yeccpars2_183_/1}).
 -dialyzer({nowarn_function, yeccpars2_183_/1}).
 -compile({nowarn_unused_function,  yeccpars2_183_/1}).
--file("src/compiler/parser/topos_parser.yrl", 502).
+-file("topos_parser.yrl", 510).
 yeccpars2_183_(__Stack0) ->
  [___7,___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8130,7 +8167,7 @@ yeccpars2_183_(__Stack0) ->
 -compile({inline,yeccpars2_187_/1}).
 -dialyzer({nowarn_function, yeccpars2_187_/1}).
 -compile({nowarn_unused_function,  yeccpars2_187_/1}).
--file("src/compiler/parser/topos_parser.yrl", 425).
+-file("topos_parser.yrl", 433).
 yeccpars2_187_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8141,7 +8178,7 @@ yeccpars2_187_(__Stack0) ->
 -compile({inline,yeccpars2_188_/1}).
 -dialyzer({nowarn_function, yeccpars2_188_/1}).
 -compile({nowarn_unused_function,  yeccpars2_188_/1}).
--file("src/compiler/parser/topos_parser.yrl", 434).
+-file("topos_parser.yrl", 442).
 yeccpars2_188_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8152,7 +8189,7 @@ yeccpars2_188_(__Stack0) ->
 -compile({inline,yeccpars2_189_/1}).
 -dialyzer({nowarn_function, yeccpars2_189_/1}).
 -compile({nowarn_unused_function,  yeccpars2_189_/1}).
--file("src/compiler/parser/topos_parser.yrl", 432).
+-file("topos_parser.yrl", 440).
 yeccpars2_189_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8163,7 +8200,7 @@ yeccpars2_189_(__Stack0) ->
 -compile({inline,yeccpars2_190_/1}).
 -dialyzer({nowarn_function, yeccpars2_190_/1}).
 -compile({nowarn_unused_function,  yeccpars2_190_/1}).
--file("src/compiler/parser/topos_parser.yrl", 428).
+-file("topos_parser.yrl", 436).
 yeccpars2_190_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8174,7 +8211,7 @@ yeccpars2_190_(__Stack0) ->
 -compile({inline,yeccpars2_195_/1}).
 -dialyzer({nowarn_function, yeccpars2_195_/1}).
 -compile({nowarn_unused_function,  yeccpars2_195_/1}).
--file("src/compiler/parser/topos_parser.yrl", 437).
+-file("topos_parser.yrl", 445).
 yeccpars2_195_(__Stack0) ->
  [___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8188,7 +8225,7 @@ yeccpars2_195_(__Stack0) ->
 -compile({inline,yeccpars2_197_/1}).
 -dialyzer({nowarn_function, yeccpars2_197_/1}).
 -compile({nowarn_unused_function,  yeccpars2_197_/1}).
--file("src/compiler/parser/topos_parser.yrl", 450).
+-file("topos_parser.yrl", 458).
 yeccpars2_197_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8199,7 +8236,7 @@ yeccpars2_197_(__Stack0) ->
 -compile({inline,yeccpars2_198_/1}).
 -dialyzer({nowarn_function, yeccpars2_198_/1}).
 -compile({nowarn_unused_function,  yeccpars2_198_/1}).
--file("src/compiler/parser/topos_parser.yrl", 453).
+-file("topos_parser.yrl", 461).
 yeccpars2_198_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8210,7 +8247,7 @@ yeccpars2_198_(__Stack0) ->
 -compile({inline,yeccpars2_200_/1}).
 -dialyzer({nowarn_function, yeccpars2_200_/1}).
 -compile({nowarn_unused_function,  yeccpars2_200_/1}).
--file("src/compiler/parser/topos_parser.yrl", 463).
+-file("topos_parser.yrl", 471).
 yeccpars2_200_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -8221,7 +8258,7 @@ yeccpars2_200_(__Stack0) ->
 -compile({inline,yeccpars2_202_/1}).
 -dialyzer({nowarn_function, yeccpars2_202_/1}).
 -compile({nowarn_unused_function,  yeccpars2_202_/1}).
--file("src/compiler/parser/topos_parser.yrl", 456).
+-file("topos_parser.yrl", 464).
 yeccpars2_202_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8232,7 +8269,7 @@ yeccpars2_202_(__Stack0) ->
 -compile({inline,yeccpars2_204_/1}).
 -dialyzer({nowarn_function, yeccpars2_204_/1}).
 -compile({nowarn_unused_function,  yeccpars2_204_/1}).
--file("src/compiler/parser/topos_parser.yrl", 468).
+-file("topos_parser.yrl", 476).
 yeccpars2_204_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8243,7 +8280,7 @@ yeccpars2_204_(__Stack0) ->
 -compile({inline,yeccpars2_206_/1}).
 -dialyzer({nowarn_function, yeccpars2_206_/1}).
 -compile({nowarn_unused_function,  yeccpars2_206_/1}).
--file("src/compiler/parser/topos_parser.yrl", 465).
+-file("topos_parser.yrl", 473).
 yeccpars2_206_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8254,7 +8291,7 @@ yeccpars2_206_(__Stack0) ->
 -compile({inline,yeccpars2_207_/1}).
 -dialyzer({nowarn_function, yeccpars2_207_/1}).
 -compile({nowarn_unused_function,  yeccpars2_207_/1}).
--file("src/compiler/parser/topos_parser.yrl", 459).
+-file("topos_parser.yrl", 467).
 yeccpars2_207_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8265,7 +8302,7 @@ yeccpars2_207_(__Stack0) ->
 -compile({inline,yeccpars2_212_/1}).
 -dialyzer({nowarn_function, yeccpars2_212_/1}).
 -compile({nowarn_unused_function,  yeccpars2_212_/1}).
--file("src/compiler/parser/topos_parser.yrl", 443).
+-file("topos_parser.yrl", 451).
 yeccpars2_212_(__Stack0) ->
  [___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8276,7 +8313,7 @@ yeccpars2_212_(__Stack0) ->
 -compile({inline,yeccpars2_213_/1}).
 -dialyzer({nowarn_function, yeccpars2_213_/1}).
 -compile({nowarn_unused_function,  yeccpars2_213_/1}).
--file("src/compiler/parser/topos_parser.yrl", 408).
+-file("topos_parser.yrl", 416).
 yeccpars2_213_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8287,7 +8324,7 @@ yeccpars2_213_(__Stack0) ->
 -compile({inline,yeccpars2_215_/1}).
 -dialyzer({nowarn_function, yeccpars2_215_/1}).
 -compile({nowarn_unused_function,  yeccpars2_215_/1}).
--file("src/compiler/parser/topos_parser.yrl", 411).
+-file("topos_parser.yrl", 419).
 yeccpars2_215_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8298,7 +8335,7 @@ yeccpars2_215_(__Stack0) ->
 -compile({inline,yeccpars2_217_/1}).
 -dialyzer({nowarn_function, yeccpars2_217_/1}).
 -compile({nowarn_unused_function,  yeccpars2_217_/1}).
--file("src/compiler/parser/topos_parser.yrl", 355).
+-file("topos_parser.yrl", 363).
 yeccpars2_217_(__Stack0) ->
  [___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8309,7 +8346,7 @@ yeccpars2_217_(__Stack0) ->
 -compile({inline,yeccpars2_219_/1}).
 -dialyzer({nowarn_function, yeccpars2_219_/1}).
 -compile({nowarn_unused_function,  yeccpars2_219_/1}).
--file("src/compiler/parser/topos_parser.yrl", 212).
+-file("topos_parser.yrl", 218).
 yeccpars2_219_(__Stack0) ->
  [___7,___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8324,7 +8361,7 @@ yeccpars2_219_(__Stack0) ->
 -compile({inline,yeccpars2_220_/1}).
 -dialyzer({nowarn_function, yeccpars2_220_/1}).
 -compile({nowarn_unused_function,  yeccpars2_220_/1}).
--file("src/compiler/parser/topos_parser.yrl", 205).
+-file("topos_parser.yrl", 211).
 yeccpars2_220_(__Stack0) ->
  [___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8339,7 +8376,7 @@ yeccpars2_220_(__Stack0) ->
 -compile({inline,yeccpars2_223_/1}).
 -dialyzer({nowarn_function, yeccpars2_223_/1}).
 -compile({nowarn_unused_function,  yeccpars2_223_/1}).
--file("src/compiler/parser/topos_parser.yrl", 265).
+-file("topos_parser.yrl", 273).
 yeccpars2_223_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
@@ -8350,7 +8387,7 @@ yeccpars2_223_(__Stack0) ->
 -compile({inline,yeccpars2_230_/1}).
 -dialyzer({nowarn_function, yeccpars2_230_/1}).
 -compile({nowarn_unused_function,  yeccpars2_230_/1}).
--file("src/compiler/parser/topos_parser.yrl", 277).
+-file("topos_parser.yrl", 285).
 yeccpars2_230_(__Stack0) ->
  [___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8365,7 +8402,7 @@ yeccpars2_230_(__Stack0) ->
 -compile({inline,yeccpars2_231_/1}).
 -dialyzer({nowarn_function, yeccpars2_231_/1}).
 -compile({nowarn_unused_function,  yeccpars2_231_/1}).
--file("src/compiler/parser/topos_parser.yrl", 270).
+-file("topos_parser.yrl", 278).
 yeccpars2_231_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8380,7 +8417,7 @@ yeccpars2_231_(__Stack0) ->
 -compile({inline,yeccpars2_232_/1}).
 -dialyzer({nowarn_function, yeccpars2_232_/1}).
 -compile({nowarn_unused_function,  yeccpars2_232_/1}).
--file("src/compiler/parser/topos_parser.yrl", 267).
+-file("topos_parser.yrl", 275).
 yeccpars2_232_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8391,7 +8428,7 @@ yeccpars2_232_(__Stack0) ->
 -compile({inline,yeccpars2_233_/1}).
 -dialyzer({nowarn_function, yeccpars2_233_/1}).
 -compile({nowarn_unused_function,  yeccpars2_233_/1}).
--file("src/compiler/parser/topos_parser.yrl", 219).
+-file("topos_parser.yrl", 225).
 yeccpars2_233_(__Stack0) ->
  [___7,___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8406,7 +8443,7 @@ yeccpars2_233_(__Stack0) ->
 -compile({inline,yeccpars2_235_/1}).
 -dialyzer({nowarn_function, yeccpars2_235_/1}).
 -compile({nowarn_unused_function,  yeccpars2_235_/1}).
--file("src/compiler/parser/topos_parser.yrl", 227).
+-file("topos_parser.yrl", 233).
 yeccpars2_235_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8417,7 +8454,7 @@ yeccpars2_235_(__Stack0) ->
 -compile({inline,yeccpars2_236_/1}).
 -dialyzer({nowarn_function, yeccpars2_236_/1}).
 -compile({nowarn_unused_function,  yeccpars2_236_/1}).
--file("src/compiler/parser/topos_parser.yrl", 113).
+-file("topos_parser.yrl", 113).
 yeccpars2_236_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8428,7 +8465,7 @@ yeccpars2_236_(__Stack0) ->
 -compile({inline,yeccpars2_237_/1}).
 -dialyzer({nowarn_function, yeccpars2_237_/1}).
 -compile({nowarn_unused_function,  yeccpars2_237_/1}).
--file("src/compiler/parser/topos_parser.yrl", 111).
+-file("topos_parser.yrl", 111).
 yeccpars2_237_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8439,7 +8476,7 @@ yeccpars2_237_(__Stack0) ->
 -compile({inline,yeccpars2_238_/1}).
 -dialyzer({nowarn_function, yeccpars2_238_/1}).
 -compile({nowarn_unused_function,  yeccpars2_238_/1}).
--file("src/compiler/parser/topos_parser.yrl", 109).
+-file("topos_parser.yrl", 109).
 yeccpars2_238_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
@@ -8450,28 +8487,39 @@ yeccpars2_238_(__Stack0) ->
 -compile({inline,yeccpars2_239_/1}).
 -dialyzer({nowarn_function, yeccpars2_239_/1}).
 -compile({nowarn_unused_function,  yeccpars2_239_/1}).
--file("src/compiler/parser/topos_parser.yrl", 176).
+-file("topos_parser.yrl", 179).
 yeccpars2_239_(__Stack0) ->
+ [___2,___1 | __Stack] = __Stack0,
+ [begin
+                             
+    make_error_declaration(extract_location(___1), "Incomplete effect declaration", ___2)
+  end | __Stack].
+
+-compile({inline,yeccpars2_240_/1}).
+-dialyzer({nowarn_function, yeccpars2_240_/1}).
+-compile({nowarn_unused_function,  yeccpars2_240_/1}).
+-file("topos_parser.yrl", 182).
+yeccpars2_240_(__Stack0) ->
  [begin
                                
     []
   end | __Stack0].
 
--compile({inline,yeccpars2_241_/1}).
--dialyzer({nowarn_function, yeccpars2_241_/1}).
--compile({nowarn_unused_function,  yeccpars2_241_/1}).
--file("src/compiler/parser/topos_parser.yrl", 176).
-yeccpars2_241_(__Stack0) ->
+-compile({inline,yeccpars2_242_/1}).
+-dialyzer({nowarn_function, yeccpars2_242_/1}).
+-compile({nowarn_unused_function,  yeccpars2_242_/1}).
+-file("topos_parser.yrl", 182).
+yeccpars2_242_(__Stack0) ->
  [begin
                                
     []
   end | __Stack0].
 
--compile({inline,yeccpars2_243_/1}).
--dialyzer({nowarn_function, yeccpars2_243_/1}).
--compile({nowarn_unused_function,  yeccpars2_243_/1}).
--file("src/compiler/parser/topos_parser.yrl", 181).
-yeccpars2_243_(__Stack0) ->
+-compile({inline,yeccpars2_244_/1}).
+-dialyzer({nowarn_function, yeccpars2_244_/1}).
+-compile({nowarn_unused_function,  yeccpars2_244_/1}).
+-file("topos_parser.yrl", 187).
+yeccpars2_244_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
                                            
@@ -8481,11 +8529,11 @@ yeccpars2_243_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_245_/1}).
--dialyzer({nowarn_function, yeccpars2_245_/1}).
--compile({nowarn_unused_function,  yeccpars2_245_/1}).
--file("src/compiler/parser/topos_parser.yrl", 187).
-yeccpars2_245_(__Stack0) ->
+-compile({inline,yeccpars2_246_/1}).
+-dialyzer({nowarn_function, yeccpars2_246_/1}).
+-compile({nowarn_unused_function,  yeccpars2_246_/1}).
+-file("topos_parser.yrl", 193).
+yeccpars2_246_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
                                                            
@@ -8495,22 +8543,22 @@ yeccpars2_245_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_246_/1}).
--dialyzer({nowarn_function, yeccpars2_246_/1}).
--compile({nowarn_unused_function,  yeccpars2_246_/1}).
--file("src/compiler/parser/topos_parser.yrl", 178).
-yeccpars2_246_(__Stack0) ->
+-compile({inline,yeccpars2_247_/1}).
+-dialyzer({nowarn_function, yeccpars2_247_/1}).
+-compile({nowarn_unused_function,  yeccpars2_247_/1}).
+-file("topos_parser.yrl", 184).
+yeccpars2_247_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
                                                          
     [___1 | ___2]
   end | __Stack].
 
--compile({inline,yeccpars2_247_/1}).
--dialyzer({nowarn_function, yeccpars2_247_/1}).
--compile({nowarn_unused_function,  yeccpars2_247_/1}).
--file("src/compiler/parser/topos_parser.yrl", 170).
-yeccpars2_247_(__Stack0) ->
+-compile({inline,yeccpars2_248_/1}).
+-dialyzer({nowarn_function, yeccpars2_248_/1}).
+-compile({nowarn_unused_function,  yeccpars2_248_/1}).
+-file("topos_parser.yrl", 172).
+yeccpars2_248_(__Stack0) ->
  [___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
                                                            
@@ -8520,22 +8568,22 @@ yeccpars2_247_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_248_/1}).
--dialyzer({nowarn_function, yeccpars2_248_/1}).
--compile({nowarn_unused_function,  yeccpars2_248_/1}).
--file("src/compiler/parser/topos_parser.yrl", 101).
-yeccpars2_248_(__Stack0) ->
+-compile({inline,yeccpars2_249_/1}).
+-dialyzer({nowarn_function, yeccpars2_249_/1}).
+-compile({nowarn_unused_function,  yeccpars2_249_/1}).
+-file("topos_parser.yrl", 101).
+yeccpars2_249_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
                                           
     [___1 | ___2]
   end | __Stack].
 
--compile({inline,yeccpars2_249_/1}).
--dialyzer({nowarn_function, yeccpars2_249_/1}).
--compile({nowarn_unused_function,  yeccpars2_249_/1}).
--file("src/compiler/parser/topos_parser.yrl", 197).
-yeccpars2_249_(__Stack0) ->
+-compile({inline,yeccpars2_250_/1}).
+-dialyzer({nowarn_function, yeccpars2_250_/1}).
+-compile({nowarn_unused_function,  yeccpars2_250_/1}).
+-file("topos_parser.yrl", 203).
+yeccpars2_250_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
                                           
@@ -8546,32 +8594,32 @@ yeccpars2_249_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_250_/1}).
--dialyzer({nowarn_function, yeccpars2_250_/1}).
--compile({nowarn_unused_function,  yeccpars2_250_/1}).
--file("src/compiler/parser/topos_parser.yrl", 235).
-yeccpars2_250_(__Stack0) ->
+-compile({inline,yeccpars2_251_/1}).
+-dialyzer({nowarn_function, yeccpars2_251_/1}).
+-compile({nowarn_unused_function,  yeccpars2_251_/1}).
+-file("topos_parser.yrl", 243).
+yeccpars2_251_(__Stack0) ->
  [___1 | __Stack] = __Stack0,
  [begin
                              
     [___1]
   end | __Stack].
 
--compile({inline,yeccpars2_252_/1}).
--dialyzer({nowarn_function, yeccpars2_252_/1}).
--compile({nowarn_unused_function,  yeccpars2_252_/1}).
--file("src/compiler/parser/topos_parser.yrl", 288).
-yeccpars2_252_(__Stack0) ->
+-compile({inline,yeccpars2_253_/1}).
+-dialyzer({nowarn_function, yeccpars2_253_/1}).
+-compile({nowarn_unused_function,  yeccpars2_253_/1}).
+-file("topos_parser.yrl", 296).
+yeccpars2_253_(__Stack0) ->
  [begin
                           
     []
   end | __Stack0].
 
--compile({inline,yeccpars2_258_/1}).
--dialyzer({nowarn_function, yeccpars2_258_/1}).
--compile({nowarn_unused_function,  yeccpars2_258_/1}).
--file("src/compiler/parser/topos_parser.yrl", 247).
-yeccpars2_258_(__Stack0) ->
+-compile({inline,yeccpars2_259_/1}).
+-dialyzer({nowarn_function, yeccpars2_259_/1}).
+-compile({nowarn_unused_function,  yeccpars2_259_/1}).
+-file("topos_parser.yrl", 255).
+yeccpars2_259_(__Stack0) ->
  [___7,___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
                                                                         
@@ -8582,11 +8630,11 @@ yeccpars2_258_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_259_/1}).
--dialyzer({nowarn_function, yeccpars2_259_/1}).
--compile({nowarn_unused_function,  yeccpars2_259_/1}).
--file("src/compiler/parser/topos_parser.yrl", 240).
-yeccpars2_259_(__Stack0) ->
+-compile({inline,yeccpars2_260_/1}).
+-dialyzer({nowarn_function, yeccpars2_260_/1}).
+-compile({nowarn_unused_function,  yeccpars2_260_/1}).
+-file("topos_parser.yrl", 248).
+yeccpars2_260_(__Stack0) ->
  [___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
                                                           
@@ -8597,11 +8645,11 @@ yeccpars2_259_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_262_/1}).
--dialyzer({nowarn_function, yeccpars2_262_/1}).
--compile({nowarn_unused_function,  yeccpars2_262_/1}).
--file("src/compiler/parser/topos_parser.yrl", 254).
-yeccpars2_262_(__Stack0) ->
+-compile({inline,yeccpars2_263_/1}).
+-dialyzer({nowarn_function, yeccpars2_263_/1}).
+-compile({nowarn_unused_function,  yeccpars2_263_/1}).
+-file("topos_parser.yrl", 262).
+yeccpars2_263_(__Stack0) ->
  [___7,___6,___5,___4,___3,___2,___1 | __Stack] = __Stack0,
  [begin
                                                                                
@@ -8612,11 +8660,11 @@ yeccpars2_262_(__Stack0) ->
         extract_location(___1)}
   end | __Stack].
 
--compile({inline,yeccpars2_263_/1}).
--dialyzer({nowarn_function, yeccpars2_263_/1}).
--compile({nowarn_unused_function,  yeccpars2_263_/1}).
--file("src/compiler/parser/topos_parser.yrl", 237).
-yeccpars2_263_(__Stack0) ->
+-compile({inline,yeccpars2_264_/1}).
+-dialyzer({nowarn_function, yeccpars2_264_/1}).
+-compile({nowarn_unused_function,  yeccpars2_264_/1}).
+-file("topos_parser.yrl", 245).
+yeccpars2_264_(__Stack0) ->
  [___2,___1 | __Stack] = __Stack0,
  [begin
                                           
@@ -8624,4 +8672,4 @@ yeccpars2_263_(__Stack0) ->
   end | __Stack].
 
 
--file("src/compiler/parser/topos_parser.yrl", 712).
+-file("topos_parser.yrl", 720).

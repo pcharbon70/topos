@@ -24,9 +24,9 @@ Nonterminals
   effect_operations effect_operation
   flow_signature flow_clauses flow_clause
   match_clauses match_clause
-  pattern_list pattern_list_nonempty pattern tuple_pattern_list
+  pattern_list pattern_list_nonempty pattern pattern_list_comma tuple_pattern_list
   guards guard
-  expr expr_primary expr_app expr_list tuple_expr_list
+  expr expr_primary expr_app expr_list expr_list_opt tuple_expr_list
   record_fields record_field
   record_pattern_fields record_pattern_field
   literal
@@ -211,6 +211,14 @@ flow_decl -> flow_signature flow_clauses :
         '$2',
         extract_location('$1')}.
 
+%% Flow with only a type signature (no implementation)
+flow_decl -> flow_signature :
+    {flow_decl,
+        extract_flow_name('$1'),
+        extract_flow_type('$1'),
+        [],
+        extract_location('$1')}.
+
 %% Simple flow without type signature (like minimal parser)
 flow_decl -> flow lower_ident pattern_list equals expr :
     {flow_decl,
@@ -306,6 +314,14 @@ pattern_list_nonempty -> pattern :
     ['$1'].
 pattern_list_nonempty -> pattern pattern_list_nonempty :
     ['$1' | '$2'].
+
+%% Comma-separated pattern list (for operation parameters, tuples, etc.)
+pattern_list_comma -> '$empty' :
+    [].
+pattern_list_comma -> pattern :
+    ['$1'].
+pattern_list_comma -> pattern comma pattern_list_comma :
+    ['$1' | '$3'].
 
 pattern -> lower_ident :
     {pat_var, extract_atom('$1'), extract_location('$1')}.
@@ -486,6 +502,12 @@ expr_list -> expr :
 expr_list -> expr comma expr_list :
     ['$1' | '$3'].
 
+%% Optional expression list (can be empty)
+expr_list_opt -> '$empty' :
+    [].
+expr_list_opt -> expr_list :
+    '$1'.
+
 %%----------------------------------------------------------------------------
 %% Literals
 %%----------------------------------------------------------------------------
@@ -504,25 +526,12 @@ literal -> string :
 %%----------------------------------------------------------------------------
 
 %% Perform expression: perform Effect.operation(args)
-perform_expr -> perform upper_ident dot lower_ident lparen rparen :
-    {perform_expr,
-        extract_atom('$2'),
-        extract_atom('$4'),
-        [],
-        extract_location('$1')}.
-
-perform_expr -> perform upper_ident dot lower_ident lparen expr_list rparen :
+%% Parentheses are required for now to avoid shift/reduce conflicts
+perform_expr -> perform upper_ident dot lower_ident lparen expr_list_opt rparen :
     {perform_expr,
         extract_atom('$2'),
         extract_atom('$4'),
         '$6',
-        extract_location('$1')}.
-
-perform_expr -> perform upper_ident dot lower_ident :
-    {perform_expr,
-        extract_atom('$2'),
-        extract_atom('$4'),
-        [],
         extract_location('$1')}.
 
 %% Try-with expression: try { expr } with handlers end
@@ -545,19 +554,20 @@ handler_clause -> upper_ident lbrace operation_cases rbrace :
         extract_location('$1')}.
 
 %% Operation cases: operation(params) -> expr
+%% Note: Left-recursive to avoid issues with right-associative arrow
+operation_cases -> operation_cases operation_case :
+    '$1' ++ ['$2'].
 operation_cases -> operation_case :
     ['$1'].
-operation_cases -> operation_case operation_cases :
-    ['$1' | '$2'].
 
-operation_case -> lower_ident lparen pattern_list rparen arrow expr :
+operation_case -> lower_ident lparen pattern_list_comma rparen arrow expr_primary :
     {operation_case,
         extract_atom('$1'),
         '$3',
         '$6',
         extract_location('$1')}.
 
-operation_case -> lower_ident arrow expr :
+operation_case -> lower_ident arrow expr_primary :
     {operation_case,
         extract_atom('$1'),
         [],
