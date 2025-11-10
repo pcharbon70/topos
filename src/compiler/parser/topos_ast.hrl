@@ -33,17 +33,18 @@
     location :: location()
 }).
 
+-type export() :: #export{}.
+-type import() :: #import{}.
+
 %%====================================================================
 %% Declarations
 %%====================================================================
-
--type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} | #effect_decl{}.
 
 %% Shape declaration (algebraic data type)
 -record(shape_decl, {
     name :: atom(),
     type_params :: [atom()],
-    constructors :: [#constructor{}],
+    constructors :: list(), % [#constructor{}] - forward ref commented temporarily
     derives :: [atom()],
     location :: location()
 }).
@@ -54,11 +55,13 @@
     location :: location()
 }).
 
+-type constructor() :: #constructor{}.
+
 %% Flow declaration (function definition)
 -record(flow_decl, {
     name :: atom(),
     type_sig :: type_expr() | undefined,
-    clauses :: [#flow_clause{}],
+    clauses :: list(), % [#flow_clause{}] - forward ref commented temporarily
     location :: location()
 }).
 
@@ -68,6 +71,8 @@
     body :: expr(),
     location :: location()
 }).
+
+-type flow_clause() :: #flow_clause{}.
 
 %% Trait declaration (type class)
 -record(trait_decl, {
@@ -80,7 +85,7 @@
 %% Effect declaration (algebraic effect interface)
 -record(effect_decl, {
     name :: atom(),
-    operations :: [#effect_operation{}],
+    operations :: list(), % [#effect_operation{}] - forward ref commented temporarily
     location :: location()
 }).
 
@@ -90,14 +95,13 @@
     location :: location()
 }).
 
+-type effect_operation() :: #effect_operation{}.
+
+-type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} | #effect_decl{}.
+
 %%====================================================================
 %% Expressions
 %%====================================================================
-
--type expr() :: #literal{} | #var{} | #app{} | #lambda{} | #let_expr{} |
-                #match_expr{} | #if_expr{} | #do_expr{} | #record_expr{} |
-                #record_access{} | #binary_op{} | #unary_op{} | #list_expr{} |
-                #tuple_expr{} | #perform_expr{} | #try_with_expr{}.
 
 %% Literal values
 -record(literal, {
@@ -135,7 +139,7 @@
 
 %% Match expression (pattern matching)
 -record(match_expr, {
-    clauses :: [#match_clause{}],
+    clauses :: list(), % [#match_clause{}] - forward ref commented temporarily
     location :: location()
 }).
 
@@ -145,6 +149,8 @@
     body :: expr(),
     location :: location()
 }).
+
+-type match_clause() :: #match_clause{}.
 
 %% If expression
 -record(if_expr, {
@@ -214,15 +220,17 @@
 %% Try-with expression (effect handler)
 -record(try_with_expr, {
     body :: expr(),
-    handlers :: [#handler_clause{}],
+    handlers :: list(), % [#handler_clause{}] - forward ref commented temporarily
     location :: location()
 }).
 
 -record(handler_clause, {
     effect :: atom(),
-    operations :: [#operation_case{}],
+    operations :: list(), % [#operation_case{}] - forward ref commented temporarily
     location :: location()
 }).
+
+-type handler_clause() :: #handler_clause{}.
 
 -record(operation_case, {
     operation :: atom(),
@@ -231,13 +239,16 @@
     location :: location()
 }).
 
+-type operation_case() :: #operation_case{}.
+
+-type expr() :: #literal{} | #var{} | #app{} | #lambda{} | #let_expr{} |
+                #match_expr{} | #if_expr{} | #do_expr{} | #record_expr{} |
+                #record_access{} | #binary_op{} | #unary_op{} | #list_expr{} |
+                #tuple_expr{} | #perform_expr{} | #try_with_expr{}.
+
 %%====================================================================
 %% Patterns
 %%====================================================================
-
--type pattern() :: #pat_var{} | #pat_constructor{} | #pat_record{} |
-                   #pat_literal{} | #pat_wildcard{} | #pat_as{} |
-                   #pat_list{} | #pat_tuple{}.
 
 %% Variable pattern
 -record(pat_var, {
@@ -289,13 +300,13 @@
     location :: location()
 }).
 
+-type pattern() :: #pat_var{} | #pat_constructor{} | #pat_record{} |
+                   #pat_literal{} | #pat_wildcard{} | #pat_as{} |
+                   #pat_list{} | #pat_tuple{}.
+
 %%====================================================================
 %% Type Expressions
 %%====================================================================
-
--type type_expr() :: #type_var{} | #type_con{} | #type_app{} |
-                     #type_fun{} | #type_record{} | #type_forall{} |
-                     #type_tuple{} | #type_effect{}.
 
 %% Type variable
 -record(type_var, {
@@ -349,3 +360,7 @@
     effects :: [atom()],
     location :: location()
 }).
+
+-type type_expr() :: #type_var{} | #type_con{} | #type_app{} |
+                     #type_fun{} | #type_record{} | #type_forall{} |
+                     #type_tuple{} | #type_effect{}.
