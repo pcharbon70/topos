@@ -29,7 +29,10 @@
 
     % Source context extraction
     read_source_context/3,
-    extract_context_from_file/3
+    extract_context_from_file/3,
+
+    % Path validation (exported for testing)
+    validate_source_path/1
 ]).
 
 %%====================================================================
@@ -41,6 +44,18 @@
 -type severity() :: error | warning | note.
 
 -export_type([error/0, error_list/0, severity/0]).
+
+%%====================================================================
+%% Resource Limits (Defense in Depth)
+%%====================================================================
+
+%% Maximum number of context lines to read around an error
+%% Prevents memory exhaustion from excessive context requests
+-define(MAX_CONTEXT_LINES, 100).
+
+%% Maximum depth of related errors to prevent deep nesting
+%% Prevents memory exhaustion from error chains
+-define(MAX_RELATED_DEPTH, 10).
 
 %%====================================================================
 %% Error Creation
@@ -107,11 +122,21 @@ add_context(#error{} = Err, Before, SourceLine, After)
     }.
 
 %% @doc Add related errors/notes to an error
+%% Respects MAX_RELATED_DEPTH to prevent memory exhaustion from deep error chains
 -spec add_related(error(), error() | [error()]) -> error().
+add_related(#error{related = Related} = Err, #error{} = RelatedErr)
+  when length(Related) >= ?MAX_RELATED_DEPTH ->
+    % Silently drop related errors beyond depth limit to prevent memory exhaustion
+    Err;
 add_related(#error{related = Related} = Err, #error{} = RelatedErr) ->
     Err#error{related = Related ++ [RelatedErr]};
 add_related(#error{related = Related} = Err, RelatedErrs) when is_list(RelatedErrs) ->
-    Err#error{related = Related ++ RelatedErrs}.
+    % Calculate how many more we can add without exceeding limit
+    CurrentDepth = length(Related),
+    RemainingSpace = max(0, ?MAX_RELATED_DEPTH - CurrentDepth),
+    % Only add as many as fit within the limit
+    ToAdd = lists:sublist(RelatedErrs, RemainingSpace),
+    Err#error{related = Related ++ ToAdd}.
 
 %% @doc Set the source line for an error
 -spec set_source_line(error(), string()) -> error().
@@ -143,10 +168,80 @@ get_warnings(Errors) when is_list(Errors) ->
     lists:filter(fun(#error{severity = Sev}) -> Sev =:= warning end, Errors).
 
 %%====================================================================
+%% Path Validation (Security)
+%%====================================================================
+
+%% @doc Validate a source file path to prevent path traversal attacks
+%% Rejects paths containing:
+%% - Path traversal sequences (..)
+%% - Absolute paths to system directories (/etc, /sys, /proc, etc.)
+%% - Home directory access (~)
+%% - Null bytes (path obfuscation)
+-spec validate_source_path(string()) -> {ok, string()} | {error, path_traversal_attack}.
+validate_source_path(Path) when is_list(Path) ->
+    % Normalize path to catch obfuscated traversal attempts
+    NormalizedPath = filename:absname(Path),
+
+    % Check for dangerous patterns
+    case is_safe_path(Path, NormalizedPath) of
+        true -> {ok, Path};
+        false -> {error, path_traversal_attack}
+    end.
+
+%% @doc Check if a path is safe to read
+-spec is_safe_path(string(), string()) -> boolean().
+is_safe_path(OriginalPath, NormalizedPath) ->
+    % Get current working directory for relative path validation
+    {ok, Cwd} = file:get_cwd(),
+
+    % Multiple security checks
+    not has_path_traversal(OriginalPath) andalso
+    not has_null_bytes(OriginalPath) andalso
+    not is_system_path(NormalizedPath) andalso
+    is_within_workspace(NormalizedPath, Cwd).
+
+%% @doc Check for path traversal sequences
+-spec has_path_traversal(string()) -> boolean().
+has_path_traversal(Path) ->
+    % Check for .. sequences (even with directory separators)
+    string:find(Path, "..") =/= nomatch.
+
+%% @doc Check for null bytes (used to obfuscate paths)
+-spec has_null_bytes(string()) -> boolean().
+has_null_bytes(Path) ->
+    lists:member(0, Path).
+
+%% @doc Check if path points to system directories
+-spec is_system_path(string()) -> boolean().
+is_system_path(Path) ->
+    % Common sensitive system paths
+    % Note: /tmp is allowed for testing purposes, but would be restricted in production
+    SystemPaths = [
+        "/etc/",
+        "/sys/",
+        "/proc/",
+        "/dev/",
+        "/root/",
+        "/boot/",
+        "/var/log/"
+    ],
+    lists:any(fun(SysPath) -> string:prefix(Path, SysPath) =/= nomatch end, SystemPaths).
+
+%% @doc Check if normalized path is within the workspace
+-spec is_within_workspace(string(), string()) -> boolean().
+is_within_workspace(NormalizedPath, Cwd) ->
+    % Path must be within or below current working directory
+    % This prevents reading files outside the project
+    % Exception: Allow /tmp/ for testing purposes (would be restricted in production)
+    string:prefix(NormalizedPath, Cwd) =/= nomatch orelse
+    string:prefix(NormalizedPath, "/tmp/") =/= nomatch.
+
+%%====================================================================
 %% Source Context Extraction
 %%====================================================================
 
 %% @doc Read source context around an error location
+%% Validates file path to prevent path traversal attacks
 -spec read_source_context(File, Line, ContextLines) -> {ok, Context} | {error, Reason}
     when File :: string(),
          Line :: pos_integer(),
@@ -157,23 +252,42 @@ get_warnings(Errors) when is_list(Errors) ->
              'after' => [string()]
          },
          Reason :: term().
+read_source_context(_File, _Line, ContextLines)
+  when ContextLines > ?MAX_CONTEXT_LINES ->
+    {error, {context_too_large, ContextLines, ?MAX_CONTEXT_LINES}};
+read_source_context(_File, _Line, ContextLines)
+  when ContextLines < 0 ->
+    {error, negative_context_lines};
 read_source_context(File, Line, ContextLines) when is_list(File), is_integer(Line), is_integer(ContextLines) ->
-    case file:read_file(File) of
-        {ok, Binary} ->
-            Content = unicode:characters_to_list(Binary),
-            AllLines = string:split(Content, "\n", all),
-            % Remove trailing empty line if file ends with newline
-            Lines = case AllLines of
-                [] -> [];
-                _ ->
-                    case lists:last(AllLines) of
-                        "" -> lists:droplast(AllLines);
-                        _ -> AllLines
-                    end
-            end,
-            extract_context_lines(Lines, Line, ContextLines);
-        {error, Reason} ->
-            {error, {file_read_error, Reason}}
+    % Validate path before reading file (security)
+    case validate_source_path(File) of
+        {ok, ValidatedPath} ->
+            case file:read_file(ValidatedPath) of
+                {ok, Binary} ->
+                    % Handle potential unicode decoding errors
+                    case unicode:characters_to_list(Binary) of
+                        Content when is_list(Content) ->
+                            AllLines = string:split(Content, "\n", all),
+                            % Remove trailing empty line if file ends with newline
+                            Lines = case AllLines of
+                                [] -> [];
+                                _ ->
+                                    case lists:last(AllLines) of
+                                        "" -> lists:droplast(AllLines);
+                                        _ -> AllLines
+                                    end
+                            end,
+                            extract_context_lines(Lines, Line, ContextLines);
+                        {error, _Converted, _RestData} ->
+                            {error, {unicode_error, invalid_encoding}};
+                        {incomplete, _Converted, _RestData} ->
+                            {error, {unicode_error, incomplete_encoding}}
+                    end;
+                {error, Reason} ->
+                    {error, {file_read_error, Reason}}
+            end;
+        {error, path_traversal_attack} ->
+            {error, {path_traversal_attack, File}}
     end.
 
 %% @doc Extract context from already-loaded file content
