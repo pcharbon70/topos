@@ -6,70 +6,17 @@
 -file("src/compiler/parser/topos_parser.yrl", 728).
 
 %% @doc Extract atom from token
-extract_atom({_Tag, _Line, Atom}) when is_atom(Atom) -> Atom;
-extract_atom({_Tag, _Line, String}) when is_list(String) -> list_to_atom(String);
-extract_atom({Tag, _Line}) when is_atom(Tag) -> Tag.
+%% Delegates to topos_compiler_utils to avoid code duplication
+extract_atom(Token) -> topos_compiler_utils:extract_atom(Token).
 
 %% @doc Extract value from token
-extract_value({_Tag, _Line, Value}) -> Value.
+%% Delegates to topos_compiler_utils to avoid code duplication
+extract_value(Token) -> topos_compiler_utils:extract_value(Token).
 
 %% @doc Extract location from token or AST node
+%% Delegates to topos_compiler_utils to avoid code duplication
 %% Supports both legacy {line, N} format and enhanced {location, ...} format
-extract_location({_Tag, Line}) when is_integer(Line) ->
-    %% Convert token to enhanced location format
-    topos_location:from_token({_Tag, Line});
-extract_location({_Tag, Line, _Value}) when is_integer(Line) ->
-    %% Convert token with value to enhanced location format
-    topos_location:from_token({_Tag, Line, _Value});
-extract_location({flow_sig, _Name, _Type, Loc}) -> Loc;
-extract_location({var, _Name, Loc}) -> Loc;
-extract_location({literal, _Value, _Type, Loc}) -> Loc;
-extract_location({record_access, _Expr, _Field, Loc}) -> Loc;
-extract_location({app, _Fun, _Args, Loc}) -> Loc;
-extract_location({binary_op, _Op, _Left, _Right, Loc}) -> Loc;
-extract_location({tuple_expr, _Elements, Loc}) -> Loc;
-extract_location({list_expr, _Elements, Loc}) -> Loc;
-extract_location({match_expr, _Clauses, Loc}) -> Loc;
-extract_location({if_expr, _Cond, _Then, _Else, Loc}) -> Loc;
-extract_location({let_expr, _Bindings, _Body, Loc}) -> Loc;
-extract_location({match_clause, _Pattern, _Guard, _Body, Loc}) -> Loc;
-extract_location({flow_clause, _Patterns, _Guard, _Body, Loc}) -> Loc;
-extract_location({type_fun, _From, _To, Loc}) -> Loc;
-extract_location({type_forall, _Vars, _Type, Loc}) -> Loc;
-extract_location({type_app, _Con, _Args, Loc}) -> Loc;
-extract_location({type_var, _Name, Loc}) -> Loc;
-extract_location({type_con, _Name, Loc}) -> Loc;
-extract_location({type_tuple, _Elements, Loc}) -> Loc;
-extract_location({type_record, _Fields, _Extension, Loc}) -> Loc;
-extract_location({pat_var, _Name, Loc}) -> Loc;
-extract_location({pat_wildcard, Loc}) -> Loc;
-extract_location({pat_constructor, _Name, _Args, Loc}) -> Loc;
-extract_location({pat_literal, _Value, _Type, Loc}) -> Loc;
-extract_location({pat_list, _Elements, Loc}) -> Loc;
-extract_location({pat_tuple, _Elements, Loc}) -> Loc;
-extract_location({pat_record, _Fields, Loc}) -> Loc;
-extract_location({record_expr, _Fields, _Base, Loc}) -> Loc;
-extract_location({shape_decl, _Name, _Params, _Constructors, _Traits, Loc}) -> Loc;
-extract_location({constructor, _Name, _Fields, Loc}) -> Loc;
-extract_location({flow_decl, _Name, _Type, _Clauses, Loc}) -> Loc;
-extract_location({effect_decl, _Name, _Operations, Loc}) -> Loc;
-extract_location({effect_operation, _Name, _Type, Loc}) -> Loc;
-extract_location({perform_expr, _Effect, _Operation, _Args, Loc}) -> Loc;
-extract_location({try_with_expr, _Body, _Handlers, Loc}) -> Loc;
-extract_location({handler_clause, _Effect, _Operations, Loc}) -> Loc;
-extract_location({operation_case, _Operation, _Params, _Body, Loc}) -> Loc;
-extract_location({type_effect, _Type, _Effects, Loc}) -> Loc;
-extract_location(Tuple) when is_tuple(Tuple) ->
-    %% Generic case: location is usually the last element
-    Loc = element(tuple_size(Tuple), Tuple),
-    %% Support both old and new format
-    case Loc of
-        {line, _} -> Loc;
-        {location, _, _} -> Loc;
-        {location, _, _, _, _} -> Loc;
-        _ when is_integer(Loc) -> topos_location:new(Loc, 0);
-        _ -> {location, 1, 0}  % Fallback
-    end.
+extract_location(Node) -> topos_compiler_utils:extract_location(Node).
 
 %% @doc Extract flow name from flow signature
 extract_flow_name({flow_sig, Name, _Type, _Loc}) -> Name.
@@ -272,7 +219,7 @@ yecctoken2string1(Other) ->
 
 
 
--file("src/compiler/parser/topos_parser.erl", 275).
+-file("src/compiler/parser/topos_parser.erl", 222).
 
 -dialyzer({nowarn_function, yeccpars2/7}).
 -compile({nowarn_unused_function,  yeccpars2/7}).
@@ -8755,4 +8702,4 @@ yeccpars2_268_(__Stack0) ->
   end | __Stack].
 
 
--file("src/compiler/parser/topos_parser.yrl", 808).
+-file("src/compiler/parser/topos_parser.yrl", 755).
