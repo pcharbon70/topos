@@ -9,6 +9,8 @@
     get_max_operations_per_effect/0,
     get_max_effects_in_annotation/0,
     get_max_effect_handler_depth/0,
+    get_max_handlers_per_try/0,
+    get_max_operations_per_handler/0,
     get_max_effect_identifier_length/0
 ]).
 
@@ -73,7 +75,9 @@
 -define(DEFAULT_MAX_EFFECTS_PER_MODULE, 50).      % Maximum effect declarations per module
 -define(DEFAULT_MAX_OPERATIONS_PER_EFFECT, 100).  % Maximum operations per effect
 -define(DEFAULT_MAX_EFFECTS_IN_ANNOTATION, 10).   % Maximum effects in type annotation
--define(DEFAULT_MAX_EFFECT_HANDLER_DEPTH, 20).   % Maximum nesting in effect handlers
+-define(DEFAULT_MAX_EFFECT_HANDLER_DEPTH, 20).    % Maximum nesting in effect handlers
+-define(DEFAULT_MAX_HANDLERS_PER_TRY, 20).        % Maximum handlers in single try-with expression
+-define(DEFAULT_MAX_OPERATIONS_PER_HANDLER, 50).  % Maximum operation cases per handler
 -define(DEFAULT_MAX_EFFECT_IDENTIFIER_LENGTH, 100). % Maximum effect name length
 -define(DEFAULT_MAX_PARSE_TIME, 30000).     % 30 seconds - prevent algorithmic attacks
 -define(DEFAULT_MAX_PATTERN_DEPTH, 100).    % 100 levels - deeply nested patterns
@@ -420,6 +424,28 @@ get_max_effects_in_annotation() ->
 -spec get_max_effect_handler_depth() -> pos_integer().
 get_max_effect_handler_depth() ->
     application:get_env(topos, max_effect_handler_depth, ?DEFAULT_MAX_EFFECT_HANDLER_DEPTH).
+
+%% @doc Get maximum handlers per try-with expression.
+%%
+%% Returns the maximum number of effect handlers allowed in a single try-with expression.
+%% Prevents resource exhaustion from extremely large handler lists.
+%% Default: 20 handlers. Configurable via `application:set_env(topos, max_handlers_per_try, N)`.
+%%
+%% @returns Maximum handlers per try-with
+-spec get_max_handlers_per_try() -> pos_integer().
+get_max_handlers_per_try() ->
+    application:get_env(topos, max_handlers_per_try, ?DEFAULT_MAX_HANDLERS_PER_TRY).
+
+%% @doc Get maximum operations per handler.
+%%
+%% Returns the maximum number of operation cases allowed in a single effect handler.
+%% Prevents resource exhaustion from extremely large operation case lists.
+%% Default: 50 operations. Configurable via `application:set_env(topos, max_operations_per_handler, N)`.
+%%
+%% @returns Maximum operations per handler
+-spec get_max_operations_per_handler() -> pos_integer().
+get_max_operations_per_handler() ->
+    application:get_env(topos, max_operations_per_handler, ?DEFAULT_MAX_OPERATIONS_PER_HANDLER).
 
 %% @doc Get maximum effect identifier length.
 %%
