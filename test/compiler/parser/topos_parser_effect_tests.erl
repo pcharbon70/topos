@@ -254,19 +254,19 @@ effect_limits_valid_within_bounds_test() ->
     after
         case OldMaxEffects of
             undefined -> application:unset_env(topos, max_effects_per_module);
-            Value -> application:set_env(topos, max_effects_per_module, Value)
+            Value1 -> application:set_env(topos, max_effects_per_module, Value1)
         end,
         case OldMaxOps of
             undefined -> application:unset_env(topos, max_operations_per_effect);
-            Value -> application:set_env(topos, max_operations_per_effect, Value)
+            Value2 -> application:set_env(topos, max_operations_per_effect, Value2)
         end,
         case OldMaxIdLength of
             undefined -> application:unset_env(topos, max_effect_identifier_length);
-            Value -> application:set_env(topos, max_effect_identifier_length, Value)
+            Value3 -> application:set_env(topos, max_effect_identifier_length, Value3)
         end,
         case OldMaxAnnotation of
             undefined -> application:unset_env(topos, max_effects_in_annotation);
-            Value -> application:set_env(topos, max_effects_in_annotation, Value)
+            Value4 -> application:set_env(topos, max_effects_in_annotation, Value4)
         end
     end.
 
@@ -1136,7 +1136,7 @@ security_control_characters_test() ->
            "end",
     %% Should be rejected at lexer level (security feature)
     case topos_lexer:tokenize(Code) of
-        {ok, Tokens} ->
+        {ok, _Tokens} ->
             %% This should NOT happen - lexer should reject control characters
             ?assert(false, "Lexer incorrectly accepted control characters");
         {error, _LexError} ->
@@ -1429,11 +1429,10 @@ error_security_nested_malformed_test() ->
                 {ok, _AST} ->
                     ?assert(true);  % Handled within limits (preferable)
                 {error, _Reason} ->
-                    ?assert(true);   % Rejected for protection (acceptable)
+                    ?assert(true)   % Rejected for protection (acceptable)
             end;
         {error, _LexError} ->
             ?assert(true)       % Safely rejected by lexer
-    end.
     end.
 
 %% Test malformed effect annotations with token flood
@@ -1462,7 +1461,7 @@ error_security_malformed_token_flood_test() ->
 %% Test malformed perform expressions with Unicode + control chars
 error_security_perform_unicode_control_test() ->
     %% Combine unicode, control characters, and malformed perform syntax
-    MalformedPerform = "perform Effect" ++ [0, 255] ++ "." ++ "𝔘𝔫𝔦𝔠𝔬𝔡𝔢" ++ "(, ,",",  % Malformed args with unicode and controls
+    MalformedPerform = "perform Effect" ++ [0, 255] ++ "." ++ "𝔘𝔫𝔦𝔠𝔬𝔡𝔢" ++ "(, ,",  % Malformed args with unicode and controls
     Code = "flow unicodeControlMalformed = " ++ MalformedPerform,
     %% Should reject combination attack safely
     case topos_lexer:tokenize(Code) of
