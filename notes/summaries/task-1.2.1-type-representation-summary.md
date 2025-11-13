@@ -49,9 +49,19 @@ Successfully implemented Task 1.2.1 from Phase 1 of the proof-of-concept plan: a
    - End-to-end let-polymorphism simulation
    - 10 integration tests - ✅ ALL PASSING
 
+7. **topos_type_error_tests.erl** - Error handling and edge cases
+   - Invalid input validation tests
+   - Circular substitution detection (placeholders for occurs check)
+   - Deep type nesting (50+ levels)
+   - Large collections (1000+ bindings)
+   - Substitution edge cases and stress tests
+   - Fresh variable generation stress tests (50,000 variables)
+   - Pretty-printing edge cases
+   - 29 error/edge case tests - ✅ ALL PASSING
+
 ### Test Results
 
-**Total: 98 tests, 100% pass rate**
+**Total: 127 tests, 100% pass rate**
 
 - topos_types_tests: 21/21 ✅
 - topos_type_subst_tests: 19/19 ✅
@@ -59,6 +69,7 @@ Successfully implemented Task 1.2.1 from Phase 1 of the proof-of-concept plan: a
 - topos_type_env_tests: 13/13 ✅
 - topos_type_pp_tests: 22/22 ✅
 - topos_type_integration_tests: 10/10 ✅
+- topos_type_error_tests: 29/29 ✅
 
 ## Key Design Decisions
 
