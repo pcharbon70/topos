@@ -85,7 +85,10 @@
 %% Effect declaration (algebraic effect interface)
 -record(effect_decl, {
     name :: atom(),
-    operations :: list(), % [#effect_operation{}] - forward ref commented temporarily
+    operations :: list(effect_operation()), % [#effect_operation{}]
+    supereffects :: [atom()], % NEW: Effect inheritance/polymorphism
+    type_params :: [atom()], % NEW: Effect type parameters
+    constraints :: [effect_constraint()], % NEW: Effect constraints
     location :: location()
 }).
 
@@ -95,7 +98,42 @@
     location :: location()
 }).
 
+%% NEW: Effect constraint for polymorphic effects
+-record(effect_constraint, {
+    effect_var :: atom(), % Type variable for effect
+    super_effect :: atom() | effect_expr(), % Required supereffect
+    location :: location()
+}).
+
+%% NEW: Effect expression tree (for complex effect types)
+-record(effect_var, {
+    name :: atom(),
+    location :: location()
+}).
+
+-record(effect_app, {
+    effect :: atom() | effect_expr(),
+    args :: [type_expr()],
+    location :: location()
+}).
+
+-record(effect_intersection, {
+    left :: effect_expr(),
+    right :: effect_expr(),
+    location :: location()
+}).
+
+-record(effect_union, {
+    left :: effect_expr(),
+    right :: effect_expr(),
+    location :: location()
+}).
+
+%% Type definitions for polymorphic effects
 -type effect_operation() :: #effect_operation{}.
+-type effect_constraint() :: #effect_constraint{}.
+-type effect_expr() :: atom() | #effect_var{} | #effect_app{} | 
+                     #effect_intersection{} | #effect_union{}.
 
 -type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} | #effect_decl{}.
 
@@ -355,12 +393,30 @@
 }).
 
 %% Effect annotation (Type / {Effect1, Effect2})
+%% ENHANCED: Supports effect expressions and polymorphism
 -record(type_effect, {
     type :: type_expr(),
-    effects :: [atom()],
+    effects :: effect_expr() | [effect_expr()], % NEW: Complex effect expressions
+    location :: location()
+}).
+
+%% NEW: Effect quantification for polymorphic effects
+-record(type_effect_forall, {
+    effect_vars :: [atom()], % Effect type variables
+    constraints :: [effect_constraint()], % Effect constraints
+    body :: type_expr(), % Type with effect variables
+    location :: location()
+}).
+
+%% NEW: Effect bounds in type signatures
+-record(effect_bounds, {
+    var :: atom(),
+    lower_bounds :: [effect_expr()], % Var ≥ these effects
+    upper_bounds :: [effect_expr()], % Var ≤ these effects
     location :: location()
 }).
 
 -type type_expr() :: #type_var{} | #type_con{} | #type_app{} |
                      #type_fun{} | #type_record{} | #type_forall{} |
-                     #type_tuple{} | #type_effect{}.
+                     #type_tuple{} | #type_effect{} | #type_effect_forall{} |
+                     #effect_bounds{}.

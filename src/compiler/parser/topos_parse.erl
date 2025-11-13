@@ -3,7 +3,13 @@
 -export([
     get_max_ast_depth/0, get_max_ast_nodes/0,
     get_max_token_count/0, get_max_parse_time/0,
-    get_max_pattern_depth/0, get_max_type_depth/0
+    get_max_pattern_depth/0, get_max_type_depth/0,
+    %% Effect-specific resource limits
+    get_max_effects_per_module/0,
+    get_max_operations_per_effect/0,
+    get_max_effects_in_annotation/0,
+    get_max_effect_handler_depth/0,
+    get_max_effect_identifier_length/0
 ]).
 
 %%% @doc High-level parser wrapper for the Topos language.
@@ -62,6 +68,13 @@
 -define(DEFAULT_MAX_AST_DEPTH, 500).        % 500 levels - prevents stack overflow
 -define(DEFAULT_MAX_AST_NODES, 100000).     % 100k nodes - reasonable for large files
 -define(DEFAULT_MAX_TOKEN_COUNT, 500000).   % 500k tokens - reasonable upper bound
+
+%% Effect-specific resource limits
+-define(DEFAULT_MAX_EFFECTS_PER_MODULE, 50).      % Maximum effect declarations per module
+-define(DEFAULT_MAX_OPERATIONS_PER_EFFECT, 100).  % Maximum operations per effect
+-define(DEFAULT_MAX_EFFECTS_IN_ANNOTATION, 10).   % Maximum effects in type annotation
+-define(DEFAULT_MAX_EFFECT_HANDLER_DEPTH, 20).   % Maximum nesting in effect handlers
+-define(DEFAULT_MAX_EFFECT_IDENTIFIER_LENGTH, 100). % Maximum effect name length
 -define(DEFAULT_MAX_PARSE_TIME, 30000).     % 30 seconds - prevent algorithmic attacks
 -define(DEFAULT_MAX_PATTERN_DEPTH, 100).    % 100 levels - deeply nested patterns
 -define(DEFAULT_MAX_TYPE_DEPTH, 100).       % 100 levels - deeply nested types
@@ -266,6 +279,25 @@ format_error({type_too_deep, Depth, MaxDepth}) ->
                   [Depth, MaxDepth]);
 format_error({file_error, Filename, Reason}) ->
     io_lib:format("Error reading file ~s: ~p", [Filename, Reason]);
+%% Effect-specific error messages
+format_error({too_many_effects, Count, Max}) ->
+    io_lib:format("Too many effect declarations: ~p exceeds maximum of ~p per module",
+                  [Count, Max]);
+format_error({too_many_operations, EffectName, Count, Max}) ->
+    io_lib:format("Effect '~w' has too many operations: ~p exceeds maximum of ~p",
+                  [EffectName, Count, Max]);
+format_error({effect_name_too_long, EffectName, Length, Max}) ->
+    io_lib:format("Effect name '~w' is too long: ~p characters exceeds maximum of ~p",
+                  [EffectName, Length, Max]);
+format_error({operation_name_too_long, OpName, Length, Max}) ->
+    io_lib:format("Operation name '~w' is too long: ~p characters exceeds maximum of ~p",
+                  [OpName, Length, Max]);
+format_error({too_many_effects_in_annotation, Count, Max}) ->
+    io_lib:format("Effect annotation has too many effects: ~p exceeds maximum of ~p",
+                  [Count, Max]);
+format_error({effect_handler_too_deep, Depth, Max}) ->
+    io_lib:format("Effect handler nesting too deep: ~p levels exceeds maximum of ~p",
+                  [Depth, Max]);
 format_error(Reason) ->
     io_lib:format("~p", [Reason]).
 
@@ -342,6 +374,65 @@ get_max_type_depth() ->
     application:get_env(topos, max_type_depth, ?DEFAULT_MAX_TYPE_DEPTH).
 
 %%============================================================================
+%% Effect-Specific Resource Limits
+%%============================================================================
+
+%% @doc Get maximum effect declarations per module.
+%%
+%% Returns the maximum number of effect declarations allowed in a single module.
+%% Prevents module bloat and compilation resource exhaustion.
+%% Default: 50 effects. Configurable via `application:set_env(topos, max_effects_per_module, N)`.
+%%
+%% @returns Maximum effects per module
+-spec get_max_effects_per_module() -> pos_integer().
+get_max_effects_per_module() ->
+    application:get_env(topos, max_effects_per_module, ?DEFAULT_MAX_EFFECTS_PER_MODULE).
+
+%% @doc Get maximum operations per effect.
+%%
+%% Returns the maximum number of operations allowed in a single effect declaration.
+%% Prevents complex effects that could cause compilation or runtime issues.
+%% Default: 100 operations. Configurable via `application:set_env(topos, max_operations_per_effect, N)`.
+%%
+%% @returns Maximum operations per effect
+-spec get_max_operations_per_effect() -> pos_integer().
+get_max_operations_per_effect() ->
+    application:get_env(topos, max_operations_per_effect, ?DEFAULT_MAX_OPERATIONS_PER_EFFECT).
+
+%% @doc Get maximum effects in type annotation.
+%%
+%% Returns the maximum number of effects allowed in a single effect type annotation.
+%% Prevents excessively complex effect sets that could overwhelm type inference.
+%% Default: 10 effects. Configurable via `application:set_env(topos, max_effects_in_annotation, N)`.
+%%
+%% @returns Maximum effects in annotation
+-spec get_max_effects_in_annotation() -> pos_integer().
+get_max_effects_in_annotation() ->
+    application:get_env(topos, max_effects_in_annotation, ?DEFAULT_MAX_EFFECTS_IN_ANNOTATION).
+
+%% @doc Get maximum effect handler nesting depth.
+%%
+%% Returns the maximum allowed nesting depth for effect handlers in try-with expressions.
+%% Prevents deep handler nesting that could cause stack overflow.
+%% Default: 20 levels. Configurable via `application:set_env(topos, max_effect_handler_depth, N)`.
+%%
+%% @returns Maximum effect handler depth
+-spec get_max_effect_handler_depth() -> pos_integer().
+get_max_effect_handler_depth() ->
+    application:get_env(topos, max_effect_handler_depth, ?DEFAULT_MAX_EFFECT_HANDLER_DEPTH).
+
+%% @doc Get maximum effect identifier length.
+%%
+%% Returns the maximum allowed length for effect names and operation identifiers.
+%% Prevents excessively long identifiers that could cause memory or display issues.
+%% Default: 100 characters. Configurable via `application:set_env(topos, max_effect_identifier_length, N)`.
+%%
+%% @returns Maximum effect identifier length
+-spec get_max_effect_identifier_length() -> pos_integer().
+get_max_effect_identifier_length() ->
+    application:get_env(topos, max_effect_identifier_length, ?DEFAULT_MAX_EFFECT_IDENTIFIER_LENGTH).
+
+%%============================================================================
 %% Internal Functions
 %%============================================================================
 
@@ -355,15 +446,123 @@ validate_ast(AST) ->
     Depth = calculate_ast_depth(AST),
     NodeCount = count_ast_nodes(AST),
 
-    %% Check limits
-    if
-        Depth > MaxDepth ->
-            {error, {ast_too_deep, Depth, MaxDepth}};
-        NodeCount > MaxNodes ->
-            {error, {ast_too_large, NodeCount, MaxNodes}};
-        true ->
-            {ok, AST}
+    %% Check generic limits
+    case {Depth > MaxDepth, NodeCount > MaxNodes} of
+        {true, _} -> {error, {ast_too_deep, Depth, MaxDepth}};
+        {_, true} -> {error, {ast_too_large, NodeCount, MaxNodes}};
+        {false, false} -> 
+            %% Check effect-specific limits
+            validate_effect_limits(AST)
     end.
+
+%% @doc Validate effect-specific resource limits
+-spec validate_effect_limits(term()) -> {ok, term()} | {error, term()}.
+validate_effect_limits(AST) ->
+    case validate_effect_declarations(AST) of
+        {ok, _} -> validate_effect_annotations(AST);
+        Error -> Error
+    end.
+
+%% @doc Validate effect declarations against limits
+-spec validate_effect_declarations(term()) -> {ok, term()} | {error, term()}.
+validate_effect_declarations({module, _, _, _, Declarations, _}) ->
+    MaxEffects = get_max_effects_per_module(),
+    MaxOps = get_max_operations_per_effect(),
+    MaxIdLength = get_max_effect_identifier_length(),
+    
+    EffectDecls = [Decl || Decl = {effect_decl, _, _, _} <- Declarations],
+    EffectCount = length(EffectDecls),
+    
+    if
+        EffectCount > MaxEffects ->
+            {error, {too_many_effects, EffectCount, MaxEffects}};
+        true ->
+            validate_individual_effects(EffectDecls, MaxOps, MaxIdLength)
+    end;
+validate_effect_declarations(AST) ->
+    {ok, AST}.  % Non-module AST, skip effect validation
+
+%% @doc Validate individual effect declarations
+-spec validate_individual_effects(list(), pos_integer(), pos_integer()) -> {ok, term()} | {error, term()}.
+validate_individual_effects([], _MaxOps, _MaxIdLength) -> {ok, []};
+validate_individual_effects([{effect_decl, Name, Operations, _} | Rest], MaxOps, MaxIdLength) ->
+    %% Check effect name length
+    case atom_length(Name) of
+        Length when Length > MaxIdLength ->
+            {error, {effect_name_too_long, Name, Length, MaxIdLength}};
+        _ ->
+            %% Check operation count
+            OpCount = length(Operations),
+            if
+                OpCount > MaxOps ->
+                    {error, {too_many_operations, Name, OpCount, MaxOps}};
+                true ->
+                    %% Check individual operation names
+                    case validate_operations(Operations, MaxIdLength) of
+                        {ok, _} -> validate_individual_effects(Rest, MaxOps, MaxIdLength);
+                        Error -> Error
+                    end
+            end
+    end.
+
+%% @doc validate operation names within effects
+-spec validate_operations(list(), pos_integer()) -> {ok, term()} | {error, term()}.
+validate_operations([], _MaxIdLength) -> {ok, []};
+validate_operations([{effect_operation, OpName, _Type, _} | Rest], MaxIdLength) ->
+    case atom_length(OpName) of
+        Length when Length > MaxIdLength ->
+            {error, {operation_name_too_long, OpName, Length, MaxIdLength}};
+        _ ->
+            validate_operations(Rest, MaxIdLength)
+    end;
+validate_operations([_ | Rest], MaxIdLength) ->
+    validate_operations(Rest, MaxIdLength).
+
+%% @doc Validate effect annotations (type effect sets)
+-spec validate_effect_annotations(term()) -> {ok, term()} | {error, term()}.
+validate_effect_annotations({_ASTType, _, _, _, Declarations, _}) ->
+    MaxEffectsAnnotation = get_max_effects_in_annotation(),
+    validate_declarations_for_annotations(Declarations, MaxEffectsAnnotation);
+validate_effect_annotations(AST) ->
+    {ok, AST}.
+
+%% @doc Validate declarations for effect annotations
+-spec validate_declarations_for_annotations(list(), pos_integer()) -> {ok, term()} | {error, term()}.
+validate_declarations_for_annotations([], _MaxEffects) -> {ok, []};
+validate_declarations_for_annotations([Decl | Rest], MaxEffects) ->
+    case validate_single_declaration_annotations(Decl, MaxEffects) of
+        {ok, _} -> validate_declarations_for_annotations(Rest, MaxEffects);
+        Error -> Error
+    end.
+
+%% @doc Validate effect annotations in a single declaration
+-spec validate_single_declaration_annotations(term(), pos_integer()) -> {ok, term()} | {error, term()}.
+validate_single_declaration_annotations({flow_decl, _Name, Type, _Clauses, _}, MaxEffects) ->
+    validate_type_for_effects(Type, MaxEffects);
+validate_single_declaration_annotations({shape_decl, _Name, _Params, _Constructors, _}, _MaxEffects) ->
+    {ok, {}};  % Shape declarations don't have effect annotations
+validate_single_declaration_annotations({effect_decl, _Name, _Operations, _}, _MaxEffects) ->
+    {ok, {}};  % Effect declarations don't have effect annotations
+validate_single_declaration_annotations(_, _MaxEffects) ->
+    {ok, {}}.  % Other declaration types
+
+%% @doc Validate type expressions for effect annotations
+-spec validate_type_for_effects(term(), pos_integer()) -> {ok, term()} | {error, term()}.
+validate_type_for_effects({type_effect, _BaseType, Effects, _}, MaxEffects) ->
+    EffectCount = length(Effects),
+    if
+        EffectCount > MaxEffects ->
+            {error, {too_many_effects_in_annotation, EffectCount, MaxEffects}};
+        true ->
+            {ok, Effects}
+    end;
+validate_type_for_effects(_OtherType, _MaxEffects) ->
+    {ok, _OtherType}.
+
+%% @doc Helper to get atom length safely
+-spec atom_length(atom()) -> pos_integer().
+atom_length(Atom) ->
+    length(atom_to_list(Atom)).
 
 %% @doc Validate structural limits (pattern depth, type depth)
 -spec validate_structure(term()) -> {ok, term()} | {error, term()}.

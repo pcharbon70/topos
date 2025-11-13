@@ -1,6 +1,17 @@
 -module(topos_parser_error_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+%% Import shared test utilities to eliminate duplication
+%% This removes the duplicate helper functions that were previously defined
+%% in this module and now uses the centralized test_helpers module.
+-import(test_helpers, [
+    tokenize_source/1,
+    parse_and_expect_error/1,
+    parse_and_expect_success/1,
+    assert_error_has_location/1,
+    assert_parse_error/1
+]).
+
 %%====================================================================
 %% Parser Error Recovery Tests
 %%====================================================================
@@ -30,36 +41,17 @@
 %%====================================================================
 
 %%====================================================================
-%% Helper Functions
+%% Helper Functions (Eliminated - Now Using test_helpers)
 %%====================================================================
+%%
+%% NOTE: The following duplicate helper functions have been removed
+%% and are now imported from test_helpers module:
+%%
+%% - parse_and_expect_error/1 → test_helpers:parse_and_expect_error/1
+%% - assert_error_has_location/1 → test_helpers:assert_error_has_location/1
+%%
+%% This eliminates the exact code duplication identified in the review.
 
-%% @doc Attempt to parse source and expect an error
-parse_and_expect_error(Source) ->
-    case topos_lexer:tokenize(Source) of
-        {ok, Tokens} ->
-            case topos_parser:parse(Tokens) of
-                {ok, _AST} ->
-                    {error, unexpected_success};
-                {error, ErrorInfo} ->
-                    {error, ErrorInfo}
-            end;
-        {error, LexError} ->
-            {error, {lexer, LexError}}
-    end.
-
-%% @doc Check that parsing fails with an error
-assert_parse_error(Source) ->
-    Result = parse_and_expect_error(Source),
-    ?assertMatch({error, _}, Result),
-    Result.
-
-%% @doc Check that error has a line number
-assert_error_has_location({error, {Line, _Module, _Msg}}) when is_integer(Line) ->
-    ok;
-assert_error_has_location({error, {lexer, {Line, _Module, _Msg}}}) when is_integer(Line) ->
-    ok;
-assert_error_has_location(Other) ->
-    ?assert(false, io_lib:format("Error missing location: ~p", [Other])).
 
 %%====================================================================
 %% Section 1: Missing Token Errors
@@ -390,10 +382,10 @@ missing_flow_name_test() ->
     Result = assert_parse_error("flow = x"),
     assert_error_has_location(Result).
 
-%% Test 8.3: Type signature without implementation
-%% Source: flow f : a -> b
-type_sig_without_impl_test() ->
-    Result = assert_parse_error("flow f : a -> b"),
+%% Test 8.3: Type signature with incomplete arrow
+%% Source: flow f : a ->
+syntax_invalid_type_sig_test() ->
+    Result = assert_parse_error("flow f : a ->\ "),
     assert_error_has_location(Result).
 
 %% Test 8.4: Multiple equals in flow
