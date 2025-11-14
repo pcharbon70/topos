@@ -92,7 +92,14 @@ tfun(From, To, Effects) ->
 
 -spec trecord([{atom(), ty()}], row_var()) -> ty().
 trecord(Fields, RowVar) when is_list(Fields) ->
-    {trecord, Fields, RowVar}.
+    % Validate no duplicate field names
+    FieldNames = [Name || {Name, _Type} <- Fields],
+    case length(FieldNames) =:= length(lists:usort(FieldNames)) of
+        true -> {trecord, Fields, RowVar};
+        false ->
+            Duplicates = find_duplicates(FieldNames),
+            error({duplicate_record_fields, Duplicates})
+    end.
 
 -spec ttuple([ty()]) -> ty().
 ttuple(Elements) when is_list(Elements) ->
@@ -100,7 +107,14 @@ ttuple(Elements) when is_list(Elements) ->
 
 -spec tvariant([{atom(), [ty()]}]) -> ty().
 tvariant(Constructors) when is_list(Constructors) ->
-    {tvariant, Constructors}.
+    % Validate no duplicate constructor names
+    ConstructorNames = [Name || {Name, _Args} <- Constructors],
+    case length(ConstructorNames) =:= length(lists:usort(ConstructorNames)) of
+        true -> {tvariant, Constructors};
+        false ->
+            Duplicates = find_duplicates(ConstructorNames),
+            error({duplicate_variant_constructors, Duplicates})
+    end.
 
 %%====================================================================
 %% Fresh Variable Generation
@@ -156,10 +170,9 @@ union_effects({effect_set, E1}, {effect_set, E2}) ->
 
 -spec normalize_effects([atom()]) -> effect_set().
 normalize_effects(Effects) when is_list(Effects) ->
-    % Sort and remove duplicates
-    Sorted = lists:sort(Effects),
-    Unique = lists:usort(Sorted),
-    {effect_set, Unique}.
+    % Sort and remove duplicates in one pass
+    % lists:usort already sorts, so no need for separate lists:sort
+    {effect_set, lists:usort(Effects)}.
 
 -spec is_pure(effect_set()) -> boolean().
 is_pure({effect_set, []}) -> true;
@@ -227,4 +240,20 @@ type_vars_acc({tvariant, Constructors}, Acc) ->
 %% Internal Functions
 %%====================================================================
 
-% (None yet)
+%% @doc Find duplicate elements in a list
+%% Returns a list of elements that appear more than once
+-spec find_duplicates([atom()]) -> [atom()].
+find_duplicates(List) ->
+    find_duplicates(List, #{}, []).
+
+find_duplicates([], _Seen, Duplicates) ->
+    lists:usort(Duplicates);
+find_duplicates([Item | Rest], Seen, Duplicates) ->
+    case maps:is_key(Item, Seen) of
+        true ->
+            % Already seen, it's a duplicate
+            find_duplicates(Rest, Seen, [Item | Duplicates]);
+        false ->
+            % First occurrence
+            find_duplicates(Rest, maps:put(Item, true, Seen), Duplicates)
+    end.

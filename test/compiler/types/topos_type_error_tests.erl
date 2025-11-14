@@ -51,32 +51,52 @@ test_invalid_constructor_name() ->
     ?assertError(function_clause, topos_types:tcon(123)).
 
 test_duplicate_record_fields() ->
-    % Currently accepted but semantically invalid
-    % This test documents current behavior
-    DupRecord = topos_types:trecord([
+    % Duplicate field names should be rejected
+    ?assertError({duplicate_record_fields, [x]},
+                 topos_types:trecord([
+                     {x, topos_types:tcon(integer)},
+                     {x, topos_types:tcon(string)}  % Duplicate field
+                 ], closed)),
+
+    % Multiple duplicates
+    ?assertError({duplicate_record_fields, _},
+                 topos_types:trecord([
+                     {x, topos_types:tcon(integer)},
+                     {y, topos_types:tcon(string)},
+                     {x, topos_types:tcon(float)},   % x duplicated
+                     {y, topos_types:tcon(boolean)}  % y duplicated
+                 ], closed)),
+
+    % No duplicates should work fine
+    ValidRecord = topos_types:trecord([
         {x, topos_types:tcon(integer)},
-        {x, topos_types:tcon(string)}  % Duplicate field
+        {y, topos_types:tcon(string)}
     ], closed),
-
-    % Should construct but is semantically invalid
-    ?assertMatch({trecord, _, closed}, DupRecord),
-
-    % Note: This should be validated and rejected in future
-    % See Priority 2 recommendation in review
-    ok.
+    ?assertMatch({trecord, _, closed}, ValidRecord).
 
 test_duplicate_variant_constructors() ->
-    % Currently accepted but semantically invalid
-    DupVariant = topos_types:tvariant([
-        {'Some', [topos_types:tcon(integer)]},
-        {'Some', [topos_types:tcon(string)]}  % Duplicate constructor
+    % Duplicate constructor names should be rejected
+    ?assertError({duplicate_variant_constructors, ['Some']},
+                 topos_types:tvariant([
+                     {'Some', [topos_types:tcon(integer)]},
+                     {'Some', [topos_types:tcon(string)]}  % Duplicate constructor
+                 ])),
+
+    % Multiple duplicates
+    ?assertError({duplicate_variant_constructors, _},
+                 topos_types:tvariant([
+                     {'Red', []},
+                     {'Green', []},
+                     {'Red', []},    % Red duplicated
+                     {'Green', []}   % Green duplicated
+                 ])),
+
+    % No duplicates should work fine
+    ValidVariant = topos_types:tvariant([
+        {'None', []},
+        {'Some', [topos_types:tvar(1)]}
     ]),
-
-    % Should construct but is semantically invalid
-    ?assertMatch({tvariant, _}, DupVariant),
-
-    % Note: This should be validated and rejected in future
-    ok.
+    ?assertMatch({tvariant, _}, ValidVariant).
 
 %%====================================================================
 %% Circular Substitution Tests
