@@ -523,7 +523,10 @@ large_collection_test_() ->
      [
       ?_test(test_large_substitution()),
       ?_test(test_large_environment()),
-      ?_test(test_many_effects())
+      ?_test(test_many_effects()),
+      ?_test(test_effect_set_operations()),
+      ?_test(test_effect_deduplication()),
+      ?_test(test_effects_in_function_types())
      ] ++ large_collection_stress_tests()}.
 
 test_large_substitution() ->
@@ -576,12 +579,108 @@ test_many_effects() ->
     % Should be sorted
     ?assertEqual(EffList, lists:sort(EffList)).
 
+test_effect_set_operations() ->
+    % Test union of large effect sets
+    Effects1 = topos_types:normalize_effects(
+        [list_to_atom("effect_a_" ++ integer_to_list(I)) || I <- lists:seq(1, 50)]
+    ),
+    Effects2 = topos_types:normalize_effects(
+        [list_to_atom("effect_b_" ++ integer_to_list(I)) || I <- lists:seq(1, 50)]
+    ),
+
+    % Union should combine both sets
+    Union = topos_types:union_effects(Effects1, Effects2),
+    {effect_set, UnionList} = Union,
+    ?assertEqual(100, length(UnionList)),
+
+    % Should still be sorted and normalized
+    ?assertEqual(UnionList, lists:sort(UnionList)),
+
+    % Test union with overlapping effects
+    Effects3 = topos_types:normalize_effects(
+        [list_to_atom("effect_a_" ++ integer_to_list(I)) || I <- lists:seq(1, 25)]
+    ),
+    UnionOverlap = topos_types:union_effects(Effects1, Effects3),
+    {effect_set, OverlapList} = UnionOverlap,
+    ?assertEqual(50, length(OverlapList)),  % No duplicates
+
+    % Empty effect set operations
+    Empty = topos_types:empty_effects(),
+    UnionWithEmpty = topos_types:union_effects(Effects1, Empty),
+    ?assertEqual(Effects1, UnionWithEmpty),
+
+    % Test is_pure with large sets
+    ?assertNot(topos_types:is_pure(Effects1)),
+    ?assert(topos_types:is_pure(Empty)).
+
+test_effect_deduplication() ->
+    % Create effect list with many duplicates
+    EffectsWithDups = [io, io, io, network, network, file, file, io, network],
+
+    % Normalize should remove duplicates and sort
+    Normalized = topos_types:normalize_effects(EffectsWithDups),
+    {effect_set, EffList} = Normalized,
+
+    ?assertEqual(3, length(EffList)),  % Only io, network, file
+    ?assertEqual([file, io, network], EffList),  % Sorted
+
+    % Test with 200 effects with many duplicates
+    ManyDuplicates = lists:flatten([
+        [list_to_atom("effect_" ++ integer_to_list(I rem 50)) || I <- lists:seq(1, 200)]
+    ]),
+    NormalizedMany = topos_types:normalize_effects(ManyDuplicates),
+    {effect_set, ManyList} = NormalizedMany,
+
+    % Should have 50 unique effects
+    ?assertEqual(50, length(ManyList)),
+    ?assertEqual(ManyList, lists:usort(ManyList)).
+
+test_effects_in_function_types() ->
+    % Create function types with large effect sets
+    LargeEffects = topos_types:normalize_effects(
+        [list_to_atom("effect_" ++ integer_to_list(I)) || I <- lists:seq(1, 100)]
+    ),
+
+    FunType = topos_types:tfun(
+        topos_types:tcon(integer),
+        topos_types:tcon(string),
+        LargeEffects
+    ),
+
+    % Should be able to extract effects
+    {ok, ExtractedEffects} = topos_types:extract_function_effects(FunType),
+    ?assertEqual(LargeEffects, ExtractedEffects),
+
+    % Should be able to apply substitution
+    Subst = topos_type_subst:empty(),
+    ResultType = topos_type_subst:apply(Subst, FunType),
+    ?assertEqual(FunType, ResultType),
+
+    % Should be able to pretty-print
+    PP = topos_type_pp:pp_type(FunType),
+    ?assert(is_list(PP)),
+    ?assert(length(PP) > 100),  % Should include all effects
+
+    % Create nested function with effects
+    NestedFun = topos_types:tfun(
+        topos_types:tcon(float),
+        FunType,
+        topos_types:singleton_effect(async)
+    ),
+
+    % Should maintain separate effect sets
+    ?assert(topos_types:is_function_type(NestedFun)),
+    {ok, OuterEffects} = topos_types:extract_function_effects(NestedFun),
+    ?assertNot(topos_types:effects_equal(OuterEffects, LargeEffects)).
+
 -ifdef(TOPOS_ENABLE_STRESS_TESTS).
 large_collection_stress_tests() ->
     [
      ?_test(test_massive_substitution()),
      ?_test(test_massive_environment()),
-     ?_test(test_massive_record_type())
+     ?_test(test_massive_record_type()),
+     ?_test(test_massive_effect_sets()),
+     ?_test(test_effect_set_performance())
     ].
 -else.
 large_collection_stress_tests() ->
@@ -652,6 +751,87 @@ test_massive_record_type() ->
     PP = topos_type_pp:pp_type(MassiveRecord),
     ?assert(is_list(PP)),
     ?assert(length(PP) > 5000).
+
+test_massive_effect_sets() ->
+    % Create effect set with 1,000 effects
+    % This tests normalization and storage of very large effect sets
+    MassiveEffects = topos_types:normalize_effects(
+        [list_to_atom("effect_" ++ integer_to_list(I)) || I <- lists:seq(1, 1000)]
+    ),
+
+    % Should be normalized
+    {effect_set, EffList} = MassiveEffects,
+    ?assertEqual(1000, length(EffList)),
+    ?assertEqual(EffList, lists:usort(EffList)),
+
+    % Should support union operations
+    MoreEffects = topos_types:normalize_effects(
+        [list_to_atom("effect_" ++ integer_to_list(I)) || I <- lists:seq(500, 1500)]
+    ),
+    Union = topos_types:union_effects(MassiveEffects, MoreEffects),
+    {effect_set, UnionList} = Union,
+    ?assertEqual(1500, length(UnionList)),
+
+    % Should support equality checks
+    ?assert(topos_types:effects_equal(MassiveEffects, MassiveEffects)),
+    ?assertNot(topos_types:effects_equal(MassiveEffects, MoreEffects)),
+
+    % Should be usable in function types
+    FunWithMassiveEffects = topos_types:tfun(
+        topos_types:tcon(integer),
+        topos_types:tcon(string),
+        MassiveEffects
+    ),
+
+    % Should be able to extract effects
+    {ok, Extracted} = topos_types:extract_function_effects(FunWithMassiveEffects),
+    ?assertEqual(MassiveEffects, Extracted),
+
+    % Should be able to apply substitutions
+    Result = topos_type_subst:apply(topos_type_subst:empty(), FunWithMassiveEffects),
+    ?assertEqual(FunWithMassiveEffects, Result).
+
+test_effect_set_performance() ->
+    % Test performance of effect set operations with many duplicates
+    % Create 5,000 effects with only 100 unique values
+    ManyDuplicates = lists:flatten([
+        [list_to_atom("effect_" ++ integer_to_list(I rem 100)) || I <- lists:seq(1, 5000)]
+    ]),
+
+    % Normalization should handle this efficiently
+    Normalized = topos_types:normalize_effects(ManyDuplicates),
+    {effect_set, EffList} = Normalized,
+    ?assertEqual(100, length(EffList)),
+
+    % Test union of multiple large sets
+    Set1 = topos_types:normalize_effects(
+        [list_to_atom("set1_" ++ integer_to_list(I)) || I <- lists:seq(1, 200)]
+    ),
+    Set2 = topos_types:normalize_effects(
+        [list_to_atom("set2_" ++ integer_to_list(I)) || I <- lists:seq(1, 200)]
+    ),
+    Set3 = topos_types:normalize_effects(
+        [list_to_atom("set3_" ++ integer_to_list(I)) || I <- lists:seq(1, 200)]
+    ),
+
+    % Chain multiple unions
+    Union1 = topos_types:union_effects(Set1, Set2),
+    Union2 = topos_types:union_effects(Union1, Set3),
+    {effect_set, FinalList} = Union2,
+    ?assertEqual(600, length(FinalList)),
+    ?assertEqual(FinalList, lists:usort(FinalList)),
+
+    % Test with overlapping sets
+    Set4 = topos_types:normalize_effects(
+        [list_to_atom("set1_" ++ integer_to_list(I)) || I <- lists:seq(1, 100)]
+    ),
+    UnionOverlap = topos_types:union_effects(Set1, Set4),
+    {effect_set, OverlapList} = UnionOverlap,
+    ?assertEqual(200, length(OverlapList)),  % No duplicates from overlap
+
+    % Test is_pure predicate
+    ?assertNot(topos_types:is_pure(Union2)),
+    ?assertNot(topos_types:is_pure(Normalized)).
 -endif.
 
 %%====================================================================
