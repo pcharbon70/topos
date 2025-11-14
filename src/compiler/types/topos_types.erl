@@ -23,12 +23,19 @@
     tvariant/1
 ]).
 
-%% Fresh variable generation
+%% Fresh variable generation (stateful - uses process dictionary)
 -export([
     fresh_var/0,
     fresh_var_id/0,
     reset_fresh_counter/0,
     init_fresh_counter/0
+]).
+
+%% Fresh variable generation (stateless - explicit state threading)
+%% RECOMMENDED: Use these functions for new code
+-export([
+    fresh_var/1,
+    fresh_var_id/1
 ]).
 
 %% Effect set operations
@@ -120,8 +127,14 @@ tvariant(Constructors) when is_list(Constructors) ->
 %% Fresh Variable Generation
 %%====================================================================
 
-%% Counter stored in process dictionary for simplicity
-%% For concurrent compilation, use ETS table instead
+%%--------------------------------------------------------------------
+%% Stateful API (Process Dictionary) - DEPRECATED
+%%--------------------------------------------------------------------
+%% These functions use the process dictionary for convenience but
+%% make testing harder and are not thread-safe across processes.
+%% Use the stateless API (fresh_var/1, fresh_var_id/1) for new code.
+%%--------------------------------------------------------------------
+
 -define(FRESH_VAR_KEY, '$topos_fresh_var_counter').
 
 -spec init_fresh_counter() -> ok.
@@ -150,6 +163,39 @@ fresh_var_id() ->
 -spec fresh_var() -> ty().
 fresh_var() ->
     tvar(fresh_var_id()).
+
+%%--------------------------------------------------------------------
+%% Stateless API (Explicit State Threading) - RECOMMENDED
+%%--------------------------------------------------------------------
+%% These functions explicitly thread state through computations,
+%% making them more functional, testable, and thread-safe.
+%% State is managed by topos_type_state module.
+%%--------------------------------------------------------------------
+
+%% @doc Generate fresh type variable with explicit state (RECOMMENDED)
+%% Returns {TypeVariable, NewState}
+%%
+%% This is the recommended approach as it's more functional and testable.
+%% Use this for all new code, especially in type inference.
+%%
+%% Example:
+%%   State0 = topos_type_state:new(),
+%%   {Var1, State1} = topos_types:fresh_var(State0),
+%%   {Var2, State2} = topos_types:fresh_var(State1)
+-spec fresh_var(topos_type_state:state()) -> {ty(), topos_type_state:state()}.
+fresh_var(State) ->
+    topos_type_state:fresh_var(State).
+
+%% @doc Generate fresh type variable ID with explicit state (RECOMMENDED)
+%% Returns {VarId, NewState}
+%%
+%% Example:
+%%   State0 = topos_type_state:new(),
+%%   {Id1, State1} = topos_types:fresh_var_id(State0),
+%%   {Id2, State2} = topos_types:fresh_var_id(State1)
+-spec fresh_var_id(topos_type_state:state()) -> {type_var_id(), topos_type_state:state()}.
+fresh_var_id(State) ->
+    topos_type_state:fresh_var_id(State).
 
 %%====================================================================
 %% Effect Set Operations
