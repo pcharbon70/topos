@@ -847,6 +847,23 @@ substitution_edge_cases_test_() ->
       ?_test(test_row_variable_edge_cases())
      ]}.
 
+%%====================================================================
+%% Row Variable Substitution Tests
+%%====================================================================
+
+row_variable_substitution_test_() ->
+    {setup, fun setup/0, fun teardown/1,
+     [
+      ?_test(test_row_var_to_row_var()),
+      ?_test(test_row_var_to_closed()),
+      ?_test(test_row_var_in_nested_records()),
+      ?_test(test_multiple_row_vars()),
+      ?_test(test_row_var_composition()),
+      ?_test(test_row_var_type_vars()),
+      ?_test(test_row_var_pretty_printing()),
+      ?_test(test_row_var_field_merging())
+     ]}.
+
 test_empty_substitution_application() ->
     Empty = topos_type_subst:empty(),
 
@@ -894,6 +911,252 @@ test_row_variable_edge_cases() ->
     % After substitution, row variable should be closed
     Result = topos_type_subst:apply(S, OpenRecord),
     ?assertMatch({trecord, _, closed}, Result).
+
+test_row_var_to_row_var() ->
+    % Substituting one row variable with another
+    % S = {ρ₁ ↦ ρ₂}
+    S = topos_type_subst:singleton(1, topos_types:tvar(2)),
+
+    % Record with ρ₁: {x: Int | ρ₁}
+    Rec1 = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+
+    % After substitution: {x: Int | ρ₂}
+    Result = topos_type_subst:apply(S, Rec1),
+    ?assertMatch({trecord, [{x, _}], 2}, Result),
+
+    % Test chaining: First apply S1={ρ₁→ρ₂}, then S2={ρ₂→ρ₃}
+    % Row variable substitution is shallow, so we need two applications
+    % or composition to get full chain resolution
+    S1 = topos_type_subst:singleton(1, topos_types:tvar(2)),
+    S2 = topos_type_subst:singleton(2, topos_types:tvar(3)),
+
+    % Apply S1 first: {x: Int | ρ₁} -> {x: Int | ρ₂}
+    Result2a = topos_type_subst:apply(S1, Rec1),
+    ?assertMatch({trecord, [{x, _}], 2}, Result2a),
+
+    % Then apply S2: {x: Int | ρ₂} -> {x: Int | ρ₃}
+    Result2b = topos_type_subst:apply(S2, Result2a),
+    ?assertMatch({trecord, [{x, _}], 3}, Result2b),
+
+    % Identity: S = {ρ₁ ↦ ρ₁}
+    SIdentity = topos_type_subst:singleton(1, topos_types:tvar(1)),
+    ResultIdentity = topos_type_subst:apply(SIdentity, Rec1),
+    ?assertEqual(Rec1, ResultIdentity).
+
+test_row_var_to_closed() ->
+    % Substituting row variable with 'closed'
+    % This happens when we know the record has no more fields
+
+    % S = {ρ₁ ↦ {}}  (empty closed record)
+    S1 = topos_type_subst:singleton(
+        1,
+        topos_types:trecord([], closed)
+    ),
+
+    OpenRec = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+    Result1 = topos_type_subst:apply(S1, OpenRec),
+    ?assertMatch({trecord, [{x, _}], closed}, Result1),
+
+    % S = {ρ₁ ↦ {y: String}}  (closed record with field)
+    S2 = topos_type_subst:singleton(
+        1,
+        topos_types:trecord([{y, topos_types:tcon(string)}], closed)
+    ),
+
+    Result2 = topos_type_subst:apply(S2, OpenRec),
+    ?assertMatch({trecord, [{x, _}], closed}, Result2),
+
+    % Test that closed stays closed
+    ClosedRec = topos_types:trecord([{a, topos_types:tcon(atom)}], closed),
+    ResultClosed = topos_type_subst:apply(S1, ClosedRec),
+    ?assertEqual(ClosedRec, ResultClosed).
+
+test_row_var_in_nested_records() ->
+    % Test row variables in nested record types
+    % {outer: {inner: Int | ρ₁} | ρ₂}
+
+    InnerRec = topos_types:trecord([{inner, topos_types:tcon(integer)}], 1),
+    OuterRec = topos_types:trecord([{outer, InnerRec}], 2),
+
+    % Substitute inner row variable
+    S1 = topos_type_subst:singleton(1, topos_types:tvar(3)),
+    Result1 = topos_type_subst:apply(S1, OuterRec),
+    ?assertMatch({trecord, [{outer, {trecord, [{inner, _}], 3}}], 2}, Result1),
+
+    % Substitute outer row variable
+    S2 = topos_type_subst:singleton(2, topos_types:tvar(4)),
+    Result2 = topos_type_subst:apply(S2, OuterRec),
+    ?assertMatch({trecord, [{outer, {trecord, _, 1}}], 4}, Result2),
+
+    % Substitute both
+    S3 = topos_type_subst:extend(S1, 2, topos_types:tvar(4)),
+    Result3 = topos_type_subst:apply(S3, OuterRec),
+    ?assertMatch({trecord, [{outer, {trecord, _, 3}}], 4}, Result3),
+
+    % Close inner
+    S4 = topos_type_subst:singleton(1, topos_types:trecord([], closed)),
+    Result4 = topos_type_subst:apply(S4, OuterRec),
+    ?assertMatch({trecord, [{outer, {trecord, _, closed}}], 2}, Result4).
+
+test_multiple_row_vars() ->
+    % Test multiple independent row variables in the same type
+    % For example in a tuple of records: ({a: Int | ρ₁}, {b: String | ρ₂})
+
+    Rec1 = topos_types:trecord([{a, topos_types:tcon(integer)}], 1),
+    Rec2 = topos_types:trecord([{b, topos_types:tcon(string)}], 2),
+    TupleType = topos_types:ttuple([Rec1, Rec2]),
+
+    % Substitute only ρ₁
+    S1 = topos_type_subst:singleton(1, topos_types:tvar(3)),
+    Result1 = topos_type_subst:apply(S1, TupleType),
+    ?assertMatch({ttuple, [
+        {trecord, [{a, _}], 3},
+        {trecord, [{b, _}], 2}
+    ]}, Result1),
+
+    % Substitute only ρ₂
+    S2 = topos_type_subst:singleton(2, topos_types:tvar(4)),
+    Result2 = topos_type_subst:apply(S2, TupleType),
+    ?assertMatch({ttuple, [
+        {trecord, [{a, _}], 1},
+        {trecord, [{b, _}], 4}
+    ]}, Result2),
+
+    % Substitute both
+    S3 = topos_type_subst:extend(S1, 2, topos_types:tvar(4)),
+    Result3 = topos_type_subst:apply(S3, TupleType),
+    ?assertMatch({ttuple, [
+        {trecord, [{a, _}], 3},
+        {trecord, [{b, _}], 4}
+    ]}, Result3),
+
+    % Close both
+    S4 = #{
+        1 => topos_types:trecord([], closed),
+        2 => topos_types:trecord([], closed)
+    },
+    Result4 = topos_type_subst:apply(S4, TupleType),
+    ?assertMatch({ttuple, [
+        {trecord, [{a, _}], closed},
+        {trecord, [{b, _}], closed}
+    ]}, Result4).
+
+test_row_var_composition() ->
+    % Test substitution composition with row variables
+    % S1 = {ρ₁ ↦ ρ₂}, S2 = {ρ₂ ↦ ρ₃}
+    % compose(S2, S1) should give {ρ₁ ↦ ρ₃, ρ₂ ↦ ρ₃}
+
+    S1 = topos_type_subst:singleton(1, topos_types:tvar(2)),
+    S2 = topos_type_subst:singleton(2, topos_types:tvar(3)),
+
+    SComposed = topos_type_subst:compose(S2, S1),
+
+    Rec = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+    Result = topos_type_subst:apply(SComposed, Rec),
+    ?assertMatch({trecord, [{x, _}], 3}, Result),
+
+    % S1 = {ρ₁ ↦ ρ₂}, S2 = {ρ₂ ↦ closed}
+    S3 = topos_type_subst:singleton(1, topos_types:tvar(2)),
+    S4 = topos_type_subst:singleton(2, topos_types:trecord([], closed)),
+
+    SComposed2 = topos_type_subst:compose(S4, S3),
+    Result2 = topos_type_subst:apply(SComposed2, Rec),
+    ?assertMatch({trecord, [{x, _}], closed}, Result2).
+
+test_row_var_type_vars() ->
+    % Test that type_vars correctly extracts row variables
+
+    % Open record with row variable
+    OpenRec = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+    Vars1 = topos_types:type_vars(OpenRec),
+    ?assertEqual([1], lists:sort(sets:to_list(Vars1))),
+
+    % Closed record has no row variable
+    ClosedRec = topos_types:trecord([{x, topos_types:tcon(integer)}], closed),
+    Vars2 = topos_types:type_vars(ClosedRec),
+    ?assertEqual([], sets:to_list(Vars2)),
+
+    % Record with type variable in field and row variable
+    RecWithTVar = topos_types:trecord([{x, topos_types:tvar(2)}], 1),
+    Vars3 = topos_types:type_vars(RecWithTVar),
+    ?assertEqual([1, 2], lists:sort(sets:to_list(Vars3))),
+
+    % Nested records with multiple row variables
+    InnerRec = topos_types:trecord([{inner, topos_types:tvar(3)}], 1),
+    OuterRec = topos_types:trecord([{outer, InnerRec}], 2),
+    Vars4 = topos_types:type_vars(OuterRec),
+    ?assertEqual([1, 2, 3], lists:sort(sets:to_list(Vars4))).
+
+test_row_var_pretty_printing() ->
+    % Test pretty-printing of records with row variables
+
+    % Open record
+    OpenRec = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+    PP1 = topos_type_pp:pp_type(OpenRec),
+    ?assert(is_list(PP1)),
+    ?assert(length(PP1) > 0),
+
+    % Closed record
+    ClosedRec = topos_types:trecord([{x, topos_types:tcon(integer)}], closed),
+    PP2 = topos_type_pp:pp_type(ClosedRec),
+    ?assert(is_list(PP2)),
+    ?assert(length(PP2) > 0),
+
+    % Record with multiple fields and row variable
+    MultiFieldRec = topos_types:trecord([
+        {x, topos_types:tcon(integer)},
+        {y, topos_types:tcon(string)},
+        {z, topos_types:tcon(float)}
+    ], 5),
+    PP3 = topos_type_pp:pp_type(MultiFieldRec),
+    ?assert(is_list(PP3)),
+    ?assert(length(PP3) > 10),
+
+    % Nested record with row variables
+    InnerRec = topos_types:trecord([{inner, topos_types:tcon(atom)}], 2),
+    OuterRec = topos_types:trecord([{outer, InnerRec}], 3),
+    PP4 = topos_type_pp:pp_type(OuterRec),
+    ?assert(is_list(PP4)),
+    ?assert(length(PP4) > 5).
+
+test_row_var_field_merging() ->
+    % Test scenarios that might involve field merging (conceptually)
+    % Even though we don't actually merge, test the substitution behavior
+
+    % S = {ρ₁ ↦ {y: String}}
+    % Applied to {x: Int | ρ₁} conceptually gives {x: Int, y: String}
+    S = topos_type_subst:singleton(
+        1,
+        topos_types:trecord([{y, topos_types:tcon(string)}], closed)
+    ),
+
+    OpenRec = topos_types:trecord([{x, topos_types:tcon(integer)}], 1),
+    Result = topos_type_subst:apply(S, OpenRec),
+
+    % After substitution, row variable becomes closed
+    ?assertMatch({trecord, [{x, _}], closed}, Result),
+
+    % With multiple fields on both sides
+    S2 = topos_type_subst:singleton(
+        1,
+        topos_types:trecord([
+            {y, topos_types:tcon(string)},
+            {z, topos_types:tcon(float)}
+        ], closed)
+    ),
+
+    OpenRec2 = topos_types:trecord([
+        {a, topos_types:tcon(atom)},
+        {b, topos_types:tcon(boolean)}
+    ], 1),
+
+    Result2 = topos_type_subst:apply(S2, OpenRec2),
+    ?assertMatch({trecord, [{a, _}, {b, _}], closed}, Result2),
+
+    % Empty record extension: {| ρ₁} with S = {ρ₁ ↦ {x: Int}}
+    EmptyRec = topos_types:trecord([], 1),
+    Result3 = topos_type_subst:apply(S, EmptyRec),
+    ?assertMatch({trecord, [], closed}, Result3).
 
 %%====================================================================
 %% Fresh Variable Generation Edge Cases
