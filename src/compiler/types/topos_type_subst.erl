@@ -60,8 +60,22 @@ lookup(Subst, VarId) ->
     end.
 
 -spec extend(subst(), topos_types:type_var_id(), topos_types:ty()) -> subst().
+%% @doc Extend a substitution with a new variable-to-type mapping
+%%
+%% Validates that the extended substitution does not exceed the maximum
+%% substitution size to prevent unbounded growth during type inference.
 extend(Subst, VarId, Type) ->
-    maps:put(VarId, Type, Subst).
+    Result = maps:put(VarId, Type, Subst),
+
+    % Validate size to prevent unbounded substitution growth
+    ResultSize = maps:size(Result),
+    MaxSize = topos_compiler_utils:get_max_substitution_size(),
+    case ResultSize > MaxSize of
+        true ->
+            error(topos_type_error:substitution_too_large(ResultSize, MaxSize));
+        false ->
+            Result
+    end.
 
 %%====================================================================
 %% Substitution Composition
@@ -71,11 +85,33 @@ extend(Subst, VarId, Type) ->
 %% @doc Compose two substitutions: compose(S2, S1) = S2 ∘ S1
 %% This means: first apply S1, then apply S2
 %% Result: a substitution that has the same effect as applying S1 then S2
+%%
+%% == Substitution Amplification ==
+%%
+%% Composing substitutions can cause size amplification: if S1 has N mappings
+%% and S2 has M mappings, the result can have up to N+M mappings. To prevent
+%% unbounded growth during type inference, this function validates that the
+%% composed substitution does not exceed the configured maximum substitution
+%% size (default: 10,000 mappings).
+%%
+%% If the limit is exceeded, an error is raised with details about the actual
+%% size and the limit, allowing the user to either simplify their types or
+%% increase the limit via configuration.
 compose(S2, S1) ->
     % Apply S2 to all types in the range of S1
     S1Applied = maps:map(fun(_VarId, Type) -> apply(S2, Type) end, S1),
     % Merge: S2's bindings take precedence, but include S1's bindings too
-    maps:merge(S1Applied, S2).
+    Result = maps:merge(S1Applied, S2),
+
+    % Validate size to prevent substitution amplification
+    ResultSize = maps:size(Result),
+    MaxSize = topos_compiler_utils:get_max_substitution_size(),
+    case ResultSize > MaxSize of
+        true ->
+            error(topos_type_error:substitution_too_large(ResultSize, MaxSize));
+        false ->
+            Result
+    end.
 
 %%====================================================================
 %% Substitution Application

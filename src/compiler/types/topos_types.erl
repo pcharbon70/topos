@@ -23,16 +23,7 @@
     tvariant/1
 ]).
 
-%% Fresh variable generation (stateful - uses process dictionary)
--export([
-    fresh_var/0,
-    fresh_var_id/0,
-    reset_fresh_counter/0,
-    init_fresh_counter/0
-]).
-
 %% Fresh variable generation (stateless - explicit state threading)
-%% RECOMMENDED: Use these functions for new code
 -export([
     fresh_var/1,
     fresh_var_id/1
@@ -127,56 +118,15 @@ tvariant(Constructors) when is_list(Constructors) ->
 %% Fresh Variable Generation
 %%====================================================================
 
-%%--------------------------------------------------------------------
-%% Stateful API (Process Dictionary) - DEPRECATED
-%%--------------------------------------------------------------------
-%% These functions use the process dictionary for convenience but
-%% make testing harder and are not thread-safe across processes.
-%% Use the stateless API (fresh_var/1, fresh_var_id/1) for new code.
-%%--------------------------------------------------------------------
-
--define(FRESH_VAR_KEY, '$topos_fresh_var_counter').
-
--spec init_fresh_counter() -> ok.
-init_fresh_counter() ->
-    put(?FRESH_VAR_KEY, 0),
-    ok.
-
--spec reset_fresh_counter() -> ok.
-reset_fresh_counter() ->
-    put(?FRESH_VAR_KEY, 0),
-    ok.
-
--spec fresh_var_id() -> type_var_id().
-fresh_var_id() ->
-    case get(?FRESH_VAR_KEY) of
-        undefined ->
-            % Auto-initialize if not set
-            init_fresh_counter(),
-            fresh_var_id();
-        Counter ->
-            NewCounter = Counter + 1,
-            put(?FRESH_VAR_KEY, NewCounter),
-            NewCounter
-    end.
-
--spec fresh_var() -> ty().
-fresh_var() ->
-    tvar(fresh_var_id()).
-
-%%--------------------------------------------------------------------
-%% Stateless API (Explicit State Threading) - RECOMMENDED
-%%--------------------------------------------------------------------
 %% These functions explicitly thread state through computations,
-%% making them more functional, testable, and thread-safe.
+%% making them functional, testable, and thread-safe.
 %% State is managed by topos_type_state module.
-%%--------------------------------------------------------------------
 
-%% @doc Generate fresh type variable with explicit state (RECOMMENDED)
+%% @doc Generate fresh type variable with explicit state
 %% Returns {TypeVariable, NewState}
 %%
-%% This is the recommended approach as it's more functional and testable.
-%% Use this for all new code, especially in type inference.
+%% This function threads state through computations, making it functional,
+%% testable, and thread-safe. State must be explicitly passed and returned.
 %%
 %% Example:
 %%   State0 = topos_type_state:new(),
@@ -186,7 +136,7 @@ fresh_var() ->
 fresh_var(State) ->
     topos_type_state:fresh_var(State).
 
-%% @doc Generate fresh type variable ID with explicit state (RECOMMENDED)
+%% @doc Generate fresh type variable ID with explicit state
 %% Returns {VarId, NewState}
 %%
 %% Example:

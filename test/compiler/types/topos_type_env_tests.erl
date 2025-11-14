@@ -10,24 +10,16 @@
 %% Test Fixtures
 %%====================================================================
 
-setup() ->
-    topos_types:init_fresh_counter(),
-    ok.
-
-teardown(_) ->
-    ok.
-
 %%====================================================================
 %% Environment Construction Tests
 %%====================================================================
 
 construction_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_empty()),
       ?_test(test_singleton()),
       ?_test(test_from_list())
-     ]}.
+    ].
 
 test_empty() ->
     Env = topos_type_env:empty(),
@@ -55,14 +47,13 @@ test_from_list() ->
 %%====================================================================
 
 operations_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_lookup_found()),
       ?_test(test_lookup_not_found()),
       ?_test(test_extend()),
       ?_test(test_extend_shadow()),
       ?_test(test_remove())
-     ]}.
+    ].
 
 test_lookup_found() ->
     Scheme = topos_type_scheme:mono(topos_types:tcon(integer)),
@@ -113,13 +104,12 @@ test_remove() ->
 %%====================================================================
 
 ftv_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_ftv_empty()),
       ?_test(test_ftv_mono_schemes()),
       ?_test(test_ftv_poly_schemes()),
       ?_test(test_ftv_mixed())
-     ]}.
+    ].
 
 test_ftv_empty() ->
     Env = topos_type_env:empty(),
@@ -204,18 +194,15 @@ test_ftv_mixed() ->
 %%====================================================================
 
 integration_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_typical_type_checking_scenario())
-     ]}.
+    ].
 
 test_typical_type_checking_scenario() ->
     % Simulate a typical type checking scenario:
     % let id = λx. x in
     % let const = λx. λy. x in
     % ...
-
-    topos_types:reset_fresh_counter(),
 
     % Type of id: ∀α. α -> α
     IdType = topos_types:tfun(
@@ -248,8 +235,9 @@ test_typical_type_checking_scenario() ->
     ?assertEqual(IdScheme, IdSchemeFound),
 
     % Instantiate id multiple times (should get fresh vars each time)
-    IdInst1 = topos_type_scheme:instantiate(IdSchemeFound),
-    IdInst2 = topos_type_scheme:instantiate(IdSchemeFound),
+    State0 = topos_type_state:new(),
+    {IdInst1, State1} = topos_type_scheme:instantiate(IdSchemeFound, State0),
+    {IdInst2, _State2} = topos_type_scheme:instantiate(IdSchemeFound, State1),
 
     ?assertMatch({tfun, {tvar, _}, {tvar, _}, _}, IdInst1),
     ?assertMatch({tfun, {tvar, _}, {tvar, _}, _}, IdInst2),

@@ -10,25 +10,17 @@
 %% Test Fixtures
 %%====================================================================
 
-setup() ->
-    topos_types:init_fresh_counter(),
-    ok.
-
-teardown(_) ->
-    ok.
-
 %%====================================================================
 %% Substitution Construction Tests
 %%====================================================================
 
 construction_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_empty()),
       ?_test(test_singleton()),
       ?_test(test_lookup()),
       ?_test(test_extend())
-     ]}.
+    ].
 
 test_empty() ->
     Empty = topos_type_subst:empty(),
@@ -72,15 +64,14 @@ test_extend() ->
 %%====================================================================
 
 application_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_apply_to_var()),
       ?_test(test_apply_to_con()),
       ?_test(test_apply_to_fun()),
       ?_test(test_apply_to_app()),
       ?_test(test_apply_to_tuple()),
       ?_test(test_apply_to_record())
-     ]}.
+    ].
 
 test_apply_to_var() ->
     S = topos_type_subst:singleton(1, topos_types:tcon(integer)),
@@ -172,13 +163,12 @@ test_apply_to_record() ->
 %%====================================================================
 
 composition_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_compose_empty()),
       ?_test(test_compose_disjoint()),
       ?_test(test_compose_chain()),
       ?_test(test_compose_override())
-     ]}.
+    ].
 
 test_compose_empty() ->
     S1 = topos_type_subst:singleton(1, topos_types:tcon(integer)),
@@ -242,12 +232,11 @@ test_compose_override() ->
 %%====================================================================
 
 laws_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_identity_law()),
       ?_test(test_composition_apply()),
       ?_test(test_idempotent_application())
-     ]}.
+    ].
 
 test_identity_law() ->
     % Applying empty substitution is identity
@@ -298,11 +287,10 @@ test_idempotent_application() ->
 %%====================================================================
 
 complex_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_nested_substitution()),
       ?_test(test_function_type_substitution())
-     ]}.
+    ].
 
 test_nested_substitution() ->
     % Build complex substitution chain
@@ -368,3 +356,57 @@ test_function_type_substitution() ->
     ),
 
     ?assertEqual(Expected, Result).
+
+%%====================================================================
+%% Size Limit Tests
+%%====================================================================
+
+size_limit_test_() ->
+    [
+      ?_test(test_extend_within_limit()),
+      ?_test(test_compose_within_limit())
+    ].
+
+test_extend_within_limit() ->
+    % Build a substitution up to a reasonable size (well under the limit)
+    % Default limit is 10,000, so let's test with 100
+    MaxSize = 100,
+    Subst = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tcon(integer))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, MaxSize)
+    ),
+
+    % Should succeed - verify we can look up a value
+    ?assertEqual({ok, topos_types:tcon(integer)},
+                 topos_type_subst:lookup(Subst, 50)).
+
+test_compose_within_limit() ->
+    % Create two substitutions that together are under the limit
+    % Each with 50 mappings, total 100 (well under 10,000 limit)
+    S1 = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tcon(integer))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, 50)
+    ),
+
+    S2 = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I + 1000, topos_types:tcon(string))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, 50)
+    ),
+
+    % Compose should succeed
+    Composed = topos_type_subst:compose(S2, S1),
+
+    % Result should have mappings from both
+    ?assertEqual({ok, topos_types:tcon(integer)},
+                 topos_type_subst:lookup(Composed, 25)),
+    ?assertEqual({ok, topos_types:tcon(string)},
+                 topos_type_subst:lookup(Composed, 1025)).

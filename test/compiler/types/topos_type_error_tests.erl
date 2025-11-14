@@ -22,29 +22,18 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-%%====================================================================
-%% Test Fixtures
-%%====================================================================
-
-setup() ->
-    topos_types:init_fresh_counter(),
-    ok.
-
-teardown(_) ->
-    ok.
 
 %%====================================================================
 %% Invalid Input Tests - Type Construction
 %%====================================================================
 
 invalid_construction_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_invalid_type_variable_id()),
-      ?_test(test_invalid_constructor_name()),
-      ?_test(test_duplicate_record_fields()),
-      ?_test(test_duplicate_variant_constructors())
-     ]}.
+    [
+     ?_test(test_invalid_type_variable_id()),
+     ?_test(test_invalid_constructor_name()),
+     ?_test(test_duplicate_record_fields()),
+     ?_test(test_duplicate_variant_constructors())
+    ].
 
 test_invalid_type_variable_id() ->
     % Negative ID should fail
@@ -115,8 +104,7 @@ test_duplicate_variant_constructors() ->
 %%====================================================================
 
 circular_substitution_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_simple_cycle()),
       ?_test(test_three_way_cycle()),
       ?_test(test_self_reference()),
@@ -130,7 +118,7 @@ circular_substitution_test_() ->
       ?_test(test_indirect_cycle_through_variant()),
       ?_test(test_cycle_with_row_variable()),
       ?_test(test_composition_induced_cycle())
-     ]}.
+    ].
 
 test_simple_cycle() ->
     % S = {1 ↦ α₂, 2 ↦ α₁}
@@ -402,11 +390,10 @@ test_composition_induced_cycle() ->
 %%====================================================================
 
 deep_nesting_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_moderately_deep_type()),
       ?_test(test_deep_type_variables())
-     ] ++ deep_nesting_stress_tests()}.
+     ] ++ deep_nesting_stress_tests().
 
 test_moderately_deep_type() ->
     % Build type with 50 levels of nesting
@@ -519,15 +506,14 @@ test_extremely_deep_substitution_chain() ->
 %%====================================================================
 
 large_collection_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_large_substitution()),
       ?_test(test_large_environment()),
       ?_test(test_many_effects()),
       ?_test(test_effect_set_operations()),
       ?_test(test_effect_deduplication()),
       ?_test(test_effects_in_function_types())
-     ] ++ large_collection_stress_tests()}.
+     ] ++ large_collection_stress_tests().
 
 test_large_substitution() ->
     % Create substitution with 1000 mappings
@@ -839,21 +825,19 @@ test_effect_set_performance() ->
 %%====================================================================
 
 substitution_edge_cases_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_empty_substitution_application()),
       ?_test(test_identity_substitution()),
       ?_test(test_substitution_on_substitution()),
       ?_test(test_row_variable_edge_cases())
-     ]}.
+    ].
 
 %%====================================================================
 %% Row Variable Substitution Tests
 %%====================================================================
 
 row_variable_substitution_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_row_var_to_row_var()),
       ?_test(test_row_var_to_closed()),
       ?_test(test_row_var_in_nested_records()),
@@ -862,7 +846,7 @@ row_variable_substitution_test_() ->
       ?_test(test_row_var_type_vars()),
       ?_test(test_row_var_pretty_printing()),
       ?_test(test_row_var_field_merging())
-     ]}.
+    ].
 
 test_empty_substitution_application() ->
     Empty = topos_type_subst:empty(),
@@ -1163,52 +1147,66 @@ test_row_var_field_merging() ->
 %%====================================================================
 
 fresh_var_edge_cases_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_counter_wraparound()),
       ?_test(test_many_fresh_variables())
-     ]}.
+    ].
 
 test_counter_wraparound() ->
     % Test that counter doesn't overflow (Erlang handles big integers)
     % Generate many variables and check uniqueness
 
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
     % Generate 10,000 variables
-    Vars = [topos_types:fresh_var() || _ <- lists:seq(1, 10000)],
+    {Vars, _StateFinal} = lists:foldl(
+        fun(_, {AccVars, AccState}) ->
+            {Var, NewState} = topos_types:fresh_var(AccState),
+            {[Var | AccVars], NewState}
+        end,
+        {[], State0},
+        lists:seq(1, 10000)
+    ),
 
     % All should be unique
     UniqueVars = lists:usort(Vars),
     ?assertEqual(10000, length(UniqueVars)),
 
-    % IDs should be sequential
-    {tvar, LastId} = lists:last(Vars),
+    % IDs should be sequential (reversed due to cons)
+    {tvar, FirstId} = lists:last(Vars),  % First generated
+    ?assertEqual(1, FirstId),
+    {tvar, LastId} = hd(Vars),  % Last generated
     ?assertEqual(10000, LastId).
 
 test_many_fresh_variables() ->
     % Stress test: generate 50,000 variables
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
     % This should not crash or slow down significantly
     Count = 50000,
-    _Vars = [topos_types:fresh_var() || _ <- lists:seq(1, Count)],
+    {_Vars, StateFinal} = lists:foldl(
+        fun(_, {AccVars, AccState}) ->
+            {Var, NewState} = topos_types:fresh_var(AccState),
+            {[Var | AccVars], NewState}
+        end,
+        {[], State0},
+        lists:seq(1, Count)
+    ),
 
     % Counter should be at expected value
-    {tvar, NextId} = topos_types:fresh_var(),
-    ?assertEqual(Count + 1, NextId).
+    {_NextVar, StateNext} = topos_types:fresh_var(StateFinal),
+    ?assertEqual(Count + 1, topos_type_state:get_counter(StateNext)).
 
 %%====================================================================
 %% Pretty-Printing Edge Cases
 %%====================================================================
 
 pretty_printing_edge_cases_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_empty_structures()),
       ?_test(test_special_atom_names()),
       ?_test(test_very_long_type())
-     ]}.
+    ].
 
 test_empty_structures() ->
     % Empty tuple
@@ -1255,12 +1253,11 @@ test_very_long_type() ->
 %%====================================================================
 
 type_scheme_edge_cases_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_generalize_with_no_free_vars()),
       ?_test(test_instantiate_empty_quantifiers()),
       ?_test(test_nested_quantification())
-     ]}.
+    ].
 
 test_generalize_with_no_free_vars() ->
     % Generalize a concrete type (no variables)
@@ -1280,18 +1277,19 @@ test_instantiate_empty_quantifiers() ->
     % Create polymorphic scheme with empty quantifier list
     % (should behave like monomorphic)
 
+    State = topos_type_state:new(),
     Type = topos_types:tcon(integer),
     Scheme = topos_type_scheme:poly([], Type),
 
     % Instantiate should return original type
-    Result = topos_type_scheme:instantiate(Scheme),
+    {Result, _NewState} = topos_type_scheme:instantiate(Scheme, State),
     ?assertEqual(Type, Result).
 
 test_nested_quantification() ->
     % Generalize twice (should only quantify once)
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Var1} = topos_types:fresh_var(),
+    {{tvar, Var1}, _State1} = topos_types:fresh_var(State0),
     Type = topos_types:tvar(Var1),
 
     EmptyEnv = topos_type_env:empty(),
@@ -1310,12 +1308,11 @@ test_nested_quantification() ->
 %%====================================================================
 
 environment_edge_cases_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_remove_nonexistent()),
       ?_test(test_shadow_and_remove()),
       ?_test(test_empty_environment_ftv())
-     ]}.
+    ].
 
 test_remove_nonexistent() ->
     Env = topos_type_env:singleton(x, topos_type_scheme:mono(topos_types:tcon(integer))),
@@ -1353,11 +1350,10 @@ test_empty_environment_ftv() ->
 %%====================================================================
 
 integration_error_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_complex_substitution_chain()),
       ?_test(test_generalize_after_large_substitution())
-     ]}.
+    ].
 
 test_complex_substitution_chain() ->
     % Build chain: α₁ → α₂ → α₃ → Int
@@ -1398,3 +1394,98 @@ test_generalize_after_large_substitution() ->
     Scheme = topos_type_scheme:generalize(SubstitutedType, topos_type_env:ftv_env(EmptyEnv)),
 
     ?assertMatch({mono, _}, Scheme).
+
+%%====================================================================
+%% Error Formatting Tests
+%%====================================================================
+
+error_formatting_test_() ->
+    [
+      ?_test(test_format_circular_substitution()),
+      ?_test(test_format_substitution_depth_exceeded()),
+      ?_test(test_format_unification_failure()),
+      ?_test(test_format_occurs_check()),
+      ?_test(test_format_type_depth_exceeded()),
+      ?_test(test_format_unbound_variable()),
+      ?_test(test_format_arity_mismatch()),
+      ?_test(test_format_effect_mismatch()),
+      ?_test(test_format_missing_field()),
+      ?_test(test_format_with_location())
+    ].
+
+test_format_circular_substitution() ->
+    Error = topos_type_error:circular_substitution(42),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Circular") > 0),
+    ?assert(string:str(Msg, "α42") > 0).
+
+test_format_substitution_depth_exceeded() ->
+    Error = topos_type_error:substitution_depth_exceeded(150, 100),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "substitution depth") > 0),
+    ?assert(string:str(Msg, "150") > 0),
+    ?assert(string:str(Msg, "100") > 0).
+
+test_format_unification_failure() ->
+    Type1 = topos_types:tcon(integer),
+    Type2 = topos_types:tcon(string),
+    Error = topos_type_error:unification_failure(Type1, Type2),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "unification") > 0),
+    ?assert(string:str(Msg, "integer") > 0),
+    ?assert(string:str(Msg, "string") > 0).
+
+test_format_occurs_check() ->
+    Type = topos_types:tfun(
+        topos_types:tvar(1),
+        topos_types:tcon(integer),
+        topos_types:empty_effects()
+    ),
+    Error = topos_type_error:occurs_check_failure(1, Type),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Occurs check") > 0),
+    ?assert(string:str(Msg, "α1") > 0),
+    ?assert(string:str(Msg, "infinite") > 0).
+
+test_format_type_depth_exceeded() ->
+    Error = topos_type_error:type_depth_exceeded(200, 100),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "depth") > 0),
+    ?assert(string:str(Msg, "200") > 0),
+    ?assert(string:str(Msg, "100") > 0).
+
+test_format_unbound_variable() ->
+    Error = topos_type_error:unbound_variable(foo),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Unbound") > 0),
+    ?assert(string:str(Msg, "foo") > 0).
+
+test_format_arity_mismatch() ->
+    Error = topos_type_error:arity_mismatch('List', 1, 2),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Arity mismatch") > 0),
+    ?assert(string:str(Msg, "List") > 0).
+
+test_format_effect_mismatch() ->
+    Pure = topos_types:empty_effects(),
+    Impure = topos_types:singleton_effect(io),
+    Error = topos_type_error:effect_mismatch(Pure, Impure),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Effect mismatch") > 0),
+    ?assert(string:str(Msg, "pure") > 0).
+
+test_format_missing_field() ->
+    RecordType = topos_types:trecord([
+        {x, topos_types:tcon(integer)}
+    ], closed),
+    Error = topos_type_error:missing_field(y, RecordType),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Missing field") > 0),
+    ?assert(string:str(Msg, "y") > 0).
+
+test_format_with_location() ->
+    Loc = topos_location:new(10, 5),
+    Error = topos_type_error:unbound_variable(foo),
+    Msg = topos_type_error:format_error_with_location(Loc, Error),
+    ?assert(string:str(Msg, "10:5") > 0),
+    ?assert(string:str(Msg, "foo") > 0).

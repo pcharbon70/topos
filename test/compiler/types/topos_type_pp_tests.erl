@@ -10,25 +10,17 @@
 %% Test Fixtures
 %%====================================================================
 
-setup() ->
-    topos_types:init_fresh_counter(),
-    ok.
-
-teardown(_) ->
-    ok.
-
 %%====================================================================
 %% Basic Type Pretty-Printing Tests
 %%====================================================================
 
 basic_types_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_var()),
       ?_test(test_pp_con()),
       ?_test(test_pp_tuple()),
       ?_test(test_pp_empty_tuple())
-     ]}.
+    ].
 
 test_pp_var() ->
     Var = topos_types:tvar(1),
@@ -62,11 +54,10 @@ test_pp_empty_tuple() ->
 %%====================================================================
 
 type_app_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_simple_app()),
       ?_test(test_pp_multiple_args())
-     ]}.
+    ].
 
 test_pp_simple_app() ->
     % List<Int>
@@ -89,13 +80,12 @@ test_pp_multiple_args() ->
 %%====================================================================
 
 function_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_pure_function()),
       ?_test(test_pp_effectful_function()),
       ?_test(test_pp_higher_order_function()),
       ?_test(test_pp_multiple_effects())
-     ]}.
+    ].
 
 test_pp_pure_function() ->
     % Int -> String
@@ -160,12 +150,11 @@ test_pp_multiple_effects() ->
 %%====================================================================
 
 record_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_closed_record()),
       ?_test(test_pp_open_record()),
       ?_test(test_pp_empty_open_record())
-     ]}.
+    ].
 
 test_pp_closed_record() ->
     % {x: Int, y: Float}
@@ -192,11 +181,10 @@ test_pp_empty_open_record() ->
 %%====================================================================
 
 variant_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_simple_variant()),
       ?_test(test_pp_variant_with_args())
-     ]}.
+    ].
 
 test_pp_simple_variant() ->
     % None | Some
@@ -221,12 +209,11 @@ test_pp_variant_with_args() ->
 %%====================================================================
 
 scheme_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_mono_scheme()),
       ?_test(test_pp_poly_scheme()),
       ?_test(test_pp_complex_poly_scheme())
-     ]}.
+    ].
 
 test_pp_mono_scheme() ->
     Scheme = topos_type_scheme:mono(topos_types:tcon(integer)),
@@ -279,12 +266,11 @@ test_pp_complex_poly_scheme() ->
 %%====================================================================
 
 effects_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_pp_empty_effects()),
       ?_test(test_pp_single_effect()),
       ?_test(test_pp_multiple_effects_sorted())
-     ]}.
+    ].
 
 test_pp_empty_effects() ->
     Effects = topos_types:empty_effects(),
@@ -304,10 +290,9 @@ test_pp_multiple_effects_sorted() ->
 %%====================================================================
 
 integration_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
+    [
       ?_test(test_complex_nested_type())
-     ]}.
+    ].
 
 test_complex_nested_type() ->
     % ∀α β. (α -> β / {io}) -> List<α> -> List<β> / {io}

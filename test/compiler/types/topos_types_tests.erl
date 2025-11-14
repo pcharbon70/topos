@@ -7,31 +7,19 @@
 -include_lib("eunit/include/eunit.hrl").
 
 %%====================================================================
-%% Test Fixtures
-%%====================================================================
-
-setup() ->
-    topos_types:init_fresh_counter(),
-    ok.
-
-teardown(_) ->
-    ok.
-
-%%====================================================================
 %% Type Construction Tests
 %%====================================================================
 
 type_construction_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_tvar()),
-      ?_test(test_tcon()),
-      ?_test(test_tapp()),
-      ?_test(test_tfun()),
-      ?_test(test_trecord()),
-      ?_test(test_ttuple()),
-      ?_test(test_tvariant())
-     ]}.
+    [
+     ?_test(test_tvar()),
+     ?_test(test_tcon()),
+     ?_test(test_tapp()),
+     ?_test(test_tfun()),
+     ?_test(test_trecord()),
+     ?_test(test_ttuple()),
+     ?_test(test_tvariant())
+    ].
 
 test_tvar() ->
     Var = topos_types:tvar(1),
@@ -122,17 +110,17 @@ test_tvariant() ->
 %%====================================================================
 
 fresh_var_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_fresh_var_unique()),
-      ?_test(test_fresh_var_sequential()),
-      ?_test(test_fresh_var_reset())
-     ]}.
+    [
+     ?_test(test_fresh_var_unique()),
+     ?_test(test_fresh_var_sequential()),
+     ?_test(test_fresh_var_state_independence())
+    ].
 
 test_fresh_var_unique() ->
-    Var1 = topos_types:fresh_var(),
-    Var2 = topos_types:fresh_var(),
-    Var3 = topos_types:fresh_var(),
+    State0 = topos_type_state:new(),
+    {Var1, State1} = topos_types:fresh_var(State0),
+    {Var2, State2} = topos_types:fresh_var(State1),
+    {Var3, _State3} = topos_types:fresh_var(State2),
 
     % All should be different
     ?assert(Var1 =/= Var2),
@@ -145,40 +133,46 @@ test_fresh_var_unique() ->
     ?assertMatch({tvar, _}, Var3).
 
 test_fresh_var_sequential() ->
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Id1} = topos_types:fresh_var(),
-    {tvar, Id2} = topos_types:fresh_var(),
-    {tvar, Id3} = topos_types:fresh_var(),
+    {Var1, State1} = topos_types:fresh_var(State0),
+    {Var2, State2} = topos_types:fresh_var(State1),
+    {Var3, _State3} = topos_types:fresh_var(State2),
 
     % Should be sequential
-    ?assertEqual(1, Id1),
-    ?assertEqual(2, Id2),
-    ?assertEqual(3, Id3).
+    ?assertMatch({tvar, 1}, Var1),
+    ?assertMatch({tvar, 2}, Var2),
+    ?assertMatch({tvar, 3}, Var3).
 
-test_fresh_var_reset() ->
-    _Var1 = topos_types:fresh_var(),
-    _Var2 = topos_types:fresh_var(),
+test_fresh_var_state_independence() ->
+    % Create two independent state threads
+    StateA0 = topos_type_state:new(),
+    StateB0 = topos_type_state:new(),
 
-    topos_types:reset_fresh_counter(),
+    {VarA1, StateA1} = topos_types:fresh_var(StateA0),
+    {VarB1, StateB1} = topos_types:fresh_var(StateB0),
+    {VarA2, _StateA2} = topos_types:fresh_var(StateA1),
+    {VarB2, _StateB2} = topos_types:fresh_var(StateB1),
 
-    {tvar, Id} = topos_types:fresh_var(),
-    ?assertEqual(1, Id).  % Counter reset
+    % Both threads should start at 1 (independent)
+    ?assertMatch({tvar, 1}, VarA1),
+    ?assertMatch({tvar, 1}, VarB1),
+    ?assertMatch({tvar, 2}, VarA2),
+    ?assertMatch({tvar, 2}, VarB2).
 
 %%====================================================================
 %% Effect Set Operations Tests
 %%====================================================================
 
 effect_set_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_empty_effects()),
-      ?_test(test_singleton_effect()),
-      ?_test(test_union_effects()),
-      ?_test(test_normalize_effects()),
-      ?_test(test_is_pure()),
-      ?_test(test_effects_equal())
-     ]}.
+    [
+     ?_test(test_empty_effects()),
+     ?_test(test_singleton_effect()),
+     ?_test(test_union_effects()),
+     ?_test(test_normalize_effects()),
+     ?_test(test_is_pure()),
+     ?_test(test_effects_equal())
+    ].
 
 test_empty_effects() ->
     Empty = topos_types:empty_effects(),
@@ -247,13 +241,12 @@ test_effects_equal() ->
 %%====================================================================
 
 type_operations_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_is_function_type()),
-      ?_test(test_is_type_var()),
-      ?_test(test_extract_function_effects()),
-      ?_test(test_type_vars())
-     ]}.
+    [
+     ?_test(test_is_function_type()),
+     ?_test(test_is_type_var()),
+     ?_test(test_extract_function_effects()),
+     ?_test(test_type_vars())
+    ].
 
 test_is_function_type() ->
     Fun = topos_types:tfun(
@@ -327,10 +320,9 @@ test_type_vars() ->
 %%====================================================================
 
 integration_test_() ->
-    {setup, fun setup/0, fun teardown/1,
-     [
-      ?_test(test_complex_type_construction())
-     ]}.
+    [
+     ?_test(test_complex_type_construction())
+    ].
 
 test_complex_type_construction() ->
     % Build: (α -> β / {IO}) -> List α -> List β / {IO}

@@ -65,7 +65,9 @@
     get_max_ast_depth/0,
     get_max_ast_nodes/0,
     get_max_pattern_depth/0,
-    get_max_type_depth/0
+    get_max_type_depth/0,
+    get_max_substitution_size/0,
+    get_max_environment_size/0
 ]).
 
 %% Error formatting
@@ -357,6 +359,10 @@ get_config(App, Key, Default) ->
 -define(DEFAULT_MAX_PATTERN_DEPTH, 100).          % 100 levels
 -define(DEFAULT_MAX_TYPE_DEPTH, 100).             % 100 levels
 
+%% Type system configuration defaults
+-define(DEFAULT_MAX_SUBSTITUTION_SIZE, 10000).    % 10k substitutions
+-define(DEFAULT_MAX_ENVIRONMENT_SIZE, 10000).     % 10k bindings
+
 %% @doc Get maximum input size for lexer.
 %%
 %% Returns the maximum allowed size (in bytes) for source code input.
@@ -530,6 +536,46 @@ get_max_pattern_depth() ->
 -spec get_max_type_depth() -> pos_integer().
 get_max_type_depth() ->
     get_config(topos, max_type_depth, ?DEFAULT_MAX_TYPE_DEPTH).
+
+%% @doc Get maximum substitution size for type inference.
+%%
+%% Returns the maximum number of variable-to-type mappings allowed
+%% in a single substitution. This prevents memory exhaustion from
+%% excessively large substitutions during type inference.
+%% Default: 10,000 substitutions.
+%% Configurable via application environment key `max_substitution_size'.
+%%
+%% @returns Maximum substitution size
+%%
+%% @see topos_type_subst
+%%
+%% @example
+%% ```
+%% MaxSize = get_max_substitution_size(),  %% → 10000 (default) or configured value
+%% '''
+-spec get_max_substitution_size() -> pos_integer().
+get_max_substitution_size() ->
+    get_config(topos, max_substitution_size, ?DEFAULT_MAX_SUBSTITUTION_SIZE).
+
+%% @doc Get maximum environment size for type inference.
+%%
+%% Returns the maximum number of variable-to-scheme bindings allowed
+%% in a single type environment. This prevents memory exhaustion from
+%% excessively large environments during type inference.
+%% Default: 10,000 bindings.
+%% Configurable via application environment key `max_environment_size'.
+%%
+%% @returns Maximum environment size
+%%
+%% @see topos_type_env
+%%
+%% @example
+%% ```
+%% MaxSize = get_max_environment_size(),  %% → 10000 (default) or configured value
+%% '''
+-spec get_max_environment_size() -> pos_integer().
+get_max_environment_size() ->
+    get_config(topos, max_environment_size, ?DEFAULT_MAX_ENVIRONMENT_SIZE).
 
 %%============================================================================
 %% Error Formatting

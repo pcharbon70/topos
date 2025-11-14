@@ -14,8 +14,7 @@
     mono/1,
     poly/2,
     generalize/2,
-    instantiate/1,      % Stateful (uses process dictionary) - DEPRECATED
-    instantiate/2,      % Stateless (explicit state threading) - RECOMMENDED
+    instantiate/2,
     ftv_scheme/1
 ]).
 
@@ -67,43 +66,19 @@ generalize(Type, EnvFreeVars) ->
         _ -> {poly, QuantVarsList, Type}  % Polymorphic scheme
     end.
 
--spec instantiate(scheme()) -> topos_types:ty().
-%% @doc Instantiate a type scheme using process dictionary (DEPRECATED)
-%% This implements the instantiation step in Algorithm W
-%%
-%% DEPRECATED: Use instantiate/2 with explicit state for new code
-%%
-%% Example:
-%%   Scheme: ∀α β. (α -> β) -> List α -> List β
-%%   Result: (γ₁ -> γ₂) -> List γ₁ -> List γ₂  (fresh variables)
-instantiate({mono, Type}) ->
-    % Monomorphic types instantiate to themselves
-    Type;
-instantiate({poly, QuantVars, Type}) ->
-    % Create substitution mapping each quantified variable to a fresh one
-    Subst = lists:foldl(
-        fun(VarId, Acc) ->
-            FreshVar = topos_types:fresh_var(),
-            topos_type_subst:extend(Acc, VarId, FreshVar)
-        end,
-        topos_type_subst:empty(),
-        QuantVars
-    ),
-    % Apply substitution to get fresh instance
-    topos_type_subst:apply(Subst, Type).
-
 -spec instantiate(scheme(), topos_type_state:state()) ->
     {topos_types:ty(), topos_type_state:state()}.
-%% @doc Instantiate a type scheme with explicit state (RECOMMENDED)
+%% @doc Instantiate a type scheme with explicit state threading
 %% This implements the instantiation step in Algorithm W
 %%
-%% This is the recommended approach as it's more functional and testable.
-%% Use this for all new code, especially in type inference.
+%% Replaces quantified variables with fresh type variables, threading
+%% state through the computation to ensure unique variable IDs.
 %%
 %% Example:
 %%   State0 = topos_type_state:new(),
 %%   Scheme = {poly, [1, 2], {tfun, {tvar, 1}, {tvar, 2}, {effect_set, []}}},
 %%   {InstType, State1} = topos_type_scheme:instantiate(Scheme, State0)
+%%   % InstType = {tfun, {tvar, 1}, {tvar, 2}, ...} with fresh IDs
 instantiate({mono, Type}, State) ->
     % Monomorphic types instantiate to themselves
     {Type, State};
