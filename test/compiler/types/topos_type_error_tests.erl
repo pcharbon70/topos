@@ -109,7 +109,15 @@ circular_substitution_test_() ->
       ?_test(test_three_way_cycle()),
       ?_test(test_self_reference()),
       ?_test(test_occurs_check_explicit()),
-      ?_test(test_depth_limit_exceeded())
+      ?_test(test_depth_limit_exceeded()),
+      ?_test(test_cycle_in_record_type()),
+      ?_test(test_cycle_in_variant_type()),
+      ?_test(test_cycle_in_tuple_type()),
+      ?_test(test_cycle_in_function_type()),
+      ?_test(test_indirect_cycle_through_record()),
+      ?_test(test_indirect_cycle_through_variant()),
+      ?_test(test_cycle_with_row_variable()),
+      ?_test(test_composition_induced_cycle())
      ]}.
 
 test_simple_cycle() ->
@@ -217,6 +225,165 @@ test_depth_limit_exceeded() ->
     % Applying this should hit depth limit
     ?assertError({substitution_depth_exceeded, _, _},
                  topos_type_subst:apply(DeepSubst, topos_types:tvar(1))).
+
+test_cycle_in_record_type() ->
+    % S = {1 ↦ {x: α₁}}
+    % Record contains reference to itself
+    S = #{
+        1 => topos_types:trecord([{x, topos_types:tvar(1)}], closed)
+    },
+
+    % Should detect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+
+    % Also test with occurs_check
+    ?assert(topos_type_subst:occurs_check(1,
+        topos_types:trecord([{x, topos_types:tvar(1)}], closed))).
+
+test_cycle_in_variant_type() ->
+    % S = {1 ↦ 'Some'(α₁)}
+    % Variant constructor contains reference to itself
+    S = #{
+        1 => topos_types:tvariant([{'Some', [topos_types:tvar(1)]}, {'None', []}])
+    },
+
+    % Should detect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+
+    % Test with occurs_check
+    ?assert(topos_type_subst:occurs_check(1,
+        topos_types:tvariant([{'Some', [topos_types:tvar(1)]}]))).
+
+test_cycle_in_tuple_type() ->
+    % S = {1 ↦ (α₁, Int)}
+    % Tuple contains reference to itself
+    S = #{
+        1 => topos_types:ttuple([topos_types:tvar(1), topos_types:tcon(integer)])
+    },
+
+    % Should detect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+
+    % Test with occurs_check
+    ?assert(topos_type_subst:occurs_check(1,
+        topos_types:ttuple([topos_types:tvar(1), topos_types:tcon(integer)]))).
+
+test_cycle_in_function_type() ->
+    % S = {1 ↦ (α₁ -> Int)}
+    % Function input type contains reference to itself
+    S1 = #{
+        1 => topos_types:tfun(
+            topos_types:tvar(1),
+            topos_types:tcon(integer),
+            topos_types:empty_effects()
+        )
+    },
+
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S1, topos_types:tvar(1))),
+
+    % S = {2 ↦ (Int -> α₂)}
+    % Function output type contains reference to itself
+    S2 = #{
+        2 => topos_types:tfun(
+            topos_types:tcon(integer),
+            topos_types:tvar(2),
+            topos_types:empty_effects()
+        )
+    },
+
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S2, topos_types:tvar(2))).
+
+test_indirect_cycle_through_record() ->
+    % S = {1 ↦ α₂, 2 ↦ {x: α₁}}
+    % α₁ → α₂ → {x: α₁} creates indirect cycle
+    S = #{
+        1 => topos_types:tvar(2),
+        2 => topos_types:trecord([{x, topos_types:tvar(1)}], closed)
+    },
+
+    % Should detect indirect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(2))).
+
+test_indirect_cycle_through_variant() ->
+    % S = {1 ↦ α₂, 2 ↦ 'Node'(α₁, α₁)}
+    % α₁ → α₂ → 'Node'(α₁, α₁) creates indirect cycle
+    S = #{
+        1 => topos_types:tvar(2),
+        2 => topos_types:tvariant([
+            {'Node', [topos_types:tvar(1), topos_types:tvar(1)]},
+            {'Leaf', []}
+        ])
+    },
+
+    % Should detect indirect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(2))).
+
+test_cycle_with_row_variable() ->
+    % Test cycle involving row variables in records
+    % S = {1 ↦ α₂, 2 ↦ {x: α₁ | ρ₃}}
+    % This creates a cycle: α₁ → α₂ → {x: α₁ | ρ₃}
+    S = #{
+        1 => topos_types:tvar(2),
+        2 => topos_types:trecord([{x, topos_types:tvar(1)}], 3)
+    },
+
+    % Should detect cycle through the field type
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+
+    % Create another case: α₁ → α₂, α₂ → {y: String | α₁}
+    % This creates cycle through the row variable itself
+    S2 = #{
+        1 => topos_types:tvar(2),
+        2 => topos_types:trecord([{y, topos_types:tcon(string)}], 1)
+    },
+
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S2, topos_types:tvar(1))).
+
+test_composition_induced_cycle() ->
+    % S1 = {1 ↦ α₂}
+    % S2 = {2 ↦ List α₁}
+    % compose(S2, S1) = {1 ↦ List α₁, 2 ↦ List α₁}
+    % This creates a cycle when applied
+
+    S1 = topos_type_subst:singleton(1, topos_types:tvar(2)),
+    S2 = topos_type_subst:singleton(2, topos_types:tapp(
+        topos_types:tcon('List'),
+        [topos_types:tvar(1)]
+    )),
+
+    % Compose the substitutions
+    S_composed = topos_type_subst:compose(S2, S1),
+
+    % Applying to α₁ should detect cycle
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S_composed, topos_types:tvar(1))),
+
+    % Test another composition scenario
+    % S3 = {3 ↦ α₄}, S4 = {4 ↦ (α₃ -> Int)}
+    S3 = topos_type_subst:singleton(3, topos_types:tvar(4)),
+    S4 = topos_type_subst:singleton(4, topos_types:tfun(
+        topos_types:tvar(3),
+        topos_types:tcon(integer),
+        topos_types:empty_effects()
+    )),
+
+    S_composed2 = topos_type_subst:compose(S4, S3),
+
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S_composed2, topos_types:tvar(3))).
 
 %%====================================================================
 %% Deep Nesting Tests
