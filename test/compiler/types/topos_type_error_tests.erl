@@ -4,6 +4,18 @@
 %%% Tests defensive programming, error scenarios, and edge cases
 %%% that should fail gracefully or be handled properly.
 %%%
+%%% ## Performance/Stress Tests
+%%%
+%%% Some tests that check deep nesting limits and large collections
+%%% are behind a compile-time flag to avoid slowing down regular
+%%% test runs. To enable these tests, compile with:
+%%%
+%%%   erlc -DTOPOS_ENABLE_STRESS_TESTS -o _build/test/ ...
+%%%
+%%% Or run the full suite with:
+%%%
+%%%   make test-stress
+%%%
 %%% @end
 %%%-------------------------------------------------------------------
 -module(topos_type_error_tests).
@@ -394,7 +406,7 @@ deep_nesting_test_() ->
      [
       ?_test(test_moderately_deep_type()),
       ?_test(test_deep_type_variables())
-     ]}.
+     ] ++ deep_nesting_stress_tests()}.
 
 test_moderately_deep_type() ->
     % Build type with 50 levels of nesting
@@ -438,6 +450,70 @@ test_deep_type_variables() ->
     VarList = lists:sort(sets:to_list(Vars)),
     ?assertEqual(lists:seq(1, 20), VarList).
 
+%% Stress tests are conditionally included based on compile flag
+-ifdef(TOPOS_ENABLE_STRESS_TESTS).
+deep_nesting_stress_tests() ->
+    [
+     ?_test(test_very_deep_type_nesting()),
+     ?_test(test_extremely_deep_substitution_chain())
+    ].
+-else.
+deep_nesting_stress_tests() ->
+    [].
+-endif.
+
+-ifdef(TOPOS_ENABLE_STRESS_TESTS).
+test_very_deep_type_nesting() ->
+    % Build type with 400 levels of nesting
+    % This tests the limits of type traversal operations
+    % (stays under MAX_SUBST_DEPTH of 500)
+    % List<List<List<...<Int>...>>> (400 levels)
+
+    DeepType = lists:foldl(
+        fun(_, Acc) ->
+            topos_types:tapp(topos_types:tcon('List'), [Acc])
+        end,
+        topos_types:tcon(integer),
+        lists:seq(1, 400)
+    ),
+
+    % Should be able to extract variables
+    Vars = topos_types:type_vars(DeepType),
+    ?assertEqual([], sets:to_list(Vars)),
+
+    % Should be able to apply empty substitution
+    Result = topos_type_subst:apply(topos_type_subst:empty(), DeepType),
+    ?assertEqual(DeepType, Result),
+
+    % Should be able to pretty-print (though output is very long)
+    PP = topos_type_pp:pp_type(DeepType),
+    ?assert(is_list(PP)),
+    ?assert(length(PP) > 2000).
+
+test_extremely_deep_substitution_chain() ->
+    % Create a substitution chain with 400 variables
+    % (stays under MAX_SUBST_DEPTH of 500)
+    % α₁ → α₂ → α₃ → ... → α₄₀₀ → Int
+    % This tests performance of deep substitution application
+
+    DeepSubst = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tvar(I + 1))
+        end,
+        topos_type_subst:singleton(400, topos_types:tcon(integer)),
+        lists:seq(1, 399)
+    ),
+
+    % Applying to α₁ should eventually resolve to Int
+    % This will traverse 400 substitution steps
+    Result = topos_type_subst:apply(DeepSubst, topos_types:tvar(1)),
+    ?assertEqual(topos_types:tcon(integer), Result),
+
+    % Verify domain size
+    Domain = topos_type_subst:domain(DeepSubst),
+    ?assertEqual(400, length(Domain)).
+-endif.
+
 %%====================================================================
 %% Large Collection Tests
 %%====================================================================
@@ -448,7 +524,7 @@ large_collection_test_() ->
       ?_test(test_large_substitution()),
       ?_test(test_large_environment()),
       ?_test(test_many_effects())
-     ]}.
+     ] ++ large_collection_stress_tests()}.
 
 test_large_substitution() ->
     % Create substitution with 1000 mappings
@@ -499,6 +575,84 @@ test_many_effects() ->
 
     % Should be sorted
     ?assertEqual(EffList, lists:sort(EffList)).
+
+-ifdef(TOPOS_ENABLE_STRESS_TESTS).
+large_collection_stress_tests() ->
+    [
+     ?_test(test_massive_substitution()),
+     ?_test(test_massive_environment()),
+     ?_test(test_massive_record_type())
+    ].
+-else.
+large_collection_stress_tests() ->
+    [].
+-endif.
+
+-ifdef(TOPOS_ENABLE_STRESS_TESTS).
+test_massive_substitution() ->
+    % Create substitution with 10,000 mappings
+    % This tests memory usage and lookup performance
+    MassiveSubst = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tcon(integer))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, 10000)
+    ),
+
+    % Should be able to look up any mapping
+    ?assertMatch({ok, _}, topos_type_subst:lookup(MassiveSubst, 5000)),
+    ?assertMatch({ok, _}, topos_type_subst:lookup(MassiveSubst, 9999)),
+
+    % Domain should have 10,000 entries
+    Domain = topos_type_subst:domain(MassiveSubst),
+    ?assertEqual(10000, length(Domain)),
+
+    % Should be able to apply to a type
+    Result = topos_type_subst:apply(MassiveSubst, topos_types:tvar(100)),
+    ?assertEqual(topos_types:tcon(integer), Result).
+
+test_massive_environment() ->
+    % Create environment with 10,000 bindings
+    % This tests memory usage and lookup performance
+    MassiveEnv = lists:foldl(
+        fun(I, Acc) ->
+            VarName = list_to_atom("var_" ++ integer_to_list(I)),
+            Scheme = topos_type_scheme:mono(topos_types:tcon(integer)),
+            topos_type_env:extend(Acc, VarName, Scheme)
+        end,
+        topos_type_env:empty(),
+        lists:seq(1, 10000)
+    ),
+
+    % Should be able to look up variables
+    ?assertMatch({ok, _}, topos_type_env:lookup(MassiveEnv, var_5000)),
+    ?assertMatch({ok, _}, topos_type_env:lookup(MassiveEnv, var_9999)),
+
+    % FTV computation should complete
+    Ftv = topos_type_env:ftv_env(MassiveEnv),
+    ?assert(is_tuple(Ftv)).
+
+test_massive_record_type() ->
+    % Create record type with 500 fields
+    % This tests record construction and field lookup performance
+    Fields = [{list_to_atom("field_" ++ integer_to_list(I)), topos_types:tcon(integer)}
+              || I <- lists:seq(1, 500)],
+
+    MassiveRecord = topos_types:trecord(Fields, closed),
+
+    % Should construct successfully
+    ?assertMatch({trecord, _, closed}, MassiveRecord),
+
+    % Should be able to extract type variables
+    Vars = topos_types:type_vars(MassiveRecord),
+    ?assertEqual([], sets:to_list(Vars)),
+
+    % Should be able to pretty-print
+    PP = topos_type_pp:pp_type(MassiveRecord),
+    ?assert(is_list(PP)),
+    ?assert(length(PP) > 5000).
+-endif.
 
 %%====================================================================
 %% Substitution Edge Cases
