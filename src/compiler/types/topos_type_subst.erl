@@ -20,8 +20,16 @@
     apply/2,
     apply_effects/2,
     domain/1,
-    range/1
+    range/1,
+    occurs_check/2
 ]).
+
+%%====================================================================
+%% Configuration
+%%====================================================================
+
+%% Maximum depth for type traversal (prevents stack overflow)
+-define(MAX_SUBST_DEPTH, 500).
 
 %%====================================================================
 %% Type Definitions
@@ -75,39 +83,77 @@ compose(S2, S1) ->
 
 -spec apply(subst(), topos_types:ty()) -> topos_types:ty().
 %% @doc Apply a substitution to a type, replacing type variables
-apply(Subst, {tvar, VarId}) ->
+%% Includes occurs check to detect circular substitutions and depth
+%% tracking to prevent stack overflow.
+apply(Subst, Type) ->
+    apply_with_context(Subst, Type, 0, sets:new()).
+
+%% Internal application with depth tracking and occurs check
+-spec apply_with_context(subst(), topos_types:ty(), non_neg_integer(), sets:set(topos_types:type_var_id()))
+    -> topos_types:ty().
+
+apply_with_context(_Subst, _Type, Depth, _Visited) when Depth > ?MAX_SUBST_DEPTH ->
+    error({substitution_depth_exceeded, Depth, ?MAX_SUBST_DEPTH});
+
+apply_with_context(Subst, {tvar, VarId}, Depth, Visited) ->
     case lookup(Subst, VarId) of
-        {ok, Type} -> Type;  % Replace with substituted type
-        none -> {tvar, VarId}  % Variable not in substitution, keep as is
+        none ->
+            {tvar, VarId};  % Variable not in substitution, keep as is
+        {ok, {tvar, VarId}} ->
+            % Identity substitution: α ↦ α (idempotent, not circular)
+            {tvar, VarId};
+        {ok, Type} ->
+            % Check if we've already visited this variable (occurs check)
+            case sets:is_element(VarId, Visited) of
+                true ->
+                    error({circular_substitution, VarId});
+                false ->
+                    % Add this variable to visited set and continue
+                    NewVisited = sets:add_element(VarId, Visited),
+                    apply_with_context(Subst, Type, Depth + 1, NewVisited)
+            end
     end;
 
-apply(_Subst, {tcon, Name}) ->
+apply_with_context(_Subst, {tcon, Name}, _Depth, _Visited) ->
     {tcon, Name};  % Constants don't change
 
-apply(Subst, {tapp, Constructor, Args}) ->
-    {tapp, apply(Subst, Constructor), [apply(Subst, Arg) || Arg <- Args]};
+apply_with_context(Subst, {tapp, Constructor, Args}, Depth, Visited) ->
+    NewConstructor = apply_with_context(Subst, Constructor, Depth + 1, Visited),
+    NewArgs = [apply_with_context(Subst, Arg, Depth + 1, Visited) || Arg <- Args],
+    {tapp, NewConstructor, NewArgs};
 
-apply(Subst, {tfun, From, To, Effects}) ->
-    {tfun, apply(Subst, From), apply(Subst, To), apply_effects(Subst, Effects)};
+apply_with_context(Subst, {tfun, From, To, Effects}, Depth, Visited) ->
+    NewFrom = apply_with_context(Subst, From, Depth + 1, Visited),
+    NewTo = apply_with_context(Subst, To, Depth + 1, Visited),
+    NewEffects = apply_effects(Subst, Effects),
+    {tfun, NewFrom, NewTo, NewEffects};
 
-apply(Subst, {trecord, Fields, RowVar}) ->
-    NewFields = [{Name, apply(Subst, FieldType)} || {Name, FieldType} <- Fields],
+apply_with_context(Subst, {trecord, Fields, RowVar}, Depth, Visited) ->
+    NewFields = [{Name, apply_with_context(Subst, FieldType, Depth + 1, Visited)}
+                 || {Name, FieldType} <- Fields],
     NewRowVar = case RowVar of
                     closed -> closed;
                     VarId when is_integer(VarId) ->
-                        case lookup(Subst, VarId) of
-                            {ok, {tvar, NewVarId}} -> NewVarId;
-                            {ok, _Other} -> closed;  % Row variable bound to non-var
-                            none -> VarId
+                        % Check occurs for row variable
+                        case sets:is_element(VarId, Visited) of
+                            true -> error({circular_substitution, VarId});
+                            false ->
+                                case lookup(Subst, VarId) of
+                                    {ok, {tvar, NewVarId}} -> NewVarId;
+                                    {ok, _Other} -> closed;  % Row variable bound to non-var
+                                    none -> VarId
+                                end
                         end
                 end,
     {trecord, NewFields, NewRowVar};
 
-apply(Subst, {ttuple, Elements}) ->
-    {ttuple, [apply(Subst, Elem) || Elem <- Elements]};
+apply_with_context(Subst, {ttuple, Elements}, Depth, Visited) ->
+    NewElements = [apply_with_context(Subst, Elem, Depth + 1, Visited) || Elem <- Elements],
+    {ttuple, NewElements};
 
-apply(Subst, {tvariant, Constructors}) ->
-    NewConstructors = [{Name, [apply(Subst, ArgType) || ArgType <- ArgTypes]}
+apply_with_context(Subst, {tvariant, Constructors}, Depth, Visited) ->
+    NewConstructors = [{Name, [apply_with_context(Subst, ArgType, Depth + 1, Visited)
+                               || ArgType <- ArgTypes]}
                       || {Name, ArgTypes} <- Constructors],
     {tvariant, NewConstructors}.
 
@@ -133,7 +179,22 @@ range(Subst) ->
     maps:values(Subst).
 
 %%====================================================================
+%% Occurs Check
+%%====================================================================
+
+-spec occurs_check(topos_types:type_var_id(), topos_types:ty()) -> boolean().
+%% @doc Check if a type variable occurs in a type
+%% Returns true if the variable occurs (which means substitution would create a cycle)
+%% Returns false if the variable does not occur (safe to substitute)
+%%
+%% This is the classic "occurs check" from unification theory.
+%% Example: occurs_check(1, List<α₁>) returns true (α₁ occurs in List<α₁>)
+occurs_check(VarId, Type) ->
+    TypeVars = topos_types:type_vars(Type),
+    sets:is_element(VarId, TypeVars).
+
+%%====================================================================
 %% Internal Functions
 %%====================================================================
 
-% (None yet)
+% (Internal functions moved to top of file as apply_with_context/4)

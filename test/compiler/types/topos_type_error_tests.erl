@@ -87,7 +87,9 @@ circular_substitution_test_() ->
      [
       ?_test(test_simple_cycle()),
       ?_test(test_three_way_cycle()),
-      ?_test(test_self_reference())
+      ?_test(test_self_reference()),
+      ?_test(test_occurs_check_explicit()),
+      ?_test(test_depth_limit_exceeded())
      ]}.
 
 test_simple_cycle() ->
@@ -99,16 +101,13 @@ test_simple_cycle() ->
         2 => topos_types:tvar(1)
     },
 
-    % Currently this will cause infinite loop or stack overflow
-    % This test documents the vulnerability
+    % Occurs check should detect this and raise error
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
 
-    % Note: Occurs check should detect this and fail gracefully
-    % For now, we skip actually running it to avoid test hang
-
-    % ?assertError({circular_substitution, _},
-    %              topos_type_subst:apply(S, topos_types:tvar(1))),
-
-    ok.  % Placeholder until occurs check is implemented
+    % Should also fail when starting from variable 2
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(2))).
 
 test_three_way_cycle() ->
     % S = {1 ↦ α₂, 2 ↦ α₃, 3 ↦ α₁}
@@ -120,10 +119,13 @@ test_three_way_cycle() ->
         3 => topos_types:tvar(1)
     },
 
-    % Should be detected by occurs check
-    % Currently would cause infinite loop
-
-    ok.  % Placeholder until occurs check is implemented
+    % Should be detected by occurs check at any entry point
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(2))),
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(3))).
 
 test_self_reference() ->
     % S = {1 ↦ List α₁}
@@ -137,9 +139,64 @@ test_self_reference() ->
     },
 
     % Should fail occurs check
-    % Currently would create infinite type
+    ?assertError({circular_substitution, _},
+                 topos_type_subst:apply(S, topos_types:tvar(1))),
 
-    ok.  % Placeholder until occurs check is implemented
+    % Test the explicit occurs_check function
+    ?assert(topos_type_subst:occurs_check(1, topos_types:tapp(
+        topos_types:tcon('List'),
+        [topos_types:tvar(1)]
+    ))),
+
+    % Variable that doesn't occur should return false
+    ?assertNot(topos_type_subst:occurs_check(2, topos_types:tapp(
+        topos_types:tcon('List'),
+        [topos_types:tvar(1)]
+    ))).
+
+test_occurs_check_explicit() ->
+    % Test the explicit occurs_check/2 function
+
+    % Variable occurs in itself (wrapped)
+    ?assert(topos_type_subst:occurs_check(1, topos_types:tvar(1))),
+
+    % Variable occurs in function type
+    FunType = topos_types:tfun(
+        topos_types:tvar(1),
+        topos_types:tvar(2),
+        topos_types:empty_effects()
+    ),
+    ?assert(topos_type_subst:occurs_check(1, FunType)),
+    ?assert(topos_type_subst:occurs_check(2, FunType)),
+    ?assertNot(topos_type_subst:occurs_check(3, FunType)),
+
+    % Variable occurs in nested type application
+    NestedType = topos_types:tapp(
+        topos_types:tcon('List'),
+        [topos_types:tapp(
+            topos_types:tcon('Maybe'),
+            [topos_types:tvar(5)]
+        )]
+    ),
+    ?assert(topos_type_subst:occurs_check(5, NestedType)),
+    ?assertNot(topos_type_subst:occurs_check(1, NestedType)).
+
+test_depth_limit_exceeded() ->
+    % Create a very deep substitution chain that exceeds the depth limit
+    % Build chain: α₁ → α₂ → α₃ → ... → α₆₀₀
+
+    % Create substitution with 600 chained variables (exceeds 500 limit)
+    DeepSubst = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tvar(I + 1))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, 600)
+    ),
+
+    % Applying this should hit depth limit
+    ?assertError({substitution_depth_exceeded, _, _},
+                 topos_type_subst:apply(DeepSubst, topos_types:tvar(1))).
 
 %%====================================================================
 %% Deep Nesting Tests
