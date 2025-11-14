@@ -688,7 +688,28 @@ end
 
 ## Technical Debt
 
-### 17. Refactor Type Representation
+### ✅ 17. Replace Process Dictionary with State Threading (COMPLETED)
+
+**Status:** Completed in commit 188d8c4
+
+**What Was Done:**
+- Created `topos_type_state` module for explicit state management
+- Added stateless API: `fresh_var/1`, `fresh_var_id/1` that return `{Result, NewState}`
+- Updated `topos_type_scheme:instantiate/2` to use state threading
+- Added 14 comprehensive tests for stateless API
+- Deprecated process dictionary API (kept for backward compatibility)
+
+**Benefits Achieved:**
+- ✅ More functional and testable
+- ✅ Thread-safe (no shared state)
+- ✅ Explicit dependencies (no hidden side effects)
+- ✅ Foundation for stateful type inference engine
+
+**Migration Notes:** New code should use `topos_types:fresh_var(State)` instead of `topos_types:fresh_var()`. Old code continues to work for backward compatibility.
+
+---
+
+### 18. Refactor Type Representation
 
 **Current State:** Types are bare tuples
 
