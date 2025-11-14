@@ -1,4 +1,4 @@
-%%%-------------------------------------------------------------------
+%%%
 %%% @doc Type Inference State Management
 %%%
 %%% Manages state for type inference, including fresh variable generation.
@@ -9,7 +9,7 @@
 %%% passed and returned, following functional programming best practices.
 %%%
 %%% @end
-%%%-------------------------------------------------------------------
+%%%
 -module(topos_type_state).
 
 -export([

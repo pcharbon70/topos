@@ -1,4 +1,4 @@
-%%%-------------------------------------------------------------------
+%%%
 %%% @doc Type Substitution Operations
 %%%
 %%% Implements substitutions (mappings from type variables to types)
@@ -6,7 +6,7 @@
 %%% Robinson's unification algorithm and Algorithm W.
 %%%
 %%% @end
-%%%-------------------------------------------------------------------
+%%%
 -module(topos_type_subst).
 
 -compile({no_auto_import,[apply/2]}).

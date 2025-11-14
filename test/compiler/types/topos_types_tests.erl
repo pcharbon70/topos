@@ -245,7 +245,8 @@ type_operations_test_() ->
      ?_test(test_is_function_type()),
      ?_test(test_is_type_var()),
      ?_test(test_extract_function_effects()),
-     ?_test(test_type_vars())
+     ?_test(test_type_vars()),
+     ?_test(test_type_vars_depth_limit())
     ].
 
 test_is_function_type() ->
@@ -314,6 +315,24 @@ test_type_vars() ->
     ),
     Vars5 = topos_types:type_vars(Record),
     ?assertEqual([1, 3], lists:sort(sets:to_list(Vars5))).
+
+test_type_vars_depth_limit() ->
+    % Build a deeply nested type: List<List<List<...Int...>>>
+    % This should trigger the depth limit and raise an error
+    DeepType = build_deeply_nested_list_type(150, topos_types:tcon(integer)),
+
+    % Should raise type_depth_exceeded error
+    ?assertError(
+        {type_depth_exceeded, _, _},
+        topos_types:type_vars(DeepType)
+    ).
+
+%% Helper to build deeply nested types for testing
+build_deeply_nested_list_type(0, BaseType) ->
+    BaseType;
+build_deeply_nested_list_type(Depth, BaseType) ->
+    InnerType = build_deeply_nested_list_type(Depth - 1, BaseType),
+    topos_types:tapp(topos_types:tcon('List'), [InnerType]).
 
 %%====================================================================
 %% Integration Tests

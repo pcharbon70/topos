@@ -1,4 +1,4 @@
-%%%-------------------------------------------------------------------
+%%%
 %%% @doc Type Error Formatting
 %%%
 %%% Provides standardized error types and user-friendly error messages
@@ -6,7 +6,7 @@
 %%% reporting infrastructure.
 %%%
 %%% @end
-%%%-------------------------------------------------------------------
+%%%
 -module(topos_type_error).
 
 -export([

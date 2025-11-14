@@ -1,4 +1,4 @@
-%%%-------------------------------------------------------------------
+%%%
 %%% @doc Type Pretty-Printing
 %%%
 %%% Converts internal type representations to human-readable strings
@@ -6,7 +6,7 @@
 %%% terminology and syntax.
 %%%
 %%% @end
-%%%-------------------------------------------------------------------
+%%%
 -module(topos_type_pp).
 
 -export([
@@ -19,8 +19,48 @@
 %% Pretty-Printing Functions
 %%====================================================================
 
+%% @doc Pretty-print a type to a human-readable string.
+%%
+%% Converts an internal type representation to a readable string using
+%% mathematical notation and Topos-friendly syntax. Optimized using iolists
+%% internally to minimize string copying.
+%%
+%% Type syntax:
+%% - Type variables: α1, α2, α3, ...
+%% - Type constructors: integer, string, List, Maybe, ...
+%% - Type application: List<Int>, Maybe<String>
+%% - Function types: Int -> String (pure), Int -> String / {io} (impure)
+%% - Records: {x: Int, y: Int} (closed), {x: Int | ρ1} (open)
+%% - Tuples: (Int, String, Bool)
+%% - Variants: Red | Green | Blue, Some a | None
+%%
+%% @param Type The type to pretty-print
+%% @returns A flattened string representation
+%%
+%% @see pp_scheme/1
+%% @see pp_effects/1
+%%
+%% @example
+%% ```
+%% %% Type variable
+%% Str1 = topos_type_pp:pp_type({tvar, 1}).
+%% %% → "α1"
+%%
+%% %% Function type with effects
+%% FuncType = topos_types:tfun(
+%%     topos_types:tcon(string),
+%%     topos_types:tcon(unit),
+%%     topos_types:singleton_effect(io)
+%% ),
+%% Str2 = topos_type_pp:pp_type(FuncType).
+%% %% → "string -> unit / {io}"
+%%
+%% %% Record type
+%% Point = topos_types:trecord([{x, {tcon, integer}}, {y, {tcon, integer}}], closed),
+%% Str3 = topos_type_pp:pp_type(Point).
+%% %% → "{x: integer, y: integer}"
+%% '''
 -spec pp_type(topos_types:ty()) -> string().
-%% @doc Pretty-print a type to a string
 pp_type(Type) ->
     lists:flatten(pp_type_iolist(Type)).
 
@@ -100,8 +140,40 @@ needs_parens({tfun, _, _, _}) -> true;
 needs_parens({tvariant, _}) -> true;
 needs_parens(_) -> false.
 
+%% @doc Pretty-print an effect set to a human-readable string.
+%%
+%% Converts an effect set to string notation. Empty effect sets (pure
+%% functions) render as an empty string. Non-empty effect sets render
+%% as comma-separated effects in braces.
+%%
+%% Effect set syntax:
+%% - Pure (empty): "" (no output)
+%% - Single effect: "{io}"
+%% - Multiple effects: "{error, io, state}"  (alphabetically sorted)
+%%
+%% @param Effects The effect set to pretty-print
+%% @returns String representation of the effect set
+%%
+%% @see pp_type/1
+%%
+%% @example
+%% ```
+%% %% Pure function (empty effect set)
+%% Pure = topos_types:empty_effects(),
+%% Str1 = topos_type_pp:pp_effects(Pure).
+%% %% → ""
+%%
+%% %% Single effect
+%% IoEffect = topos_types:singleton_effect(io),
+%% Str2 = topos_type_pp:pp_effects(IoEffect).
+%% %% → "{io}"
+%%
+%% %% Multiple effects (sorted)
+%% Combined = topos_types:normalize_effects([state, io, error]),
+%% Str3 = topos_type_pp:pp_effects(Combined).
+%% %% → "{error, io, state}"
+%% '''
 -spec pp_effects(topos_types:effect_set()) -> string().
-%% @doc Pretty-print an effect set
 pp_effects(Effects) ->
     lists:flatten(pp_effects_iolist(Effects)).
 
@@ -111,8 +183,46 @@ pp_effects_iolist({effect_set, Effects}) ->
     EffStrs = [atom_to_list(Eff) || Eff <- Effects],
     ["{", join(EffStrs, ", "), "}"].
 
+%% @doc Pretty-print a type scheme to a human-readable string.
+%%
+%% Converts a type scheme to string notation using forall (∀) for
+%% quantified variables. Monomorphic schemes render as plain types.
+%% Polymorphic schemes show quantified variables before the type.
+%%
+%% Scheme syntax:
+%% - Monomorphic: "Int -> String"
+%% - Polymorphic: "∀α. α -> α"
+%% - Multiple variables: "∀α β. (α -> β) -> List<α> -> List<β>"
+%%
+%% @param Scheme The type scheme to pretty-print
+%% @returns String representation of the scheme
+%%
+%% @see pp_type/1
+%% @see topos_type_scheme:mono/1
+%% @see topos_type_scheme:poly/2
+%%
+%% @example
+%% ```
+%% %% Monomorphic scheme
+%% IntType = topos_types:tcon(integer),
+%% MonoScheme = topos_type_scheme:mono(IntType),
+%% Str1 = topos_type_pp:pp_scheme(MonoScheme).
+%% %% → "integer"
+%%
+%% %% Polymorphic identity function: ∀α. α -> α
+%% IdScheme = topos_type_scheme:poly(
+%%     [1],
+%%     topos_types:tfun({tvar, 1}, {tvar, 1}, topos_types:empty_effects())
+%% ),
+%% Str2 = topos_type_pp:pp_scheme(IdScheme).
+%% %% → "∀α1. α1 -> α1"
+%%
+%% %% Polymorphic map function: ∀α β. (α -> β) -> List<α> -> List<β>
+%% MapScheme = topos_type_scheme:poly([1, 2], MapType),
+%% Str3 = topos_type_pp:pp_scheme(MapScheme).
+%% %% → "∀α1 α2. (α1 -> α2) -> List<α1> -> List<α2>"
+%% '''
 -spec pp_scheme(topos_type_scheme:scheme()) -> string().
-%% @doc Pretty-print a type scheme
 pp_scheme({mono, Type}) ->
     pp_type(Type);
 pp_scheme({poly, Vars, Type}) ->
