@@ -23,7 +23,9 @@ Nonterminals
   type_params type_params_nonempty constructors constructor constructor_fields
   effect_operations effect_operation
   trait_extends trait_extends_list trait_constraint
+  maybe_trait_extends maybe_default_methods
   trait_methods trait_method trait_default_methods trait_default_method
+  instance_type_args
   instance_constraints instance_methods instance_method
   flow_signature flow_clauses flow_clause
   match_clauses match_clause
@@ -288,49 +290,27 @@ effect_operation -> operation lower_ident colon type_expr :
 %% Trait Declarations (Type Classes)
 %%----------------------------------------------------------------------------
 
-%% Trait without extends clause, with methods
-trait_decl -> trait upper_ident type_params where trait_methods 'end' :
+%% Consolidated trait declaration with optional extends and default methods
+trait_decl -> trait upper_ident type_params maybe_trait_extends where trait_methods maybe_default_methods 'end' :
     {trait_decl,
         extract_atom('$2'),
         '$3',
-        undefined,
-        '$5',
-        undefined,
-        extract_location('$1')}.
-
-%% Trait with extends clause, with methods
-trait_decl -> trait upper_ident type_params extends trait_extends_list where trait_methods 'end' :
-    {trait_decl,
-        extract_atom('$2'),
-        '$3',
-        '$5',
-        '$7',
-        undefined,
-        extract_location('$1')}.
-
-%% Trait without extends clause, with methods and default implementations
-trait_decl -> trait upper_ident type_params where trait_methods trait_default_methods 'end' :
-    {trait_decl,
-        extract_atom('$2'),
-        '$3',
-        undefined,
-        '$5',
+        '$4',
         '$6',
-        extract_location('$1')}.
-
-%% Trait with extends clause, with methods and default implementations
-trait_decl -> trait upper_ident type_params extends trait_extends_list where trait_methods trait_default_methods 'end' :
-    {trait_decl,
-        extract_atom('$2'),
-        '$3',
-        '$5',
         '$7',
-        '$8',
         extract_location('$1')}.
 
 %% Error recovery for incomplete trait declarations
 trait_decl -> trait error :
     make_error_declaration(extract_location('$1'), "Incomplete trait declaration", '$2').
+
+%% Optional trait extends clause
+maybe_trait_extends -> extends trait_extends_list : '$2'.
+maybe_trait_extends -> '$empty' : undefined.
+
+%% Optional default methods
+maybe_default_methods -> trait_default_methods : '$1'.
+maybe_default_methods -> '$empty' : undefined.
 
 %% Trait extends list (e.g., "Applicative m" or "Eq a, Show a")
 trait_extends_list -> trait_constraint :
@@ -343,15 +323,28 @@ trait_extends_list -> trait_constraint comma trait_extends_list :
 trait_constraint -> type_expr_app :
     extract_trait_constraint('$1').
 
-%% Trait methods (method signatures)
+%% Trait methods (method signatures with comma separators)
 trait_methods -> trait_method :
     ['$1'].
-trait_methods -> trait_method trait_methods :
-    ['$1' | '$2'].
+trait_methods -> trait_method comma trait_methods :
+    ['$1' | '$3'].
+%% Allow optional trailing comma
+trait_methods -> trait_method comma :
+    ['$1'].
 
 %% Trait method signature (e.g., "fmap : (a -> b) -> f a -> f b")
 trait_method -> lower_ident colon type_expr :
     {extract_atom('$1'), '$3'}.
+
+%% Trait method with type parsing error
+%% We provide better error messages for common pattern issues
+trait_method -> lower_ident colon error :
+    make_error_declaration(extract_location('$2'), 
+        "Invalid method signature. " ++
+        "Common issues and solutions:\n" ++
+        "  • Cannot use simple tuples as parameters: '(a, b) -> ...'\n" ++
+        "  • Try: 'Pair a b -> ...' or '((a -> b), c) -> ...'\n" ++
+        "  • See trait signatures documentation for examples", '$3').
 
 %% Trait default methods (optional default implementations)
 trait_default_methods -> trait_default_method :
@@ -367,45 +360,31 @@ trait_default_method -> flow lower_ident pattern_list equals expr :
 %% Instance Declarations (Trait Implementations)
 %%----------------------------------------------------------------------------
 
-%% Instance without constraints - trait with type constructor (e.g., "instance Functor Maybe")
-instance_decl -> instance upper_ident type_expr_primary where instance_methods 'end' :
-    {instance_decl,
-        extract_atom('$2'),
-        ['$3'],
-        undefined,
-        '$5',
-        extract_location('$1')}.
-
-%% Instance without constraints - trait with type args (e.g., "instance Eq (Maybe a)")
-instance_decl -> instance upper_ident type_expr_primary type_expr_primary where instance_methods 'end' :
-    {instance_decl,
-        extract_atom('$2'),
-        ['$3', '$4'],
-        undefined,
-        '$5',
-        extract_location('$1')}.
-
-%% Instance with constraints - trait with type constructor
-instance_decl -> instance instance_constraints double_arrow upper_ident type_expr_primary where instance_methods 'end' :
+%% Instance with constraints - flexible type args
+instance_decl -> instance instance_constraints double_arrow upper_ident instance_type_args where instance_methods 'end' :
     {instance_decl,
         extract_atom('$4'),
-        ['$5'],
+        '$5',
         '$2',
         '$7',
         extract_location('$1')}.
 
-%% Instance with constraints - trait with type args
-instance_decl -> instance instance_constraints double_arrow upper_ident type_expr_primary type_expr_primary where instance_methods 'end' :
+%% Instance without constraints - flexible type args
+instance_decl -> instance upper_ident instance_type_args where instance_methods 'end' :
     {instance_decl,
-        extract_atom('$4'),
-        ['$5', '$6'],
-        '$2',
-        '$7',
+        extract_atom('$2'),
+        '$3',
+        undefined,
+        '$5',
         extract_location('$1')}.
 
 %% Error recovery for incomplete instance declarations
 instance_decl -> instance error :
     make_error_declaration(extract_location('$1'), "Incomplete instance declaration", '$2').
+
+%% Instance type arguments (supports unlimited arguments via recursion)
+instance_type_args -> type_expr_primary : ['$1'].
+instance_type_args -> type_expr_primary instance_type_args : ['$1' | '$2'].
 
 %% Instance constraints (e.g., "Eq a, Show a")
 instance_constraints -> trait_constraint :
@@ -818,6 +797,8 @@ type_expr -> type_expr_app slash lbrace effect_list_nonempty rbrace :
 
 type_expr -> type_expr_app : '$1'.
 
+
+
 %% Type application (higher precedence than function arrows)
 type_expr_app -> upper_ident type_expr_primary :
     {type_app,
@@ -905,9 +886,9 @@ make_error_declaration(Location, Message, _ErrorInfo) ->
         Location}.
 
 %% @doc Extract trait constraint from type expression
-%% Converts type_app (e.g., "Functor f") to trait_constraint record
-%% Handles both single-arg and multi-arg trait applications
-extract_trait_constraint({type_app, {type_con, TraitName, Loc}, TypeArgs, _}) ->
-    {trait_constraint, TraitName, TypeArgs, Loc};
-extract_trait_constraint({type_con, TraitName, Loc}) ->
-    {trait_constraint, TraitName, [], Loc}.
+%% Delegates to topos_compiler_utils for centralized implementation
+%% This helper is shared between parser and type checker
+extract_trait_constraint(TypeExpr) ->
+    topos_compiler_utils:extract_trait_constraint(TypeExpr).
+
+
