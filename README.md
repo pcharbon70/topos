@@ -46,6 +46,26 @@ Topos reimagines functional programming by making category theory concepts first
 - **Time-travel debugging** - leveraging immutability for reversible execution
 - **FFI with safety** - category theory-based foreign function interface
 
+### Standard Library: Category Theory Foundations
+
+- **17 core abstractions** - Setoid, Ord, Semigroup, Monoid, Semigroupoid, Category, Functor, Apply, Applicative, Chain, Monad, Foldable, Traversable, Bifunctor, Extend, Comonad, Arrow
+- **Dual notation system** - every operator has a readable keyword equivalent (`map`/`<$>`, `append`/`<>`, `bind`/`>>=`)
+- **Beginner-friendly explanations** - complex mathematical concepts made accessible
+- **Law verification** - automated property testing ensures implementations satisfy algebraic laws
+- **Trait-based design** - general abstraction mechanism with `trait`, `instance`, `extends` keywords
+- **Hierarchical organization** - Algebraic Structures → Categorical Structures → Functorial Hierarchy → Data Operations
+
+### Distribution Layer: Partisan Integration
+
+- **Scalable distribution** - replace Distributed Erlang's O(n²) full-mesh with pluggable topologies
+- **Category-theoretic foundations** - network topologies as categories, membership operations as functors, messages as natural transformations
+- **Named channels** - eliminate head-of-line blocking with multiple logical connections (12.5-38x throughput improvements)
+- **Massive scale** - HyParView protocol enables 2,000+ node clusters vs Distributed Erlang's 60-200 node limit
+- **Production-proven** - powers 30M+ daily GPS transmissions across 300K vehicles
+- **Pluggable topologies** - full-mesh, peer-to-peer (HyParView), client-server, or custom overlays
+- **Effect system integration** - topology selection and channel management through algebraic effects
+- **Session types** - protocol-safe distributed communication with compile-time guarantees
+
 ## Project Status
 
 ⚠️ **This is a research project in early design phase**
@@ -56,22 +76,27 @@ Currently, the repository contains extensive research and design documentation e
 
 Comprehensive research documents are available in [`notes/research/`](notes/research/):
 
-- **[1.01 - Original Idea](notes/research/1.01-original_idea/1.01-original_idea.md)** - Core design philosophy
-- **[1.02 - Modules](notes/research/1.02-modules/1.02-modules.md)** - Advanced module system design
-- **[1.03 - Immutability](notes/research/1.03-immutability/1.03-immutability.md)** - Immutability as foundation
-- **[1.04 - Documentation](notes/research/1.04-documentation/1.04-documentation.md)** - Documentation as language construct
-- **[1.05 - Packages](notes/research/1.05-packages/1.05-packages.md)** - Ecosystem integration
-- **[1.06 - Testing](notes/research/1.06-testing/1.06-testing.md)** - Built-in testing framework
-- **[1.07 - Error Handling](notes/research/1.07-error-handling/1.07-error-handling.md)** - Type systems meet "let it crash"
-- **[1.08 - Advanced Concurrency](notes/research/1.08-advanced-concurrency/1.08-advanced-concurrency.md)** - Session types and choreographic programming
-- **[1.09 - Reflection and Introspection](notes/research/1.09-reflection-and-introspection/1.09-reflection-and-introspection.md)** - Runtime reflection
-- **[1.10 - Pattern Matching](notes/research/1.10-pattern-matching/1.10-pattern-matching.md)** - Advanced pattern features
-- **[1.11 - Domain-Specific Languages](notes/research/1.11-domain-specific-langage/1.11-domain-specific-langage.md)** - First-class DSL support
-- **[1.12 - Build System](notes/research/1.12-build-system/1.12-build-system.md)** - Compilation pipeline
-- **[1.13 - Foreign Function Interface](notes/research/1.13-foreign-function-interface/1.13-foreign-function-interface.md)** - Safe native code interop
-- **[1.14 - Development Tools](notes/research/1.14-development-tools/1.14-development-tools.md)** - Debugging and tooling
-- **[1.15 - Advanced Type System](notes/research/1.15-advanced-type-system/1.15-advanced-type-system.md)** - Category theory-based type system
-- **[1.16 - Performance Optimization Directives](notes/research/1.16-performance-optimization-directives/1.16-performance-optimization-directives.md)** - BEAM-specific optimizations
+- **[1.01 - Original Idea](notes/research/1.01-original_idea/1.01.1-original_idea.md)** - Core design philosophy
+- **[1.02 - Modules](notes/research/1.02-modules/1.02.1-modules.md)** - Advanced module system design
+- **[1.03 - Immutability](notes/research/1.03-immutability/1.03.1-immutability.md)** - Immutability as foundation
+- **[1.04 - Documentation](notes/research/1.04-documentation/1.04.1-documentation.md)** - Documentation as language construct
+- **[1.05 - Packages](notes/research/1.05-packages/1.05.1-packages.md)** - Ecosystem integration
+- **[1.06 - Testing](notes/research/1.06-testing/1.06.1-testing.md)** - Built-in testing framework
+- **[1.07 - Error Handling](notes/research/1.07-error-handling/1.07.1-error-handling.md)** - Type systems meet "let it crash"
+- **[1.08 - Advanced Concurrency](notes/research/1.08-advanced-concurrency/1.08.1-advanced-concurrency.md)** - Session types and choreographic programming
+- **[1.09 - Reflection and Introspection](notes/research/1.09-reflection-and-introspection/1.09.1-reflection-and-introspection.md)** - Runtime reflection
+- **[1.10 - Pattern Matching](notes/research/1.10-pattern-matching/1.10.1-pattern-matching.md)** - Advanced pattern features
+- **[1.11 - Domain-Specific Languages](notes/research/1.11-domain-specific-langage/1.11.1-domain-specific-langage.md)** - First-class DSL support
+- **[1.12 - Build System](notes/research/1.12-build-system/1.12.1-build-system.md)** - Compilation pipeline
+- **[1.13 - Foreign Function Interface](notes/research/1.13-foreign-function-interface/1.13.1-foreign-function-interface.md)** - Safe native code interop
+- **[1.14 - Development Tools](notes/research/1.14-development-tools/1.14.1-development-tools.md)** - Debugging and tooling
+- **[1.15 - Advanced Type System](notes/research/1.15-advanced-type-system/1.15.1-advanced-type-system.md)** - Category theory-based type system
+- **[1.16 - Performance Optimization Directives](notes/research/1.16-performance-optimization-directives/1.16.1-performance-optimization-directives.md)** - BEAM-specific optimizations
+- **[1.17 - Side Effects Design](notes/research/1.17-side-effects-design/1.17.1-side-effects-design.md)** - Algebraic effects and handlers
+- **[1.18 - Library Updates](notes/research/1.18-library-updates/1.18.1-library-updates.md)** - Standard library evolution
+- **[1.19 - Security](notes/research/1.19-security/1.19.1-preventing-rce.md)** - Security architecture and RCE prevention
+- **[1.20 - Standard Library](notes/research/1.20-standard-library/1.20.1-standard-library.md)** - Category theory foundations (Setoid, Functor, Monad, etc.)
+- **[1.21 - Distribution Layer](notes/research/1.21-distribution-layer/1.21.2-partisan.md)** - Partisan integration and scalable distribution
 
 See the [research directory README](notes/research/README.md) for a detailed overview and recommended reading order.
 
