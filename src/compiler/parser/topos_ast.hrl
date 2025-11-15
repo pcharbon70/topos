@@ -78,7 +78,25 @@
 -record(trait_decl, {
     name :: atom(),
     type_params :: [atom()],
+    extends :: [trait_constraint()] | undefined,
     methods :: [{atom(), type_expr()}],
+    default_methods :: [{atom(), expr()}] | undefined,
+    location :: location()
+}).
+
+%% Trait constraint for trait hierarchies (e.g., Applicative m in "Monad m extends Applicative m")
+-record(trait_constraint, {
+    trait :: atom(),
+    type_args :: [type_expr()],
+    location :: location()
+}).
+
+%% Instance declaration (trait implementation)
+-record(instance_decl, {
+    trait :: atom(),
+    type_args :: [type_expr()],
+    constraints :: [trait_constraint()] | undefined,
+    methods :: [{atom(), expr()}],
     location :: location()
 }).
 
@@ -132,10 +150,14 @@
 %% Type definitions for polymorphic effects
 -type effect_operation() :: #effect_operation{}.
 -type effect_constraint() :: #effect_constraint{}.
--type effect_expr() :: atom() | #effect_var{} | #effect_app{} | 
+-type effect_expr() :: atom() | #effect_var{} | #effect_app{} |
                      #effect_intersection{} | #effect_union{}.
 
--type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} | #effect_decl{}.
+%% Type definitions for trait system
+-type trait_constraint() :: #trait_constraint{}.
+
+-type declaration() :: #shape_decl{} | #flow_decl{} | #trait_decl{} |
+                       #instance_decl{} | #effect_decl{}.
 
 %%====================================================================
 %% Expressions

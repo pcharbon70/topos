@@ -72,6 +72,7 @@ qualified : {token, {qualified, TokenLine}}.
 private : {token, {private, TokenLine}}.
 trait : {token, {trait, TokenLine}}.
 instance : {token, {instance, TokenLine}}.
+extends : {token, {extends, TokenLine}}.
 forall : {token, {forall, TokenLine}}.
 actor : {token, {actor, TokenLine}}.
 supervisor : {token, {supervisor, TokenLine}}.

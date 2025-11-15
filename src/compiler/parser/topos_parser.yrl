@@ -19,9 +19,12 @@ Header
 Nonterminals
   topos_module
   declarations declaration
-  shape_decl flow_decl effect_decl
+  shape_decl flow_decl effect_decl trait_decl instance_decl
   type_params type_params_nonempty constructors constructor constructor_fields
   effect_operations effect_operation
+  trait_extends trait_extends_list trait_constraint
+  trait_methods trait_method trait_default_methods trait_default_method
+  instance_constraints instance_methods instance_method
   flow_signature flow_clauses flow_clause
   match_clauses match_clause
   pattern_list pattern_list_nonempty pattern pattern_list_comma tuple_pattern_list
@@ -46,7 +49,7 @@ Terminals
   shape flow match where 'let' 'in' 'do' 'end'
   'if' 'then' 'else' 'case' 'of' 'when'
   module import export exports as qualified private
-  trait instance forall
+  trait instance extends forall
   actor supervisor
   effect operation perform 'try' with
 
@@ -183,6 +186,8 @@ declarations -> declaration declarations :
 declaration -> shape_decl : '$1'.
 declaration -> flow_decl : '$1'.
 declaration -> effect_decl : '$1'.
+declaration -> trait_decl : '$1'.
+declaration -> instance_decl : '$1'.
 
 %% Error recovery: skip malformed declaration and continue with next
 declaration -> error shape :
@@ -191,6 +196,10 @@ declaration -> error flow :
     make_error_declaration(extract_location('$2'), "Malformed declaration before 'flow'", '$1').
 declaration -> error effect :
     make_error_declaration(extract_location('$2'), "Malformed declaration before 'effect'", '$1').
+declaration -> error trait :
+    make_error_declaration(extract_location('$2'), "Malformed declaration before 'trait'", '$1').
+declaration -> error instance :
+    make_error_declaration(extract_location('$2'), "Malformed declaration before 'instance'", '$1').
 
 %%----------------------------------------------------------------------------
 %% Shape Declarations (Algebraic Data Types)
@@ -274,6 +283,148 @@ effect_operation -> operation lower_ident colon type_expr :
         extract_atom('$2'),
         '$4',
         extract_location('$1')}.
+
+%%----------------------------------------------------------------------------
+%% Trait Declarations (Type Classes)
+%%----------------------------------------------------------------------------
+
+%% Trait without extends clause, with methods
+trait_decl -> trait upper_ident type_params where trait_methods 'end' :
+    {trait_decl,
+        extract_atom('$2'),
+        '$3',
+        undefined,
+        '$5',
+        undefined,
+        extract_location('$1')}.
+
+%% Trait with extends clause, with methods
+trait_decl -> trait upper_ident type_params extends trait_extends_list where trait_methods 'end' :
+    {trait_decl,
+        extract_atom('$2'),
+        '$3',
+        '$5',
+        '$7',
+        undefined,
+        extract_location('$1')}.
+
+%% Trait without extends clause, with methods and default implementations
+trait_decl -> trait upper_ident type_params where trait_methods trait_default_methods 'end' :
+    {trait_decl,
+        extract_atom('$2'),
+        '$3',
+        undefined,
+        '$5',
+        '$6',
+        extract_location('$1')}.
+
+%% Trait with extends clause, with methods and default implementations
+trait_decl -> trait upper_ident type_params extends trait_extends_list where trait_methods trait_default_methods 'end' :
+    {trait_decl,
+        extract_atom('$2'),
+        '$3',
+        '$5',
+        '$7',
+        '$8',
+        extract_location('$1')}.
+
+%% Error recovery for incomplete trait declarations
+trait_decl -> trait error :
+    make_error_declaration(extract_location('$1'), "Incomplete trait declaration", '$2').
+
+%% Trait extends list (e.g., "Applicative m" or "Eq a, Show a")
+trait_extends_list -> trait_constraint :
+    ['$1'].
+trait_extends_list -> trait_constraint comma trait_extends_list :
+    ['$1' | '$3'].
+
+%% Trait constraint (e.g., "Applicative m" or "Eq a")
+%% Note: We parse as type_expr and extract trait name and args during semantic analysis
+trait_constraint -> type_expr_app :
+    extract_trait_constraint('$1').
+
+%% Trait methods (method signatures)
+trait_methods -> trait_method :
+    ['$1'].
+trait_methods -> trait_method trait_methods :
+    ['$1' | '$2'].
+
+%% Trait method signature (e.g., "fmap : (a -> b) -> f a -> f b")
+trait_method -> lower_ident colon type_expr :
+    {extract_atom('$1'), '$3'}.
+
+%% Trait default methods (optional default implementations)
+trait_default_methods -> trait_default_method :
+    ['$1'].
+trait_default_methods -> trait_default_method trait_default_methods :
+    ['$1' | '$2'].
+
+%% Trait default method implementation (e.g., "fmap f x = ...")
+trait_default_method -> flow lower_ident pattern_list equals expr :
+    {extract_atom('$2'), {lambda, '$3', '$5', extract_location('$1')}}.
+
+%%----------------------------------------------------------------------------
+%% Instance Declarations (Trait Implementations)
+%%----------------------------------------------------------------------------
+
+%% Instance without constraints - trait with type constructor (e.g., "instance Functor Maybe")
+instance_decl -> instance upper_ident type_expr_primary where instance_methods 'end' :
+    {instance_decl,
+        extract_atom('$2'),
+        ['$3'],
+        undefined,
+        '$5',
+        extract_location('$1')}.
+
+%% Instance without constraints - trait with type args (e.g., "instance Eq (Maybe a)")
+instance_decl -> instance upper_ident type_expr_primary type_expr_primary where instance_methods 'end' :
+    {instance_decl,
+        extract_atom('$2'),
+        ['$3', '$4'],
+        undefined,
+        '$5',
+        extract_location('$1')}.
+
+%% Instance with constraints - trait with type constructor
+instance_decl -> instance instance_constraints double_arrow upper_ident type_expr_primary where instance_methods 'end' :
+    {instance_decl,
+        extract_atom('$4'),
+        ['$5'],
+        '$2',
+        '$7',
+        extract_location('$1')}.
+
+%% Instance with constraints - trait with type args
+instance_decl -> instance instance_constraints double_arrow upper_ident type_expr_primary type_expr_primary where instance_methods 'end' :
+    {instance_decl,
+        extract_atom('$4'),
+        ['$5', '$6'],
+        '$2',
+        '$7',
+        extract_location('$1')}.
+
+%% Error recovery for incomplete instance declarations
+instance_decl -> instance error :
+    make_error_declaration(extract_location('$1'), "Incomplete instance declaration", '$2').
+
+%% Instance constraints (e.g., "Eq a, Show a")
+instance_constraints -> trait_constraint :
+    ['$1'].
+instance_constraints -> trait_constraint comma instance_constraints :
+    ['$1' | '$3'].
+
+%% Instance methods (method implementations)
+instance_methods -> instance_method :
+    ['$1'].
+instance_methods -> instance_method instance_methods :
+    ['$1' | '$2'].
+
+%% Instance method implementation (e.g., "fmap f = match | None -> None | Some x -> Some (f x) end")
+instance_method -> flow lower_ident pattern_list equals expr :
+    {extract_atom('$2'), {lambda, '$3', '$5', extract_location('$1')}}.
+
+instance_method -> flow lower_ident pattern_list equals match match_clauses 'end' :
+    {extract_atom('$2'), {lambda, '$3', {match_expr, '$6', extract_location('$5')}, extract_location('$1')}}.
 
 %%----------------------------------------------------------------------------
 %% Flow Declarations (Function Definitions)
@@ -752,3 +903,11 @@ make_error_declaration(Location, Message, _ErrorInfo) ->
     {error_decl,
         Message,
         Location}.
+
+%% @doc Extract trait constraint from type expression
+%% Converts type_app (e.g., "Functor f") to trait_constraint record
+%% Handles both single-arg and multi-arg trait applications
+extract_trait_constraint({type_app, {type_con, TraitName, Loc}, TypeArgs, _}) ->
+    {trait_constraint, TraitName, TypeArgs, Loc};
+extract_trait_constraint({type_con, TraitName, Loc}) ->
+    {trait_constraint, TraitName, [], Loc}.
