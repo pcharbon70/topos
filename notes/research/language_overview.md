@@ -1,4 +1,4 @@
-I'll read through all your research documents to create a comprehensive synthesis of the Topos language design. Let me start by fetching and analyzing each document.I need to continue fetching the remaining research documents to provide you with a comprehensive synthesis. Let me get the rest of the files.# Topos Language Guide
+# Topos Language Guide
 
 ## Introduction
 
@@ -16,13 +16,13 @@ Shapes define data types as objects in a category. They are immutable by constru
 
 ```topos
 -- Product types (records)
-shape User = { 
-  name: Text, 
+shape User = {
+  name: Text,
   age: Natural,
-  email: Email 
+  email: Email
 } deriving [Eq, Show, Doc]
 
--- Sum types (variants)  
+-- Sum types (variants)
 shape Result a b = Ok a | Error b
 
 -- Recursive types
@@ -33,6 +33,8 @@ shape List a = Nil | Cons a (List a)
 
 Flows are pure functions that represent morphisms between objects. They compose naturally and preserve categorical properties.
 
+> **Note**: Updated to include type class constraints using `=>` syntax for trait-bounded polymorphism.
+
 ```topos
 -- Basic flow definition
 flow greet : User -> Text
@@ -40,31 +42,258 @@ flow greet user = "Hello, " <> user.name
 
 -- Composition using pipe operator
 flow processUser : User -> Result User ValidationError
-flow processUser = 
+flow processUser =
   validate |> normalize |> store
+
+-- Type class constraints
+flow map : Functor f => (a -> b) -> f a -> f b
+flow map f = fmap f
+
+-- Multiple constraints
+flow liftM2 : (Monad m, Applicative f) => (a -> b -> c) -> m a -> m b -> m c
 ```
 
-### 3. Categories and Modules
+### 3. Trait System (Type Classes)
 
-Modules organize code into categories with explicit structure.
+> **Note**: This section replaces the previous "Categories and Modules" section. The trait system provides a general mechanism for type classes, replacing ad-hoc polymorphism with principled abstractions. Categories are still used for module organization (see Module System section below).
+
+Traits define type classes with laws that implementations must satisfy. This is the foundation for all category theory abstractions in Topos.
 
 ```topos
+-- Define a trait
+trait Setoid a where
+  -- Type class methods
+  equals : a -> a -> Bool
+
+  -- Default implementations
+  not_equals : a -> a -> Bool
+  not_equals x y = not (equals x y)
+
+-- Define operators for traits
+operator (===) = equals
+operator (!==) = not_equals
+
+-- Trait hierarchies with extends
+trait Ord a extends Setoid a where
+  compare : a -> a -> Ordering
+
+  -- Derived operations
+  less_than : a -> a -> Bool
+  less_than x y = compare x y == LT
+
+-- Higher-kinded traits with kind annotations
+trait Functor (f : Type -> Type) where
+  fmap : (a -> b) -> f a -> f b
+
+-- Trait laws (verified by property testing)
+laws Functor f where
+  property "identity" =
+    forall x : f a ->
+      fmap identity x === x
+
+  property "composition" =
+    forall x : f a, g : (a -> b), h : (b -> c) ->
+      fmap (h . g) x === (fmap h . fmap g) x
+```
+
+#### Common Trait Operators
+
+The trait system includes standard operators for common abstractions:
+
+| Trait | Description | Keyword | Operator |
+|-------|-------------|---------|----------|
+| Setoid | Type class equality | `equals` | `===` |
+| Setoid | Type class inequality | `not_equals` | `!==` |
+| Ord | Less than | `less_than` | `<` |
+| Ord | Less than or equal | `less_than_or_equal` | `<=` |
+| Ord | Greater than | `greater_than` | `>` |
+| Ord | Greater than or equal | `greater_than_or_equal` | `>=` |
+| Semigroup | Associative append | `append` | `<>` |
+| Functor | Map over structure | `map` or `fmap` | `<$>` |
+
+### 4. Instances (Trait Implementations)
+
+Instances provide concrete implementations of traits for specific types.
+
+```topos
+-- Simple instance
+instance Setoid Natural where
+  equals = (==)
+
+-- Instance with constraints
+instance Setoid a => Setoid (List a) where
+  equals Nil Nil = True
+  equals (Cons x xs) (Cons y ys) = x === y && xs === ys
+  equals _ _ = False
+
+-- Higher-kinded instance
+instance Functor List where
+  fmap f Nil = Nil
+  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
+
+-- Instance for Maybe
+instance Functor Maybe where
+  fmap f None = None
+  fmap f (Some x) = Some (f x)
+```
+
+### 5. Operators
+
+> **Note**: New section. Topos supports custom operator definitions with precedence and associativity control.
+
+```topos
+-- Define custom operators
+operator (<>) = append [infixl 6]
+operator (<$>) = fmap [infixl 4]
+operator (<*>) = apply [infixl 4]
+operator (>>=) = bind [infixl 1]
+
+-- Postfix operators
+operator (!) = factorial [postfix]
+
+-- Prefix operators
+operator (-) = negate [prefix]
+
+-- Standard operators by category:
+
+-- Equality (Setoid)
+operator (===) = equals
+operator (!==) = not_equals
+
+-- Functor/Applicative/Monad
+operator (<$>) = fmap           -- Functor map
+operator (<*>) = apply          -- Applicative apply
+operator (>>=) = bind           -- Monadic bind
+operator (>>)  = then_          -- Monadic sequence
+operator (=<<) = bind_flipped   -- Flipped bind
+
+-- Composition
+operator (>=>) = kleisli_compose        -- Kleisli (left-to-right)
+operator (<=<) = kleisli_compose_right  -- Kleisli (right-to-left)
+operator (>>>) = compose_forward        -- Category (left-to-right)
+operator (<<<) = compose_backward       -- Category (right-to-left)
+
+-- Arrow
+operator (***) = parallel  -- Parallel composition on pairs
+operator (&&&) = fanout    -- Fanout (duplicate input)
+
+-- Comonad
+operator (=>>) = extend_forward   -- Extend (left-to-right)
+operator (<<=) = extend_backward  -- Extend (right-to-left)
+```
+
+#### Operator Summary Tables
+
+**Equality & Ordering (Setoid, Ord)**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Type class equality | `equals` | `===` |
+| Type class inequality | `not_equals` | `!==` |
+| Less than | `less_than` | `<` |
+| Less than or equal | `less_than_or_equal` | `<=` |
+| Greater than | `greater_than` | `>` |
+| Greater than or equal | `greater_than_or_equal` | `>=` |
+
+**Algebraic Structures (Semigroup, Monoid)**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Associative append | `append` | `<>` |
+
+**Functor, Applicative, Monad**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Functor map | `map` or `fmap` | `<$>` |
+| Applicative apply | `apply` | `<*>` |
+| Monadic bind | `bind` | `>>=` |
+| Monadic sequence (ignore left) | `then_` | `>>` |
+| Flipped bind | `bind` (flipped args) | `=<<` |
+
+**Composition Operators**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Kleisli composition (left-to-right) | N/A | `>=>` |
+| Kleisli composition (right-to-left) | N/A | `<=<` |
+| Category composition (left-to-right) | `compose` (flipped) | `>>>` |
+| Category composition (right-to-left) | `compose` | `<<<` |
+
+**Arrow Operators**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Parallel composition on pairs | `parallel` | `***` |
+| Fanout (duplicate input) | `fanout` | `&&&` |
+
+**Comonad Operators**
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Extend (left-to-right) | `extend` (flipped) | `=>>` |
+| Extend (right-to-left) | `extend` | `<<=` |
+
+### 6. Built-in Functions
+
+> **Note**: New section. Core functions that are fundamental to category theory and functional programming.
+
+```topos
+-- Identity morphism (required for all categories)
+flow identity : a -> a
+flow identity x = x
+
+-- Constant function
+flow const : a -> b -> a
+flow const x _ = x
+
+-- Function composition
+flow compose : (b -> c) -> (a -> b) -> (a -> c)
+flow compose g f = \x -> g (f x)
+
+-- Flip argument order
+flow flip : (a -> b -> c) -> (b -> a -> c)
+flow flip f = \y x -> f x y
+
+-- Monadic return (pure)
+flow return : Monad m => a -> m a
+flow pure : Applicative f => a -> f a
+```
+
+### 7. Categories and Modules
+
+Modules organize code into categories with explicit structure. Modules can also group trait definitions and instances.
+
+> **Note**: Updated to integrate with the trait system.
+
+```topos
+-- Module with types and functions
 category Collections = {
   -- Objects (types)
   export shape List a
   export shape Set a
-  
-  -- Morphisms (flows)  
+
+  -- Morphisms (flows)
   export flow map : (a -> b) -> List a -> List b
-  export flow filter : (a -> Bool) -> List a -> List a
-  
-  -- Laws verified at compile time
-  law map_composition : 
-    map (f . g) == map f . map g
+  export flow filter : (a -> b) -> List a -> List a
 }
+
+-- Module for trait definitions
+module Category.Functor where
+  export trait Functor (f : Type -> Type)
+  export flow fmap : Functor f => (a -> b) -> f a -> f b
+
+-- Module for instances
+module Data.List.Instances where
+  import Category.Functor (Functor)
+  import Data.List (List)
+
+  instance Functor List where
+    fmap f Nil = Nil
+    fmap f (Cons x xs) = Cons (f x) (fmap f xs)
 ```
 
-### 4. Effects and Handlers
+### 8. Effects and Handlers
 
 Side effects are managed through algebraic effect handlers, making them explicit in types.
 
@@ -86,9 +315,13 @@ handle loadConfig("app.toml") with
   FileIO.read(p) -> readFromDisk(p)
   FileIO.write(p, c) -> writeToDisk(p, c)
 end
+
+-- Trait-based effects
+trait MonadIO (m : Type -> Type) where
+  liftIO : IO a -> m a
 ```
 
-### 5. Actors and Processes
+### 9. Actors and Processes
 
 BEAM processes are first-class with categorical structure.
 
@@ -96,10 +329,10 @@ BEAM processes are first-class with categorical structure.
 actor Counter = {
   shape State = { count: Natural }
   shape Message = Increment | Decrement | Get
-  
+
   flow init : Unit -> State
   flow init () = { count: 0 }
-  
+
   flow handle : Message -> State -> (State, Maybe Reply)
   flow handle msg state = match msg
     | Increment -> ({ count: state.count + 1 }, None)
@@ -109,7 +342,7 @@ actor Counter = {
 }
 ```
 
-### 6. Pattern Matching
+### 10. Pattern Matching
 
 Advanced pattern matching with categorical foundations.
 
@@ -118,28 +351,30 @@ flow process : Message -> Response
 flow process = match
   -- View patterns
   | parse_json -> Ok(data) -> handle_data(data)
-  
+
   -- Or-patterns
   | Error(e) | Failure(e) -> handle_error(e)
-  
+
   -- Pattern guards with bindings
-  | Request(data) when validate(data) -> Valid(v) -> 
+  | Request(data) when validate(data) -> Valid(v) ->
     process_valid(v)
-    
+
   -- Pattern synonyms
   | Success(result) -> return_success(result)
 end
 ```
 
-### 7. Documentation as First-Class
+### 11. Documentation as First-Class
 
 Documentation is mandatory and introspectable.
+
+> **Note**: Extended to include documentation of trait laws.
 
 ```topos
 doc "Calculates the distance between two points"
 doc params {
   p1: "First point in 2D space",
-  p2: "Second point in 2D space"  
+  p2: "Second point in 2D space"
 }
 doc returns "Euclidean distance as Float"
 doc examples """
@@ -148,26 +383,87 @@ doc examples """
 flow distance : Point -> Point -> Float
 flow distance p1 p2 =
   sqrt((p2.x - p1.x)^2 + (p2.y - p1.y)^2)
+
+-- Documentation for trait instances
+doc """
+  Functor instance for List satisfies:
+  - Identity: fmap identity == identity
+  - Composition: fmap (h . g) == fmap h . fmap g
+"""
+instance Functor List where
+  fmap = List.map
 ```
 
-### 8. Testing as Language Primitive
+### 12. Testing as Language Primitive
 
-Tests are built into the language, not annotations.
+> **Note**: Significantly expanded to include laws, property testing, verification, test suites, and benchmarking.
+
+Tests are built into the language, not annotations. Topos provides multiple levels of testing from unit tests to property-based testing to automated law verification.
 
 ```topos
+-- Unit tests
 test "distance calculation" =
   let origin = {x: 0, y: 0}
   let point = {x: 3, y: 4}
   assert distance(origin, point) == 5.0
 
+-- Property-based testing
 property "distance is symmetric" =
   forall p1 p2 : Point ->
-    distance(p1, p2) == distance(p2, p1)
+    distance(p1, p2) === distance(p2, p1)
+
+-- Conditional properties with where clause
+property "positive numbers have positive squares" =
+  forall x : Natural where x > 0 ->
+    x * x > 0
+
+-- Law verification for traits
+test "List satisfies Functor laws" =
+  verify laws Functor for List
+
+test "Maybe is a valid Monad" =
+  verify laws Monad for Maybe
+
+-- Test suites for organization
+suite "Collection Operations" where
+  test "map preserves length" =
+    forall xs : List Natural ->
+      List.length (List.map (+1) xs) == List.length xs
+
+  test "filter reduces or maintains length" =
+    forall xs : List Natural, p : (Natural -> Bool) ->
+      List.length (List.filter p xs) <= List.length xs
+
+  property "reverse is involutive" =
+    forall xs : List a ->
+      List.reverse (List.reverse xs) === xs
+
+-- Benchmarks for performance testing
+benchmark "fold performance" = {
+  baseline: {
+    "left fold": measure -> List.fold_left (+) 0 largeList,
+    "right fold": measure -> List.fold_right (+) 0 largeList
+  },
+
+  requirements: {
+    "fold under 100ms": time < 100.ms,
+    "memory under 10MB": heap_growth < 10.mb
+  }
+}
+
+benchmark "map vs manual recursion" = {
+  baseline: {
+    "using map": measure -> List.map (*2) numbers,
+    "manual recursion": measure -> double_recursive numbers
+  }
+}
 ```
 
-### 9. Type System Features
+### 13. Type System Features
 
 Advanced types with categorical grounding.
+
+> **Note**: Extended with higher-kinded types, kind annotations, and multiple type class constraints.
 
 ```topos
 -- Row polymorphism
@@ -186,32 +482,186 @@ shape AbstractSet a = exists r. {
   insert: a -> r -> r,
   member: a -> r -> Bool
 }
+
+-- Higher-kinded types with kind annotations
+trait Functor (f : Type -> Type) where
+  fmap : (a -> b) -> f a -> f b
+
+trait Bifunctor (p : Type -> Type -> Type) where
+  bimap : (a -> c) -> (b -> d) -> p a b -> p c d
+
+-- Multiple type class constraints
+flow traverse : (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)
+
+-- Constraint syntax in forall (for properties/laws)
+laws Setoid a where
+  property "symmetry" =
+    forall x : a, y : a where x === y ->
+      y === x
 ```
 
-### 10. Immutability and Updates
+### 14. Immutability and Updates
 
 All data is immutable with structured update syntax.
 
 ```topos
 -- Update with 'with' keyword
 flow birthday : User -> User
-flow birthday user = 
+flow birthday user =
   user with { age = user.age + 1 }
 
 -- Optics for nested updates
 flow updateCity : Text -> Person -> Person
-flow updateCity newCity = 
+flow updateCity newCity =
   Person.address.city.set newCity
 ```
 
 ## Complete Syntax Examples
 
+### Functors and Natural Transformations
+
+> **Note**: Updated to use trait system instead of ad-hoc functor keyword.
+
+```topos
+-- Define Functor trait
+trait Functor (f : Type -> Type) where
+  fmap : (a -> b) -> f a -> f b
+
+-- Operator for fmap
+operator (<$>) = fmap [infixl 4]
+
+-- Functor laws
+laws Functor f where
+  property "identity" =
+    forall x : f a ->
+      fmap identity x === x
+
+  property "composition" =
+    forall x : f a, g : (a -> b), h : (b -> c) ->
+      fmap (h . g) x === (fmap h . fmap g) x
+
+-- List instance
+instance Functor List where
+  fmap f Nil = Nil
+  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
+
+-- Maybe instance
+instance Functor Maybe where
+  fmap f None = None
+  fmap f (Some x) = Some (f x)
+
+-- Natural transformation
+natural ListToMaybe : List ~> Maybe where
+  transform : forall a. List a -> Maybe a
+  transform Nil = None
+  transform (Cons x _) = Some x
+
+  -- Naturality law
+  law naturality:
+    forall f : (a -> b), xs : List a ->
+      transform (fmap f xs) === fmap f (transform xs)
+
+-- Functor composition
+shape Compose f g a = Compose (f (g a))
+
+instance (Functor f, Functor g) => Functor (Compose f g) where
+  fmap h (Compose fga) = Compose (fmap (fmap h) fga)
+```
+
+#### Functor Operators
+
+| Description | Keyword | Operator |
+|-------------|---------|----------|
+| Map function over structure | `fmap` or `map` | `<$>` |
+| Replace with constant (left) | N/A | `<$` |
+| Replace with constant (right) | N/A | `$>` |
+
+### Applicative and Monad
+
+> **Note**: New section showing the trait hierarchy for Applicative and Monad.
+
+```topos
+-- Applicative extends Functor
+trait Applicative (f : Type -> Type) extends Functor f where
+  pure : a -> f a
+  apply : f (a -> b) -> f a -> f b
+
+-- Operators
+operator (<*>) = apply [infixl 4]
+
+-- Applicative laws
+laws Applicative f where
+  property "identity" =
+    forall v : f a ->
+      pure identity <*> v === v
+
+  property "composition" =
+    forall u : f (b -> c), v : f (a -> b), w : f a ->
+      pure compose <*> u <*> v <*> w === u <*> (v <*> w)
+
+  property "homomorphism" =
+    forall f : (a -> b), x : a ->
+      pure f <*> pure x === pure (f x)
+
+  property "interchange" =
+    forall u : f (a -> b), y : a ->
+      u <*> pure y === pure (\f -> f y) <*> u
+
+-- Monad extends Applicative
+trait Monad (m : Type -> Type) extends Applicative m where
+  bind : m a -> (a -> m b) -> m b
+
+-- Operators
+operator (>>=) = bind [infixl 1]
+operator (>>) = then_ [infixl 1]
+operator (=<<) = flip bind [infixr 1]
+
+-- Kleisli composition
+flow (>=>) : Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
+flow (>=>) f g = \x -> f x >>= g
+
+operator (>=>) = kleisli_compose [infixr 1]
+operator (<=<) = flip (>=>) [infixr 1]
+
+-- Monad laws
+laws Monad m where
+  property "left identity" =
+    forall a : a, k : (a -> m b) ->
+      return a >>= k === k a
+
+  property "right identity" =
+    forall m : m a ->
+      m >>= return === m
+
+  property "associativity" =
+    forall m : m a, k : (a -> m b), h : (b -> m c) ->
+      (m >>= k) >>= h === m >>= (\x -> k x >>= h)
+
+-- Maybe Monad instance
+instance Monad Maybe where
+  bind None _ = None
+  bind (Some x) f = f x
+```
+
+#### Applicative and Monad Operators
+
+| Trait | Description | Keyword | Operator |
+|-------|-------------|---------|----------|
+| Functor | Map over structure | `fmap` or `map` | `<$>` |
+| Applicative | Lift pure value | `pure` | N/A |
+| Applicative | Apply wrapped function | `apply` | `<*>` |
+| Monad | Monadic bind | `bind` | `>>=` |
+| Monad | Monadic sequence (ignore left) | `then_` | `>>` |
+| Monad | Flipped bind | `bind` (flipped) | `=<<` |
+| Monad | Kleisli composition (L→R) | N/A | `>=>` |
+| Monad | Kleisli composition (R→L) | N/A | `<=<` |
+
 ### Session Types for Protocol Safety
 
 ```topos
 -- Define a session protocol
-session TwoPhaseCommit = 
-  !prepare -> ?vote -> 
+session TwoPhaseCommit =
+  !prepare -> ?vote ->
   choice {
     commit -> !finalize -> end,
     abort -> !rollback -> end
@@ -223,7 +673,7 @@ flow coordinator session = do
   send session Prepare
   vote <- receive session
   match vote
-    | Ready -> 
+    | Ready ->
       select session commit
       send session Finalize
       Ok
@@ -232,25 +682,6 @@ flow coordinator session = do
       send session Rollback
       Aborted
   end
-```
-
-### Functors and Natural Transformations
-
-```topos
--- Define a functor
-functor List : Type -> Type where
-  map : (a -> b) -> List a -> List b
-  
-  law identity: map id == id
-  law composition: map (g . f) == map g . map f
-
--- Natural transformation
-natural ListToSet : List ~> Set where
-  transform : forall a. List a -> Set a
-  transform = List.foldl Set.insert Set.empty
-  
-  law naturality: 
-    transform . List.map f == Set.map f . transform
 ```
 
 ### DSL Creation
@@ -262,11 +693,11 @@ dsl MatrixDSL : Category where
   grammar Matrix where
     syntax "[[ _ ]]" : Matrix where
       [[ a, b; c, d ]] = Matrix 2 2 [[a,b], [c,d]]
-  
+
   -- Operations
   operator (×) = matrix_multiply
   operator (ᵀ) = transpose [postfix]
-  
+
   -- Laws
   law transpose_multiply:
     (A × B)ᵀ == Bᵀ × Aᵀ
@@ -280,10 +711,11 @@ graph TB
         CT[Category Type System]
         CT --> Objects[Objects/Shapes]
         CT --> Morphisms[Morphisms/Flows]
+        CT --> Traits[Traits/Type Classes]
         CT --> Functors[Functors]
         CT --> NT[Natural Transformations]
     end
-    
+
     subgraph "BEAM Runtime"
         VM[BEAM VM]
         VM --> Processes[Lightweight Processes]
@@ -291,15 +723,16 @@ graph TB
         VM --> Supervision[Supervision Trees]
         VM --> HotReload[Hot Code Reloading]
     end
-    
+
     subgraph "Type System"
         TS[Advanced Types]
         TS --> Row[Row Polymorphism]
-        TS --> PV[Polymorphic Variants]  
+        TS --> PV[Polymorphic Variants]
         TS --> TF[Type Families]
         TS --> ET[Existential Types]
+        TS --> HKT[Higher-Kinded Types]
     end
-    
+
     subgraph "Effects"
         EFF[Algebraic Effects]
         EFF --> Handlers[Effect Handlers]
@@ -307,14 +740,24 @@ graph TB
         EFF --> IO[I/O Effects]
         EFF --> Conc[Concurrency Effects]
     end
-    
+
+    subgraph "Testing"
+        TEST[Testing Framework]
+        TEST --> Units[Unit Tests]
+        TEST --> Props[Property Tests]
+        TEST --> Laws[Law Verification]
+        TEST --> Bench[Benchmarks]
+    end
+
     Objects --> Processes
     Morphisms --> Messages
     Functors --> Supervision
     NT --> HotReload
-    
+    Traits --> CT
+
     TS --> CT
     EFF --> VM
+    TEST --> Traits
 ```
 
 ## Complete Case Study: Online Store
@@ -363,7 +806,7 @@ shape Order = {
   status: OrderStatus
 }
 
-shape OrderStatus = 
+shape OrderStatus =
   | Pending
   | Confirmed
   | Shipped TrackingNumber
@@ -373,7 +816,7 @@ shape OrderStatus =
 -- Type families for calculations
 type family TotalPrice items where
   TotalPrice [] = Money 0
-  TotalPrice (item:rest) = 
+  TotalPrice (item:rest) =
     item.price * item.quantity + TotalPrice rest
 ```
 
@@ -420,12 +863,12 @@ import Store.Effects
 doc "Validates a cart has items and all are in stock"
 flow validateCart : Cart -> Result Cart ValidationError
 flow validateCart cart = do
-  ensure (not List.empty cart.items) 
+  ensure (not List.empty cart.items)
     "Cart cannot be empty"
-  
+
   ensure (all validQuantity cart.items)
     "Invalid item quantities"
-    
+
   Ok cart
 where
   validQuantity item = item.quantity > 0
@@ -433,7 +876,7 @@ where
 -- Price calculation with row polymorphism
 flow calculateTotal : {items: List OrderItem | ρ} -> Money
 flow calculateTotal order =
-  List.foldl (\acc item -> 
+  List.foldl (\acc item ->
     acc + (item.price * item.quantity)
   ) (Money 0) order.items
 
@@ -443,7 +886,7 @@ flow processOrderStatus = match
   | Pending, Confirm -> Confirmed
   | Confirmed, Ship(tracking) -> Shipped(tracking)
   | Shipped(_), Deliver -> Delivered
-  | status, Cancel(reason) when cancelable(status) -> 
+  | status, Cancel(reason) when cancelable(status) ->
     Cancelled(reason)
   | status, _ -> status  -- Invalid transitions ignored
 end
@@ -463,33 +906,33 @@ import Store.Logic
 import Store.Effects
 
 -- Checkout service with multiple effects
-flow checkout : Cart -> Result Order CheckoutError 
+flow checkout : Cart -> Result Order CheckoutError
   / {Database, Payment, Email, Inventory}
 flow checkout cart = do
   -- Validate cart
   validCart <- validateCart cart |> liftResult
-  
+
   -- Check inventory
   available <- all checkStock validCart.items
   ensure available StockUnavailable
-  
+
   -- Reserve items
   reserved <- all reserveItem validCart.items
   ensure reserved ReservationFailed
-  
+
   -- Create order
   let order = createOrder validCart
   perform Database.insert(order)
-  
+
   -- Process payment
   payment <- perform Payment.charge(
-    validCart.customer.card, 
+    validCart.customer.card,
     order.total
   )
-  
+
   match payment
     | Success(txn) -> do
-      let confirmed = order with { 
+      let confirmed = order with {
         status = Confirmed,
         transaction = txn
       }
@@ -499,21 +942,21 @@ flow checkout cart = do
         OrderConfirmation(confirmed)
       )
       Ok confirmed
-      
+
     | Failure(reason) -> do
       -- Release reserved inventory
       each (releaseItem) validCart.items
-      perform Database.update(order.id, 
+      perform Database.update(order.id,
         order with { status = Cancelled(reason) })
       Error PaymentFailed(reason)
   end
 where
-  checkStock item = 
+  checkStock item =
     perform Inventory.check(item.product) >= item.quantity
-    
-  reserveItem item = 
+
+  reserveItem item =
     perform Inventory.reserve(item.product, item.quantity)
-    
+
   releaseItem item =
     perform Inventory.release(item.product, item.quantity)
 ```
@@ -531,48 +974,48 @@ actor OrderProcessor = {
     orders: Map OrderId Order,
     metrics: ProcessingMetrics
   }
-  
-  shape Message = 
+
+  shape Message =
     | ProcessOrder Cart
     | UpdateStatus OrderId OrderStatus
     | GetOrder OrderId
     | GetMetrics
-  
+
   flow init : Unit -> State
   flow init () = {
     orders: Map.empty,
     metrics: defaultMetrics
   }
-  
-  flow handle : Message -> State -> (State, Maybe Reply) 
+
+  flow handle : Message -> State -> (State, Maybe Reply)
     / {Database, Payment, Email, Inventory}
   flow handle msg state = match msg
     | ProcessOrder cart -> do
       result <- checkout cart
       match result
-        | Ok order -> 
+        | Ok order ->
           let newState = state with {
             orders = Map.insert order.id order state.orders,
             metrics = updateMetrics Success state.metrics
           }
           (newState, Some order.id)
-          
+
         | Error e ->
           let newState = state with {
             metrics = updateMetrics (Failure e) state.metrics
           }
           (newState, Some (Error e))
       end
-      
+
     | UpdateStatus id status ->
-      let updated = Map.update id 
-        (\order -> order with { status = status }) 
+      let updated = Map.update id
+        (\order -> order with { status = status })
         state.orders
       (state with { orders = updated }, None)
-      
+
     | GetOrder id ->
       (state, Map.lookup id state.orders)
-      
+
     | GetMetrics ->
       (state, Some state.metrics)
   end
@@ -583,7 +1026,7 @@ supervisor OrderSupervisor = {
   strategy: one_for_one,
   intensity: 10,
   period: 60,
-  
+
   children: [
     {
       id: order_processor,
@@ -609,7 +1052,7 @@ session CustomerSession =
     failure -> !Error -> end
   }
 
-session ShoppingSession = 
+session ShoppingSession =
   rec X. choice {
     browse -> !Products -> X,
     addToCart -> ?ProductId -> !Result -> X,
@@ -634,14 +1077,14 @@ flow handleCustomer session = do
   user <- perform Database.query(
     UserByCredentials(credentials)
   )
-  
+
   match user
     | Some u -> do
       select session success
       token <- generateToken u
       send session token
       handleShopping session u
-      
+
     | None -> do
       select session failure
       send session InvalidCredentials
@@ -656,27 +1099,29 @@ flow handleShopping session user = do
       products <- perform Database.query(AllProducts)
       send session products
       handleShopping session user
-      
+
     | addToCart -> do
       productId <- receive session
       result <- addToUserCart user productId
       send session result
       handleShopping session user
-      
+
     | viewCart -> do
       cart <- perform Database.query(CartByUser user.id)
       send session cart
       handleShopping session user
-      
+
     | checkout -> do
       payment <- receive session
       handleCheckout session user payment
-      
+
     | logout -> ()
   end
 ```
 
 ### Module 7: Testing
+
+> **Note**: Expanded with law verification, test suites, and benchmarks.
 
 ```topos
 module Store.Test where
@@ -686,7 +1131,7 @@ import Store.Domain
 -- Property-based testing for business logic
 property "cart total is sum of items" =
   forall items : List CartItem ->
-    calculateTotal {items: items} == 
+    calculateTotal {items: items} ===
     List.sum (List.map itemTotal items)
   where
     itemTotal item = item.price * item.quantity
@@ -697,61 +1142,74 @@ test "checkout reserves inventory" = do
     customer: testCustomer,
     items: [{product: pid1, quantity: 2}]
   }
-  
+
   let inventoryOps = ref []
-  
+
   -- Run with mock handlers
   result <- handle checkout(cart) with
     Database.insert(_) -> ()
     Database.update(_, _) -> ()
-    
-    Payment.charge(_, amount) -> 
-      assert amount == Money 200
+
+    Payment.charge(_, amount) ->
+      assert amount === Money 200
       Success(txn123)
-      
+
     Email.send(_, _) -> ()
-    
-    Inventory.check(pid) -> 
-      assert pid == pid1
+
+    Inventory.check(pid) ->
+      assert pid === pid1
       return 10  -- Plenty in stock
-      
+
     Inventory.reserve(pid, qty) ->
       inventoryOps := (pid, qty) :: !inventoryOps
       return true
   end
-  
+
   -- Verify inventory was reserved
-  assert !inventoryOps == [(pid1, 2)]
+  assert !inventoryOps === [(pid1, 2)]
   assert result matches Ok(_)
 end
 
 -- Actor testing
 test actor "order processor handles concurrent orders" = do
   let processor = spawn_test OrderProcessor.init()
-  
+
   -- Send multiple orders concurrently
   parallel [
     processor ! ProcessOrder(cart1),
     processor ! ProcessOrder(cart2),
     processor ! ProcessOrder(cart3)
   ]
-  
+
   wait_idle processor
-  
+
   -- Verify all processed
   metrics <- processor ?? GetMetrics
-  assert metrics.total == 3
+  assert metrics.total === 3
 end
+
+-- Test suite organization
+suite "Order Validation Tests" where
+  test "empty cart is rejected" =
+    assert validateCart emptyCart === Error "Cart cannot be empty"
+
+  test "zero quantity is rejected" =
+    let cart = {items: [{product: p1, quantity: 0}]}
+    assert validateCart cart === Error "Invalid item quantities"
+
+  property "valid carts pass validation" =
+    forall cart : Cart where all (\i -> i.quantity > 0) cart.items ->
+      validateCart cart matches Ok(_)
 
 -- Benchmark testing
 benchmark "checkout performance" = {
   baseline: {
-    "simple checkout": 
+    "simple checkout":
       measure -> checkout(simpleCart),
     "complex checkout":
       measure -> checkout(complexCart)
   },
-  
+
   requirements: {
     "checkout under 100ms": time < 100.ms,
     "memory usage": heap_growth < 1.mb
@@ -770,19 +1228,19 @@ dsl BusinessRules where
   rule FreeShipping =
     when order.total > Money 100
     then order with { shipping = Free }
-    
+
   rule BulkDiscount =
     when any item -> item.quantity >= 10
     then apply discount 0.10 to item
-    
+
   rule LoyaltyPoints =
     when customer.tier == Gold
     then award points (order.total * 0.02)
-  
+
   -- Rule composition
-  ruleset StandardRules = 
+  ruleset StandardRules =
     FreeShipping >> BulkDiscount >> LoyaltyPoints
-  
+
   -- Interpreter for rules
   interpreter RuleEngine : BusinessRules -> Order -> Order where
     apply rule order = match rule
@@ -809,15 +1267,15 @@ flow main () = do
     Database.insert(x) -> PostgreSQL.insert(x)
     Database.update(id, x) -> PostgreSQL.update(id, x)
     Database.delete(id) -> PostgreSQL.delete(id)
-    
-    Payment.charge(card, amount) -> 
+
+    Payment.charge(card, amount) ->
       StripeAPI.charge(card, amount)
-    Payment.refund(txn, amount) -> 
+    Payment.refund(txn, amount) ->
       StripeAPI.refund(txn, amount)
-      
+
     Email.send(addr, template) ->
       SendGrid.send(addr, render(template))
-      
+
     Inventory.check(pid) ->
       InventoryDB.getStock(pid)
     Inventory.reserve(pid, qty) ->
@@ -826,24 +1284,24 @@ flow main () = do
       InventoryDB.release(pid, qty)
   end
 
-flow runApplication : Unit -> Unit 
+flow runApplication : Unit -> Unit
   / {Database, Payment, Email, Inventory}
 flow runApplication () = do
   -- Start supervision tree
   supervisor OrderSupervisor.start()
-  
+
   -- Start web server
   HttpServer.start(port: 8080) { request ->
     match request.path
-      | "/api/session" -> 
+      | "/api/session" ->
         spawn handleCustomer(establishSession())
-      | "/health" -> 
+      | "/health" ->
         HttpResponse.ok("healthy")
-      | _ -> 
+      | _ ->
         HttpResponse.notFound()
     end
   }
-  
+
   -- Keep running
   Process.sleep(:infinity)
 end
@@ -851,14 +1309,21 @@ end
 
 ## Key Language Features Summary
 
+> **Note**: Expanded to include trait system, operators, law verification, and benchmarking.
+
 ### Category Theory Integration
 - **Objects and Morphisms**: Types and functions as categorical structures
-- **Functors**: Type constructors with mapping operations
-- **Natural Transformations**: Structure-preserving conversions
-- **Monads and Comonads**: Computational contexts
+- **Traits and Instances**: Type classes with lawful abstractions
+- **Functors**: Type constructors with mapping operations (via Functor trait)
+- **Natural Transformations**: Structure-preserving conversions between functors
+- **Monads and Applicatives**: Computational contexts (via trait hierarchy)
+- **Higher-Kinded Types**: Type constructors as first-class with kind annotations
 - **Limits and Colimits**: Products, coproducts, and universal constructions
 
 ### Type System
+- **Trait System**: General abstraction mechanism with `trait`, `instance`, `extends`
+- **Higher-Kinded Types**: Explicit kind annotations `f : Type -> Type`
+- **Type Class Constraints**: Single and multiple constraints with `=>`
 - **Row Polymorphism**: Extensible records and variants
 - **Polymorphic Variants**: Open sum types
 - **Type Families**: Type-level computation
@@ -872,6 +1337,23 @@ end
 - **Pure by Default**: Explicit effect annotations
 - **Effect Polymorphism**: Generic over effects
 - **Type-Safe I/O**: Effects tracked in types
+- **Trait-Based Effects**: Effects as type classes (e.g., MonadIO)
+
+### Operators
+- **Custom Operators**: Define infix, prefix, postfix operators with precedence
+- **Equality Operators**: `===`, `!==` for Setoid equality
+- **Functor/Applicative/Monad**: `<$>`, `<*>`, `>>=`, `>>`, `=<<`
+- **Composition**: `>=>`, `<=<` (Kleisli), `>>>`, `<<<` (Category)
+- **Arrow**: `***` (parallel), `&&&` (fanout)
+- **Comonad**: `=>>`, `<<=` (extend)
+
+### Testing and Verification
+- **Unit Tests**: Basic `test` blocks
+- **Property Testing**: `property` with `forall` quantification
+- **Law Verification**: `verify laws Trait for Type` - automated checking
+- **Test Suites**: `suite` for organizing related tests
+- **Benchmarks**: `benchmark` with baselines and requirements
+- **Conditional Properties**: Properties with `where` constraints
 
 ### Concurrency and Distribution
 - **Actor Model**: Type-safe processes
@@ -886,6 +1368,7 @@ end
 - **Property Testing**: Automated law verification
 - **Pattern Matching**: Advanced patterns with categorical semantics
 - **DSL Creation**: Grammar definition and metaprogramming
+- **Built-in Functions**: `identity`, `const`, composition operators
 
 ### BEAM Integration
 - **Process Isolation**: Each actor has independent heap
@@ -898,11 +1381,12 @@ end
 
 Topos represents a unique synthesis of mathematical rigor and practical distributed systems programming. By making category theory the foundation rather than an addition, it enables developers to write code that is simultaneously:
 
-- **Mathematically Sound**: Verified by categorical laws
+- **Mathematically Sound**: Verified by categorical laws through property testing
 - **Practically Useful**: Running on battle-tested BEAM
-- **Type Safe**: Catching errors at compile time
+- **Type Safe**: Catching errors at compile time with advanced type system
 - **Concurrent**: Leveraging actors and supervision
-- **Testable**: With built-in testing and mocking
+- **Testable**: With built-in testing, property verification, and benchmarking
 - **Maintainable**: Through mandatory documentation and clear effects
+- **Composable**: Via trait system and categorical operators
 
 The online store example demonstrates how these features work together to create a robust, scalable, and maintainable system that leverages the best of functional programming, category theory, and the BEAM runtime.
