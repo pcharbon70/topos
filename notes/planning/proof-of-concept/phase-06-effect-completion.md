@@ -240,50 +240,218 @@ Effect debugging provides runtime introspection of effect execution. Effect trac
 
 ---
 
-## 6.5 Integration Tests
+## 6.5 Law Verification System
 - [ ] **Section 6.5 Complete**
+
+Implement automated law verification for category theory properties, demonstrating that Topos trait instances satisfy algebraic laws. This validates the category-theory-first approach by ensuring mathematical correctness through property-based testing. Laws are defined within trait declarations and verified automatically for all instances.
+
+### 6.5.1 Laws Syntax
+- [ ] **Task 6.9.1 Complete**
+
+Add `laws` keyword for grouping trait laws within trait declarations. Laws use property testing syntax with `forall` quantification and trait method constraints. Each law has a descriptive name and expresses a universal property that all instances must satisfy.
+
+- [ ] 6.5.1.1 Add `laws` keyword to lexer and parser for trait law grouping
+- [ ] 6.5.1.2 Implement law definition syntax within trait declarations producing LawDecl AST nodes
+- [ ] 6.5.1.3 Implement law storage associating laws with their traits in symbol table
+- [ ] 6.5.1.4 Implement law syntax validation checking laws use only trait methods and type variables
+
+### 6.5.2 Law Verification
+- [ ] **Task 6.9.2 Complete**
+
+Implement `verify laws Trait for Type` command that automatically tests all laws for a given trait instance. Verification uses property testing framework from Phase 2, generating random test cases and checking law properties hold. Failed verifications report counterexamples.
+
+- [ ] 6.5.2.1 Implement `verify laws` syntax and command for automatic law checking
+- [ ] 6.5.2.2 Implement law checking via property testing generating test cases from law forall clauses
+- [ ] 6.5.2.3 Implement law verification reporting showing pass/fail for each law with counterexamples on failure
+- [ ] 6.5.2.4 Verify Functor, Applicative, and Monad laws for all standard library instances (Maybe, List, Result)
+
+### Unit Tests - Section 6.5
+- [ ] **Unit Tests 6.5 Complete**
+- [ ] Test laws syntax parsing for trait declarations with multiple laws
+- [ ] Test law storage and retrieval from symbol table
+- [ ] Test verify laws command for Functor laws on List and Maybe
+- [ ] Test law verification reporting showing counterexamples for failing laws
+- [ ] Test law verification integration with property testing framework
+
+---
+
+## 6.6 Complete Standard Library
+- [ ] **Section 6.6 Complete**
+
+Implement remaining category theory abstractions beyond the minimal set from Phase 2. This completes the standard library hierarchy with all 17 core abstractions, demonstrating Topos's comprehensive category theory foundations. Each trait includes laws and instances for standard types.
+
+### 6.6.1 Ord and Comparison
+- [ ] **Task 6.6.1 Complete**
+
+Implement Ord trait extending Setoid with total ordering. Provides comparison operations returning Ordering (LT, EQ, GT) and derived operations (<, <=, >, >=). Instances for Natural, Text, and other comparable types.
+
+- [ ] 6.6.1.1 Define Ord trait extending Setoid with `compare : a -> a -> Ordering` method
+- [ ] 6.6.1.2 Define derived comparison operators: `<`, `<=`, `>`, `>=` with correct precedence
+- [ ] 6.6.1.3 Implement Ord instances for Natural, Text, Bool with antisymmetry and transitivity laws
+- [ ] 6.6.1.4 Verify Ord laws for all instances using law verification system
+
+### 6.6.2 Semigroupoid and Category
+- [ ] **Task 6.6.2 Complete**
+
+Implement Semigroupoid (composition without identity) and Category (composition with identity) traits. These formalize composition patterns and enable categorical abstractions like Arrows.
+
+- [ ] 6.6.2.1 Define Semigroupoid trait with `compose : (b ~> c) -> (a ~> b) -> (a ~> c)` and `>>>`, `<<<` operators
+- [ ] 6.6.2.2 Define Category trait extending Semigroupoid with `identity : a ~> a`
+- [ ] 6.6.2.3 Implement Semigroupoid and Category instances for function type (->)
+- [ ] 6.6.2.4 Verify associativity and identity laws for Category instances
+
+### 6.6.3 Foldable and Traversable
+- [ ] **Task 6.6.3 Complete**
+
+Implement Foldable (reduction to single value) and Traversable (effectful traversal) traits. These enable generic operations over container types.
+
+- [ ] 6.6.3.1 Define Foldable trait with `fold : Monoid m => (a -> m) -> f a -> m` method
+- [ ] 6.6.3.2 Define Traversable trait extending (Functor, Foldable) with `traverse : Applicative f => (a -> f b) -> t a -> f (t b)`
+- [ ] 6.6.3.3 Implement Foldable and Traversable instances for List and Maybe
+- [ ] 6.6.3.4 Verify traversal laws (identity, composition, naturality)
+
+### 6.6.4 Bifunctor, Extend, Comonad, Arrow
+- [ ] **Task 6.6.4 Complete**
+
+Implement remaining advanced traits: Bifunctor (functors of two arguments), Extend (comonadic extend), Comonad (categorical dual of Monad), and Arrow (generalized functions).
+
+- [ ] 6.6.4.1 Define Bifunctor trait with `bimap : (a -> c) -> (b -> d) -> p a b -> p c d`
+- [ ] 6.6.4.2 Define Extend trait with `extend : (w a -> b) -> w a -> w b` and `=>>`, `<<=` operators
+- [ ] 6.6.4.3 Define Comonad trait extending Extend with `extract : w a -> a`
+- [ ] 6.6.4.4 Define Arrow trait with `arr`, `first`, `second`, and `***`, `&&&` operators
+
+### Unit Tests - Section 6.6
+- [ ] **Unit Tests 6.6 Complete**
+- [ ] Test Ord instances with comparison operations and transitivity
+- [ ] Test Category instances with composition and identity laws
+- [ ] Test Foldable instances folding lists and maybes correctly
+- [ ] Test Traversable instances with effectful traversals
+- [ ] Test Bifunctor, Extend, Comonad, and Arrow instances with their respective laws
+
+---
+
+## 6.7 Advanced Testing
+- [ ] **Section 6.7 Complete**
+
+Complete the testing framework with advanced features deferred from Phase 2: test suites for organization, benchmarks for performance testing, custom generators for complex types, and test coverage reporting.
+
+### 6.7.1 Test Suites
+- [ ] **Task 6.7.1 Complete**
+
+Implement `suite` keyword for organizing related tests into groups. Suites provide hierarchical test organization and enable running specific test groups.
+
+- [ ] 6.7.1.1 Add `suite` keyword and nesting syntax to parser producing SuiteDecl AST nodes
+- [ ] 6.7.1.2 Implement suite execution running all tests within suite recursively
+- [ ] 6.7.1.3 Implement suite filtering running specific suites by name or pattern
+- [ ] 6.7.1.4 Implement hierarchical suite reporting showing pass/fail counts per suite
+
+### 6.7.2 Benchmarks
+- [ ] **Task 6.7.2 Complete**
+
+Implement `benchmark` keyword for performance testing with baselines and requirements. Benchmarks measure execution time and memory usage, comparing implementations and enforcing performance requirements.
+
+- [ ] 6.7.2.1 Add `benchmark` keyword with baseline and requirements syntax to parser
+- [ ] 6.7.2.2 Implement `measure` keyword marking code for performance measurement
+- [ ] 6.7.2.3 Implement benchmark execution measuring time and memory for each baseline
+- [ ] 6.7.2.4 Implement benchmark reporting comparing baselines and checking requirements
+
+### 6.7.3 Custom Generators and Shrinking
+- [ ] **Task 6.7.3 Complete**
+
+Extend property testing with custom generators for complex types and shrinking for minimal counterexamples. Generators compose to build complex test data, shrinking reduces failing cases to simplest form.
+
+- [ ] 6.7.3.1 Implement generator combinators: constant, choose, one_of, list_of, tuple_of
+- [ ] 6.7.3.2 Implement shrinking for basic types reducing counterexamples to minimal form
+- [ ] 6.7.3.3 Implement user-defined generators for custom types with derive syntax
+- [ ] 6.7.3.4 Integrate shrinking into property test failure reporting
+
+### Unit Tests - Section 6.7
+- [ ] **Unit Tests 6.7 Complete**
+- [ ] Test suite organization and execution with nested suites
+- [ ] Test benchmark measurement and reporting with time/memory metrics
+- [ ] Test custom generators producing valid values for complex types
+- [ ] Test shrinking reducing counterexamples to minimal failing cases
+
+---
+
+## 6.8 Operator Definition Syntax
+- [ ] **Section 6.8 Complete**
+
+Implement user-defined operators enabling custom infix, prefix, and postfix operators with precedence and associativity control. This completes the dual notation system by allowing developers to define domain-specific operators.
+
+### 6.8.1 Operator Declarations
+- [ ] **Task 6.8.1 Complete**
+
+Add `operator` keyword for binding operators to functions. Operators can be infix (binary), prefix (unary left), or postfix (unary right) with specified precedence and associativity.
+
+- [ ] 6.8.1.1 Add `operator` keyword and operator pattern syntax to lexer and parser
+- [ ] 6.8.1.2 Implement operator binding syntax: `operator (op) = function [fixity precedence]`
+- [ ] 6.8.1.3 Implement precedence and associativity specifications: infixl, infixr, infix, prefix, postfix
+- [ ] 6.8.1.4 Implement operator registration in symbol table with precedence/associativity metadata
+
+### 6.8.2 Operator Resolution
+- [ ] **Task 6.8.2 Complete**
+
+Implement operator parsing and resolution using precedence climbing or Pratt parsing. Custom operators integrate into expression parser, respecting precedence and associativity rules.
+
+- [ ] 6.8.2.1 Implement precedence climbing parser for expression parsing with custom operators
+- [ ] 6.8.2.2 Implement operator precedence resolution using symbol table metadata
+- [ ] 6.8.2.3 Implement operator associativity handling for left/right/non-associative operators
+- [ ] 6.8.2.4 Implement operator desugaring expanding operators to function applications in AST
+
+### Unit Tests - Section 6.8
+- [ ] **Unit Tests 6.8 Complete**
+- [ ] Test operator declarations with various fixities and precedences
+- [ ] Test operator parsing in expressions with correct precedence
+- [ ] Test operator associativity (left, right, non-associative)
+- [ ] Test custom operator integration with existing operators
+
+---
+
+## 6.9 Integration Tests
+- [ ] **Section 6.9 Complete**
 
 Integration tests validate the complete advanced effect system with realistic programs using all features together. We test effect polymorphism in libraries, effect composition combining multiple effects, effect optimizations improving performance measurably, and advanced features in production-like scenarios.
 
-### 6.5.1 Polymorphic Effect Libraries
-- [ ] **Task 6.5.1 Complete**
+### 6.9.1 Polymorphic Effect Libraries
+- [ ] **Task 6.9.1 Complete**
 
 We build libraries using effect polymorphism, demonstrating generic effectful code. Examples: polymorphic map working with any effect, transactional abstractions generic over state effects, logging libraries generic over writer effects. Tests verify libraries work with concrete effect instantiations.
 
-- [ ] 6.5.1.1 Implement polymorphic map function generic over effect sets
-- [ ] 6.5.1.2 Implement transaction library using polymorphic State effect
-- [ ] 6.5.1.3 Implement logging library using polymorphic Writer effect
-- [ ] 6.5.1.4 Test libraries with various concrete effect instantiations
+- [ ] 6.9.1.1 Implement polymorphic map function generic over effect sets
+- [ ] 6.9.1.2 Implement transaction library using polymorphic State effect
+- [ ] 6.9.1.3 Implement logging library using polymorphic Writer effect
+- [ ] 6.9.1.4 Test libraries with various concrete effect instantiations
 
-### 6.5.2 Multi-Effect Programs
-- [ ] **Task 6.5.2 Complete**
+### 6.9.2 Multi-Effect Programs
+- [ ] **Task 6.9.2 Complete**
 
 Programs combining multiple effects test effect composition. Example: web server using IO (HTTP), State (session), Reader (config), Error (validation), and Async (concurrency). Tests verify effects compose correctly, handlers nest properly, and effect sets track accurately through complex programs.
 
-- [ ] 6.5.2.1 Implement web server using IO, State, Reader, Error, and Async effects
-- [ ] 6.5.2.2 Implement data pipeline using multiple effects for ETL operations
-- [ ] 6.5.2.3 Implement game server using effects for game state, networking, and actors
-- [ ] 6.5.2.4 Test effect composition correctness and handler nesting
+- [ ] 6.9.2.1 Implement web server using IO, State, Reader, Error, and Async effects
+- [ ] 6.9.2.2 Implement data pipeline using multiple effects for ETL operations
+- [ ] 6.9.2.3 Implement game server using effects for game state, networking, and actors
+- [ ] 6.9.2.4 Test effect composition correctness and handler nesting
 
-### 6.5.3 Optimization Benchmarks
-- [ ] **Task 6.5.3 Complete**
+### 6.9.3 Optimization Benchmarks
+- [ ] **Task 6.9.3 Complete**
 
 Performance benchmarks validate that optimizations achieve target <5% overhead. We compare optimized effect code against unoptimized effect code and hand-written BEAM code. Measure throughput, latency, and memory usage across effect types. Profile to identify remaining optimization opportunities.
 
-- [ ] 6.5.3.1 Benchmark State effect performance with and without optimizations
-- [ ] 6.5.3.2 Benchmark effect polymorphism overhead comparing monomorphic vs polymorphic code
-- [ ] 6.5.3.3 Benchmark handler inlining measuring overhead elimination
-- [ ] 6.5.3.4 Compare optimized effect code to equivalent hand-written BEAM code
+- [ ] 6.9.3.1 Benchmark State effect performance with and without optimizations
+- [ ] 6.9.3.2 Benchmark effect polymorphism overhead comparing monomorphic vs polymorphic code
+- [ ] 6.9.3.3 Benchmark handler inlining measuring overhead elimination
+- [ ] 6.9.3.4 Compare optimized effect code to equivalent hand-written BEAM code
 
-### 6.5.4 Advanced Feature Integration
-- [ ] **Task 6.5.4 Complete**
+### 6.9.4 Advanced Feature Integration
+- [ ] **Task 6.9.4 Complete**
 
 Tests using advanced features demonstrate full effect system capability. Implement generators using delimited continuations, resource management using scoped effects, complex pattern matching using effectful guards. Validate debugging tools work correctly on complex programs.
 
-- [ ] 6.5.4.1 Implement generators using delimited continuations and multi-resume
-- [ ] 6.5.4.2 Implement resource-safe file handling using scoped effects
-- [ ] 6.5.4.3 Implement complex pattern matching using effectful guards
-- [ ] 6.5.4.4 Test debugging tools on multi-effect programs producing useful output
+- [ ] 6.9.4.1 Implement generators using delimited continuations and multi-resume
+- [ ] 6.9.4.2 Implement resource-safe file handling using scoped effects
+- [ ] 6.9.4.3 Implement complex pattern matching using effectful guards
+- [ ] 6.9.4.4 Test debugging tools on multi-effect programs producing useful output
 
 ---
 

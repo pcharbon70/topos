@@ -67,6 +67,26 @@ Support for algebraic effects syntax including effect declarations, effect opera
 - [ ] 1.1.5.3 Add try/with handler syntax and AST nodes TryWithExpr and HandlerCase for effect handlers with pattern matching on operation names (success: parse complete handler blocks with multiple operation cases)
 - [ ] 1.1.5.4 Add effect annotation syntax using `/` operator for effect sets in type signatures and EffectAnnotation AST node (success: parse `String / {FileIO, Process}` in function signatures)
 
+### 1.1.6 Trait System Syntax
+- [ ] **Task 1.1.6 Complete**
+
+Add trait system keywords and syntax to demonstrate Topos's category-theory-first approach through general abstraction mechanisms. Traits replace ad-hoc polymorphism with principled type classes that form the foundation of the standard library's category theory abstractions (Setoid, Functor, Monad, etc.).
+
+- [ ] 1.1.6.1 Add `trait`, `instance`, `extends` keywords to lexer for trait system declarations
+- [ ] 1.1.6.2 Add trait declaration grammar with method signatures and default implementations producing TraitDecl AST nodes (success: parse `trait Functor f where fmap : (a -> b) -> f a -> f b`)
+- [ ] 1.1.6.3 Add instance declaration grammar with method implementations producing InstanceDecl AST nodes (success: parse `instance Functor Maybe where fmap f = match | None -> None | Some x -> Some (f x) end`)
+- [ ] 1.1.6.4 Add trait hierarchy syntax with extends clauses for trait inheritance (success: parse `trait Monad m extends Applicative m where bind : m a -> (a -> m b) -> m b`)
+
+### 1.1.7 Core Operators
+- [ ] **Task 1.1.7 Complete**
+
+Add dual notation operators for category theory abstractions, providing both readable keyword versions and concise symbolic operators. This makes Topos accessible to beginners (using keywords like `equals`, `append`, `bind`) while enabling experts to write terse, mathematical code (using `===`, `<>`, `>>=`).
+
+- [ ] 1.1.7.1 Add equality operators `===` and `!==` to lexer for Setoid trait (type class equality)
+- [ ] 1.1.7.2 Add composition operators: `<>` (Semigroup append), `<$>` (Functor map), `<*>` (Applicative apply)
+- [ ] 1.1.7.3 Add monadic operators: `>>=` (bind), `>>` (sequence), `=<<` (flipped bind), `>=>` (Kleisli left-to-right), `<=<` (Kleisli right-to-left)
+- [ ] 1.1.7.4 Define operator precedence and associativity tables ensuring correct parsing (infixl 1 for >>=, infixl 4 for <$> and <*>, infixl 6 for <>)
+
 ### Unit Tests - Section 1.1
 - [ ] **Unit Tests 1.1 Complete**
 - [ ] Test lexer tokenization of all keywords, operators, delimiters, and literals with edge cases
@@ -75,6 +95,9 @@ Support for algebraic effects syntax including effect declarations, effect opera
 - [ ] Test source location tracking ensuring accurate line/column information in AST nodes
 - [ ] Test effect syntax parsing for effect declarations, perform expressions, handlers, and effect annotations
 - [ ] Test nested handler syntax and operation pattern matching with complete coverage
+- [ ] Test trait system syntax parsing for trait declarations, instance declarations, and trait hierarchies
+- [ ] Test core operator parsing with correct precedence and associativity (===, <>, <$>, <*>, >>=, >=>)
+- [ ] Test operator parsing in complex expressions ensuring proper nesting and binding
 
 ---
 
@@ -138,12 +161,25 @@ Effect system errors require specialized messages to help developers understand 
 - [ ] 1.2.5.3 Implement effect annotation errors for mismatched effect sets between declared and inferred effects
 - [ ] 1.2.5.4 Implement effect context explanation showing effect propagation chain from perform through callers
 
+### 1.2.6 Trait Constraint System
+- [ ] **Task 1.2.6 Complete**
+
+Extend the type system to handle trait hierarchies, instance resolution, and trait method type inference. This completes the foundation for Topos's category-theory-first approach by making traits the general abstraction mechanism for all polymorphism (replacing ad-hoc overloading with principled type classes).
+
+- [ ] 1.2.6.1 Implement trait hierarchy checking ensuring extends relationships form valid DAG without cycles
+- [ ] 1.2.6.2 Implement instance search and resolution finding matching instances for trait constraints during type checking
+- [ ] 1.2.6.3 Implement trait method type inference checking method signatures match trait declarations and inferring implementation types
+- [ ] 1.2.6.4 Implement coherence checking detecting overlapping instances and ensuring unique resolution (no ambiguous instances)
+
 ### Unit Tests - Section 1.2
 - [ ] **Unit Tests 1.2 Complete**
 - [ ] Test type inference for simple expressions inferring correct types without annotations
 - [ ] Test type inference for polymorphic functions with proper generalization and instantiation
 - [ ] Test type checking catching type errors with clear error messages
 - [ ] Test trait constraint solving resolving instances correctly and detecting missing instances
+- [ ] Test trait hierarchy checking detecting cycles and validating extends relationships
+- [ ] Test instance resolution finding correct instances for trait constraints
+- [ ] Test coherence checking detecting overlapping instances
 - [ ] Test effect tracking in type inference correctly propagating effect sets through expressions
 - [ ] Test effect handler checking detecting unhandled effects and missing handler operations
 - [ ] Test effect error messages for unhandled effects, handler mismatches, and effect annotation errors
