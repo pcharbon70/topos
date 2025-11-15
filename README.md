@@ -160,7 +160,41 @@ Topos draws inspiration from:
 
 ## Contributing
 
-This project is currently in the research phase. Contributions in the form of feedback on design documents, additional research, or prototype implementations are welcome.
+This project is currently in the research and early implementation phase. A **proof-of-concept compiler is under active development** following a structured 17-week implementation plan.
+
+### Implementation Roadmap
+
+The proof-of-concept is divided into 6 phases spanning approximately 4.25 months:
+
+| Phase | Duration | Focus Area | Document |
+|-------|----------|------------|----------|
+| **Phase 1** | 6.5 weeks | Core Language Infrastructure | [phase-01.md](notes/planning/proof-of-concept/phase-01.md) |
+| | | Lexer, Parser, Type-and-Effect System, Effect Runtime, Code Generation | |
+| **Phase 2** | 3.5 weeks | REPL and Basic Runtime | [phase-02.md](notes/planning/proof-of-concept/phase-02.md) |
+| | | Effect-Aware REPL, Prelude, Builtin Effects (IO, Process) | |
+| **Phase 3** | 3.5 weeks | Pattern Matching Engine | [phase-03.md](notes/planning/proof-of-concept/phase-03.md) |
+| | | Advanced Patterns, Pure Guards, Decision Trees, Exhaustiveness | |
+| **Phase 4** | 2.5 weeks | Module System | [phase-04.md](notes/planning/proof-of-concept/phase-04.md) |
+| | | Modules, Effect Propagation, Interface Files, Separate Compilation | |
+| **Phase 5** | 3.5 weeks | Actor Model Integration | [phase-05.md](notes/planning/proof-of-concept/phase-05.md) |
+| | | Actor-Effect Unification, Supervision, Fault Tolerance | |
+| **Phase 6** | 5 weeks | Effect System Completion (Post-PoC) | [phase-06-effect-completion.md](notes/planning/proof-of-concept/phase-06-effect-completion.md) |
+| | | Effect Polymorphism, Effect Library, Optimizations, Advanced Features | |
+
+**Quick Links:**
+- [📋 Proof-of-Concept Overview](notes/planning/proof-of-concept/proof-of-concept.md) - High-level goals and architecture
+- [🧭 Phase Navigation](notes/planning/proof-of-concept/phase-navigation.md) - Detailed phase descriptions and dependencies
+- [📁 Planning Directory](notes/planning/README.md) - Complete planning documentation
+
+### How to Contribute
+
+Contributions are welcome in several forms:
+
+- **Research Feedback** - Review and provide feedback on design documents in `notes/research/`
+- **Additional Research** - Explore new topics related to category theory, BEAM integration, or language design
+- **Implementation** - Contribute to the proof-of-concept compiler (see phase documents for current progress)
+- **Testing** - Help develop test cases and property-based testing strategies
+- **Documentation** - Improve existing documentation or add examples
 
 ## License
 
