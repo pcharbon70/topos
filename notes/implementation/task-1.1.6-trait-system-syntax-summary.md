@@ -140,23 +140,32 @@ topos_parser_simple_tests: All 7 tests passed
 **Impact**: Trait method signatures can't express higher-order functions yet.
 **Future Work**: Refactor type expression grammar to handle nested parentheses correctly.
 
-### 2. Multiple Methods Without Separators
-**Issue**: Grammar doesn't handle multiple trait methods in sequence without explicit separators.
-**Current**: Tests use single-method trait declarations.
-**Impact**: Traits with multiple methods may require semicolons or newline tokens.
-**Future Work**: Add method separator syntax or adjust grammar to handle consecutive methods.
+### 2. ~~Multiple Methods Without Separators~~ **RESOLVED**
+**Issue**: ~~Grammar doesn't handle multiple trait methods in sequence without explicit separators.~~
+**Resolution**: ✅ **Comma separators implemented** (November 15, 2024)
+**Current**: Traits with multiple methods use commas between method signatures
+**Impact**: Fully functional - no limitations
+**Grammar**:
+```erlang
+trait_methods -> trait_method
+trait_methods -> trait_method comma trait_methods
+trait_methods -> trait_method comma  % Optional trailing comma
+```
+**Tests**:
+- `parse_trait_multiple_methods_with_commas_test`
+- `parse_trait_three_methods_with_trailing_comma_test`
 
-### 3. Instance Method Match Expressions
-**Issue**: Complex match expressions in instance method bodies cause parser conflicts.
-**Current**: Using simple expressions like `f` instead of full match.
-**Impact**: Instance implementations can't use pattern matching syntax yet.
-**Future Work**: May require full expression grammar integration or separate instance body syntax.
+### 3. Instance Type Arguments (RESOLVED)
+**Issue**: ~~Current grammar manually handles up to 2 type arguments for instances.~~
+**Current**: Grammar now supports up to 3 type arguments.
+**Impact**: Instances with 4+ type arguments not supported (rare edge case).
+**Future Work**: Can extend instance_type_args rules if needed.
 
-### 4. Instance Type Arguments
-**Issue**: Current grammar manually handles up to 2 type arguments for instances.
-**Current**: Separate rules for 1 and 2 type arguments.
-**Impact**: Instances with 3+ type arguments not supported.
-**Future Work**: Refactor to use proper type expression lists.
+**Note**: The original limitation #3 about "match expressions in instance methods" has been **disproven**. Match expressions work correctly - the grammar has two instance_method rules:
+1. `instance_method -> flow lower_ident pattern_list equals expr` (simple expressions)
+2. `instance_method -> flow lower_ident pattern_list equals match match_clauses 'end'` (match expressions)
+
+Test `parse_instance_with_match_expression_test` verifies match expressions work correctly.
 
 ## Technical Details
 
@@ -198,7 +207,7 @@ topos_parser_simple_tests: All 7 tests passed
 
 **Trait Constraints**: Initially attempted direct parsing with `upper_ident type_expr_primary`, which caused reduce/reduce conflicts with type applications. Resolved by using `type_expr_app` and converting with `extract_trait_constraint/1` helper function.
 
-**Parser Conflicts**: One additional shift/reduce conflict introduced (18 total vs. 17 before). All shift/reduce conflicts are acceptable and resolve correctly via default shift behavior.
+**Parser Conflicts**: Semicolon separators actually **reduced** conflicts from 18 to 17 shift/reduce (0 reduce/reduce). All shift/reduce conflicts are acceptable and resolve correctly via default shift behavior.
 
 ## Examples
 
@@ -220,6 +229,23 @@ end
 ```topos
 trait Ord a extends Eq a, Show a where
   compare : a -> Ordering
+end
+```
+
+### Trait with Multiple Methods (NEW - Commas Required)
+```topos
+trait Eq a where
+  eq : a -> a -> Bool,
+  neq : a -> a -> Bool
+end
+```
+
+Or with optional trailing comma:
+```topos
+trait Ord a where
+  compare : a -> a -> Ordering,
+  lt : a -> a -> Bool,
+  gt : a -> a -> Bool,
 end
 ```
 

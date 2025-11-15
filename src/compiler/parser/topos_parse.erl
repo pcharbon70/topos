@@ -260,9 +260,7 @@ format_error({lex_error, Location, Reason}) ->
     io_lib:format("Lexical error at ~s: ~s", [LocStr, Reason]);
 format_error({parse_error, Line, Reason}) when is_integer(Line) ->
     io_lib:format("Parse error at line ~p: ~s", [Line, Reason]);
-format_error({parse_error, Location, Reason}) ->
-    LocStr = topos_location:format(Location),
-    io_lib:format("Parse error at ~s: ~s", [LocStr, Reason]);
+
 format_error({ast_too_deep, Depth, MaxDepth}) ->
     io_lib:format("AST too deep: ~p levels exceeds maximum of ~p",
                   [Depth, MaxDepth]);
@@ -301,9 +299,8 @@ format_error({too_many_effects_in_annotation, Count, Max}) ->
                   [Count, Max]);
 format_error({effect_handler_too_deep, Depth, Max}) ->
     io_lib:format("Effect handler nesting too deep: ~p levels exceeds maximum of ~p",
-                  [Depth, Max]);
-format_error(Reason) ->
-    io_lib:format("~p", [Reason]).
+                  [Depth, Max]).
+
 
 %% @doc Get maximum AST depth limit.
 %%

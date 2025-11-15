@@ -50,7 +50,8 @@
     extract_location/1,
     extract_name/1,
     extract_flow_name/1,
-    extract_flow_type/1
+    extract_flow_type/1,
+    extract_trait_constraint/1
 ]).
 
 %% Configuration management
@@ -298,6 +299,61 @@ extract_flow_name({flow_sig, Name, _Type, _Loc}) -> Name.
 %% '''
 -spec extract_flow_type(tuple()) -> term().
 extract_flow_type({flow_sig, _Name, Type, _Loc}) -> Type.
+
+%% @doc Extract trait constraint from type expression.
+%%
+%% Converts type expressions to trait constraint records used in trait/instance
+%% declarations. This helper is used by both the parser (for syntax construction)
+%% and will be used by the type checker (for constraint resolution).
+%%
+%% Handles multiple type expression formats:
+%% <ul>
+%%%   <li>Type application: `{type_app, {type_con, Functor, L}, [f], L}' → `{trait_constraint, 'Functor', [f], L}'</li>
+%%%   <li>Type constructor: `{type_con, Eq, L}' → `{trait_constraint, 'Eq', [], L}'</li>
+%%%   <li>Invalid cases: Creates error constraint for validation phase</li>
+%% </ul>
+%%
+%% @param TypeExpr A type expression AST node
+%% @returns A `trait_constraint' record tuple
+%%
+%% @see topos_parser.yrl
+%% @see topos_ast.hrl
+%%
+%% @example
+%% ```
+%% %% From "Functor f" in trait extends clause
+%% C1 = extract_trait_constraint(
+%%     {type_app, {type_con, 'Functor', Loc}, [{type_var, f, Loc2}], Loc}),
+%% %% → {trait_constraint, 'Functor', [{type_var, f, Loc2}], Loc}
+%%%
+%% %% From "Eq" (no type args)
+%% C2 = extract_trait_constraint({type_con, 'Eq', Loc}),
+%% %% → {trait_constraint, 'Eq', [], Loc}
+%%%
+%% %% Invalid: type variable where trait name expected
+%% C3 = extract_trait_constraint({type_var, a, Loc}),
+%% %% → {trait_constraint, a, [], Loc}  (for error reporting)
+%% '''
+-spec extract_trait_constraint(tuple()) -> tuple().
+extract_trait_constraint({type_app, {type_con, TraitName, Loc}, TypeArgs, _}) ->
+    %% Type application: Functor f, Eq a, etc.
+    {trait_constraint, TraitName, TypeArgs, Loc};
+extract_trait_constraint({type_con, TraitName, Loc}) ->
+    %% Simple type constructor: Eq, Show, etc. (no type arguments)
+    {trait_constraint, TraitName, [], Loc};
+extract_trait_constraint({type_var, VarName, Loc}) ->
+    %% Invalid case: type variable used where trait name expected
+    %% Create constraint for error reporting in validation phase
+    {trait_constraint, VarName, [], Loc};
+extract_trait_constraint(Other) ->
+    %% Fallback for any other unexpected type expression
+    %% Extract location if available, otherwise use default
+    Loc = case Other of
+        {_, _, L} -> L;
+        {_, L} -> L;
+        _ -> {location, 0, 0}
+    end,
+    {trait_constraint, 'InvalidTrait', [], Loc}.
 
 %%============================================================================
 %% Configuration Management

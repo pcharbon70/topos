@@ -70,7 +70,39 @@ Topos reimagines functional programming by making category theory concepts first
 
 ⚠️ **This is a research project in early design phase**
 
-Currently, the repository contains extensive research and design documentation exploring various language features. No compiler or runtime implementation exists yet.
+Currently, the repository contains extensive research and design documentation exploring various language features. A proof-of-concept compiler is under active development.
+
+## Building
+
+The Topos compiler uses leex (lexer) and yecc (parser) to generate Erlang modules from grammar definitions.
+
+### Quick Start
+
+```bash
+# Build lexer and parser
+./scripts/build.sh
+
+# Build individual components
+./scripts/build_lexer.sh   # Generate lexer from .xrl
+./scripts/build_parser.sh  # Generate parser from .yrl
+```
+
+### Using rebar3
+
+The build scripts are automatically invoked as pre-compile hooks:
+
+```bash
+rebar3 compile  # Automatically builds lexer and parser, then compiles
+rebar3 eunit    # Run unit tests
+```
+
+### Build Scripts
+
+- **`scripts/build.sh`** - Master build script (builds lexer + parser)
+- **`scripts/build_lexer.sh`** - Generates `src/compiler/lexer/topos_lexer_gen.erl` from `topos_lexer.xrl`
+- **`scripts/build_parser.sh`** - Generates `src/compiler/parser/topos_parser.erl` from `topos_parser.yrl`
+
+All scripts include timestamp checking and only rebuild when source files have changed.
 
 ## Documentation
 
