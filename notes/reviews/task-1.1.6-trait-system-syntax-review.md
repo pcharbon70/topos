@@ -29,6 +29,7 @@ The trait system syntax implementation demonstrates **strong engineering practic
 ## 🚨 Blockers (Must Fix Before Merge)
 
 ### 1. **Missing Integration Test Source File**
+
 - **File**: `test_trait_integration.erl`
 - **Issue**: .beam file exists but .erl source is missing
 - **Impact**: Cannot verify or maintain integration tests
@@ -36,6 +37,7 @@ The trait system syntax implementation demonstrates **strong engineering practic
 - **Severity**: HIGH
 
 ### 2. **Parser Compilation State Mismatch**
+
 - **Issue**: Generated parser not automatically rebuilt
 - **Impact**: Tests initially failed with stale parser
 - **Action**: Add parser regeneration to build process
@@ -44,6 +46,7 @@ The trait system syntax implementation demonstrates **strong engineering practic
 ### 3. ~~**Critical Grammar Duplication**~~ ✅ **RESOLVED**
 
 **Resolution** (November 15, 2024):
+
 - ✅ Trait rules: Consolidated from 4 rules to 1 rule + 2 optional helpers (`maybe_trait_extends`, `maybe_default_methods`)
 - ✅ Instance rules: Consolidated from 4 rules to 2 rules (with/without constraints)
 - ✅ Instance type args: Refactored from hard-coded 1-5 arguments to unlimited recursive support
@@ -58,6 +61,7 @@ The trait system syntax implementation demonstrates **strong engineering practic
 ### Testing Gaps (QA Review)
 
 **Error Handling Coverage**: 0% negative tests
+
 ```
 Comparison to other features:
 - Effect tests: 81 tests, ~30% negative
@@ -66,6 +70,7 @@ Comparison to other features:
 ```
 
 **Missing Test Scenarios**:
+
 - Invalid trait/instance names (lowercase where uppercase expected)
 - Missing keywords (`where`, `end`)
 - Malformed extends clauses
@@ -73,6 +78,7 @@ Comparison to other features:
 - Resource limit edge cases
 
 **Grammar Coverage**: Only 44% of grammar rules tested
+
 - ❌ Default methods (rules exist but untested)
 - ❌ Instance constraints (rules exist but untested)
 - ❌ Match expressions in instances
@@ -83,6 +89,7 @@ Comparison to other features:
 ### Simplified Success Criteria (Factual Review)
 
 **Type Signature Limitation**:
+
 ```erlang
 % Planning expected: trait Functor f where fmap : (a -> b) -> f a -> f b
 % Implementation: trait Functor f where fmap : a -> b end
@@ -97,12 +104,15 @@ Comparison to other features:
 ### ~~Instance Type Argument Limitation~~ ✅ **RESOLVED** (Architecture Review)
 
 **Resolution** (November 15, 2024):
+
 - ✅ Refactored from hard-coded 1-5 arguments to unlimited recursive support
 - ✅ New grammar:
+
   ```erlang
   instance_type_args -> type_expr_primary : ['$1'].
   instance_type_args -> type_expr_primary instance_type_args : ['$1' | '$2'].
   ```
+
 - ✅ Test coverage: Added `parse_instance_valid_four_type_args_test` to verify 4+ args work
 - ✅ All 41 tests passing
 - ✅ Can now express `instance Monad (Reader r a)` and arbitrary complex instances
@@ -114,6 +124,7 @@ Comparison to other features:
 ### 1. ~~**Eliminate Test Boilerplate**~~ ✅ **IMPLEMENTED** (Redundancy Review)
 
 **Resolution** (November 15, 2024):
+
 - ✅ Created 8 helper functions:
   - `make_basic_trait_tokens/5` - Basic trait with one method
   - `make_complex_trait_tokens/4` - Trait with complex type tokens
@@ -132,6 +143,7 @@ Comparison to other features:
 **Current**: No fuzzing or randomized input testing
 
 **Recommendation**: Use PropEr/QuickCheck to:
+
 - Generate random valid trait syntax
 - Verify resource limits hold
 - Test malformed input resilience
@@ -139,6 +151,7 @@ Comparison to other features:
 ### 3. **Improve Test Naming Consistency** (Consistency Review)
 
 **Current**: Mixed conventions
+
 - Simple tests: `parse_*_test()`
 - Effect tests: `effect_*_test()`
 - Trait tests: `parse_*_test()`
@@ -152,6 +165,7 @@ Comparison to other features:
 **Rationale**: Type checker will need this function; centralize for reuse
 
 **Resolution** (November 15, 2024):
+
 - ✅ Extracted to `topos_compiler_utils:extract_trait_constraint/1`
 - ✅ Added comprehensive EDoc documentation with examples
 - ✅ Parser updated to delegate to centralized implementation
@@ -163,12 +177,14 @@ Comparison to other features:
 ## ✅ Good Practices Noticed
 
 ### 1. **Exceptional Documentation** (Factual Review)
+
 - 865 lines of implementation documentation
 - Every limitation explicitly documented with root cause
 - Clear next steps and future work identified
 - Parser conflict documentation is production-quality
 
 ### 2. **Comprehensive Security** (Security Review)
+
 - Multi-layered validation (lexer → parser → AST)
 - Resource limits at every stage (10MB input, 500k tokens, 500 AST depth)
 - Safe error handling without information leakage
@@ -177,6 +193,7 @@ Comparison to other features:
 **Security Score**: 9.2/10
 
 ### 3. **Strong Pattern Adherence** (Consistency Review)
+
 - Grammar rules match existing style (effect_decl, shape_decl)
 - AST field ordering consistent across all records
 - Location metadata tracked in all nodes
@@ -185,6 +202,7 @@ Comparison to other features:
 **Consistency Score**: 95%
 
 ### 4. **Thoughtful Simplifications** (Architecture Review)
+
 - All limitations are parser conflict-driven, not arbitrary
 - Each has documented root cause and mitigation path
 - Tests acknowledge simplifications in comments
@@ -206,6 +224,7 @@ Comparison to other features:
 | 1.1.6.4: Trait hierarchies | ✅ 95% | Extends fully working |
 
 **Key Findings**:
+
 - Success criteria partially met due to type signature simplifications
 - All grammar rules implemented and functional
 - AST structures complete and correct
@@ -216,12 +235,14 @@ Comparison to other features:
 **Detailed Analysis**:
 
 #### 1.1.6.1: Lexer Keywords ✅
+
 - `trait` keyword: Already existed, verified working
 - `instance` keyword: Already existed, verified working
 - `extends` keyword: Added at line 75 of `topos_lexer.xrl`
 - Lexer successfully regenerated (`topos_lexer_gen.erl` 163,851 bytes)
 
 #### 1.1.6.2: Trait Declaration Grammar ⚠️
+
 - Complete trait declaration grammar (4 variants)
 - Supports optional `extends` clause
 - Supports method signatures and optional default implementations
@@ -230,6 +251,7 @@ Comparison to other features:
 - Cannot yet parse: `trait Functor f where fmap : (a -> b) -> f a -> f b`
 
 #### 1.1.6.3: Instance Declaration Grammar ⚠️
+
 - Complete instance declaration grammar (4 variants)
 - Supports optional constraint clauses
 - Supports method implementations
@@ -238,6 +260,7 @@ Comparison to other features:
 - Cannot yet parse: `instance Functor Maybe where fmap f = match | None -> None | Some x -> Some (f x) end`
 
 #### 1.1.6.4: Trait Hierarchy Syntax ✅
+
 - Extends clause in trait declarations fully implemented
 - Multiple trait constraints supported
 - Trait constraint AST record complete
@@ -249,18 +272,30 @@ Comparison to other features:
 **Overall**: 73% adequate
 
 **Test Execution Results**:
+
 - ✅ All 8 unit tests pass (topos_parser_trait_tests.erl)
 - ✅ All 7 regression tests pass (topos_parser_simple_tests.erl)
 - ✅ AST structures correctly formed
 - ✅ No compilation errors
 
 **Strengths**:
+
 - 8 unit tests covering basic scenarios
 - All tests pass with correct AST validation
 - No regressions in existing parser tests
 - Integration tests verify lexer+parser pipeline
 - Proper record structure validation
 - Location metadata correctly attached
+
+## Files Delivered
+
+1. **partisan-topos-integration.md**: Comprehensive theoretical framework and implementation strategy
+2. **partisan-topos-practical-guide.md**: Developer-focused patterns and examples
+
+## Files Delivered
+
+1. **partisan-topos-integration.md**: Comprehensive theoretical framework and implementation strategy
+2. **partisan-topos-practical-guide.md**: Developer-focused patterns and examples
 
 **Critical Gaps**:
 
@@ -311,11 +346,13 @@ Comparison to other features:
    - These are different syntaxes with different parse trees
 
 2. **Insufficient AST Validation**:
+
    ```erlang
    ?assertMatch(#trait_decl{
        methods = [{fmap, _}]  % Underscore - not validated!
    }, TraitDecl)
    ```
+
    - Method type expressions not deeply validated
    - Constraint structures not fully checked
    - Location metadata accuracy not verified
@@ -334,6 +371,7 @@ Comparison to other features:
 | **Traits** | **8** | **Basic only** | **0%** |
 
 **Recommendations**:
+
 1. Add 12+ negative tests for malformed syntax
 2. Test all 9 grammar rules (achieve 75% coverage minimum)
 3. Add deep AST validation (no `_` wildcards)
@@ -348,15 +386,18 @@ Comparison to other features:
 **Excellent Decisions**:
 
 1. **Type Expression Reuse**:
+
    ```erlang
    trait_constraint -> type_expr_app :
        extract_trait_constraint('$1').
    ```
+
    - Leverages existing type parsing infrastructure
    - Ensures trait constraints and type applications have identical syntax
    - Avoids duplicating complex type parsing rules
 
 2. **Well-Structured AST Records**:
+
    ```erlang
    -record(trait_decl, {
        name :: atom(),
@@ -367,12 +408,14 @@ Comparison to other features:
        location :: location()
    }).
    ```
+
    - Clear field names matching domain terminology
    - Proper use of `undefined` for optional fields
    - Type specifications enable Dialyzer analysis
    - Consistent location tracking
 
 3. **Dedicated Constraint Record**:
+
    ```erlang
    -record(trait_constraint, {
        trait :: atom(),
@@ -380,17 +423,20 @@ Comparison to other features:
        location :: location()
    }).
    ```
+
    - Reused in both trait_decl (extends) and instance_decl (constraints)
    - Avoids tuple-based ad-hoc representations
    - Sets foundation for future constraint solver
 
 4. **Clean Helper Function**:
+
    ```erlang
    extract_trait_constraint({type_app, {type_con, TraitName, Loc}, TypeArgs, _}) ->
        {trait_constraint, TraitName, TypeArgs, Loc};
    extract_trait_constraint({type_con, TraitName, Loc}) ->
        {trait_constraint, TraitName, [], Loc}.
    ```
+
    - Single responsibility transformation
    - No side effects, pure function
    - Pattern matching makes logic self-documenting
@@ -400,6 +446,7 @@ Comparison to other features:
 1. **Grammar Rule Duplication** (Lines 292-329):
 
    Four nearly identical trait_decl rules create maintenance burden:
+
    ```erlang
    % Rule 1: No extends, no defaults
    trait_decl -> trait upper_ident type_params where trait_methods 'end'
@@ -417,6 +464,7 @@ Comparison to other features:
    **Impact**: Bug fixes require changes in 4 places
 
    **Solution**: Use optional nonterminals
+
    ```erlang
    trait_extends -> '$empty' : undefined.
    trait_extends -> extends trait_extends_list : '$2'.
@@ -433,6 +481,7 @@ Comparison to other features:
 2. **Instance Type Argument Handling** (Lines 371-404):
 
    **Problem**: Manually enumerates 1 and 2 type arguments
+
    ```erlang
    instance_decl -> instance upper_ident type_expr_primary where instance_methods 'end'  % 1 arg
    instance_decl -> instance upper_ident type_expr_primary type_expr_primary where instance_methods 'end'  % 2 args
@@ -444,6 +493,7 @@ Comparison to other features:
    - Doesn't align with how types are normally parsed
 
    **Solution**: Use list nonterminal
+
    ```erlang
    instance_type_args -> type_expr_primary : ['$1'].
    instance_type_args -> type_expr_primary instance_type_args : ['$1' | '$2'].
@@ -454,6 +504,7 @@ Comparison to other features:
    **Benefits**: Scales to arbitrary argument counts
 
 3. **Method Storage as Simple Tuples**:
+
    ```erlang
    methods :: [{atom(), type_expr()}]           % trait methods
    default_methods :: [{atom(), expr()}]        % trait defaults
@@ -467,6 +518,7 @@ Comparison to other features:
    **Impact**: Low for PoC, high for production features
 
 **Parser Conflicts**: 18 shift/reduce (increase of 1 from baseline 17)
+
 - All conflicts acceptable and documented
 - No reduce/reduce conflicts (no grammar ambiguity)
 - Comprehensive conflict documentation (lines 99-171)
@@ -494,16 +546,19 @@ Comparison to other features:
 **Future Extensibility**:
 
 ✅ **Good Foundation**:
+
 - Associated types can be added with new field
 - Functional dependencies easily added to constraints
 - Default methods already supported in AST
 
 ⚠️ **Extensibility Blockers**:
+
 - Tuple-based methods make adding attributes hard
 - Instance head parsing limits complex types
 - Default method syntax uses `flow` keyword (should be `default`)
 
 **Recommendations**:
+
 1. Refactor trait_decl rules before Phase 2 (reduce 4→1)
 2. Generalize instance type argument handling (remove 2-arg limit)
 3. Move extract_trait_constraint/1 to topos_compiler_utils
@@ -529,6 +584,7 @@ Comparison to other features:
 | Parse Timeout | 30 seconds | `max_parse_time` | Timer |
 
 **Input Validation** ✅:
+
 - Identifier length capped at 255 characters
 - String escape sequences whitelisted (`\n`, `\r`, `\t`, `\\`, `\"`, `\'`)
 - Numeric parsing uses Erlang built-ins with error handling
@@ -536,6 +592,7 @@ Comparison to other features:
 - No unbounded string lengths
 
 **Parser Safety** ✅:
+
 - All trait/instance components bounded by grammar
 - No user-controlled code generation during parsing
 - Type parameters validated as atoms
@@ -543,6 +600,7 @@ Comparison to other features:
 - Error recovery prevents parser state corruption
 
 **DoS Protection** ✅:
+
 - Parse timeout prevents infinite loops (30s)
 - Token count prevents lexer exhaustion (500k)
 - AST node count prevents memory explosion (100k)
@@ -550,6 +608,7 @@ Comparison to other features:
 - Time-based and space-based DoS both addressed
 
 **Type Safety** ✅:
+
 - Strong typing via Dialyzer specs
 - Atoms used for identifiers (not arbitrary strings)
 - Pattern matching ensures structural integrity
@@ -557,6 +616,7 @@ Comparison to other features:
 - Proper record validation
 
 **Error Handling** ✅:
+
 - No stack traces exposed to users
 - No internal paths revealed
 - Generic error messages for system errors
@@ -564,6 +624,7 @@ Comparison to other features:
 - Parser continues after errors (graceful degradation)
 
 **Yecc Security** ✅:
+
 - Using Erlang/OTP's battle-tested yecc parser generator
 - No known CVEs for yecc
 - Grammar conflicts documented and intentional
@@ -587,12 +648,14 @@ Comparison to other features:
    - **Recommendation**: Consider max 100 constraints
 
 **OWASP Top 10 Compliance**:
+
 - A03:2021 Injection: ✅ No injection vectors
 - A05:2021 Security Misconfiguration: ✅ Secure defaults
 - A06:2021 Vulnerable Components: ✅ Stable dependencies
 - A04:2021 Insecure Design: ✅ Defense in depth
 
 **CWE Mitigation**:
+
 - CWE-400 (Resource Consumption): ✅ Comprehensive limits
 - CWE-674 (Uncontrolled Recursion): ✅ Depth limits
 - CWE-776 (Recursive References): ✅ AST depth checks
@@ -600,6 +663,7 @@ Comparison to other features:
 - CWE-502 (Deserialization): ✅ Not applicable
 
 **Recommendations**:
+
 1. Add property-based/fuzz testing
 2. Monitor atom table usage (warn at 80%)
 3. Add explicit max string literal length
@@ -608,6 +672,7 @@ Comparison to other features:
 6. Add security audit trail for rejected inputs
 
 **Test Coverage**:
+
 - Resource limit tests: ✅ Excellent (14 tests)
 - Error handling tests: ✅ Excellent (57 tests)
 - Fuzzing tests: ❌ Missing
@@ -625,6 +690,7 @@ Comparison to other features:
    - AST records: Consistent naming with other declarations
 
 2. **Grammar Style** ✅:
+
    ```erlang
    % Existing pattern:
    effect_decl -> effect upper_ident effect_operations 'end' :
@@ -637,6 +703,7 @@ Comparison to other features:
 
 3. **AST Field Ordering** ✅:
    All records follow: **data fields → metadata → location**
+
    ```erlang
    -record(trait_decl, {
        name :: atom(),                    % primary data
@@ -654,6 +721,7 @@ Comparison to other features:
    - Consistent across trait_decl, instance_decl, trait_constraint
 
 5. **Error Recovery** ✅:
+
    ```erlang
    % Existing:
    declaration -> error effect :
@@ -674,11 +742,13 @@ Comparison to other features:
 1. **Test File Structure** ⚠️:
 
    Existing tests use tuple matching:
+
    ```erlang
    ?assertMatch({shape_decl, 'Bool', [], [_, _], [], _}, ShapeDecl).
    ```
 
    New tests use record matching:
+
    ```erlang
    ?assertMatch(#trait_decl{
        name = 'Functor',
@@ -715,6 +785,7 @@ Comparison to other features:
 | Optional fields | `undefined` for missing | Same | ✅ |
 
 **Recommendations**:
+
 1. Align test naming to `trait_decl_*_test()` pattern
 2. Simplify comment examples in tests (optional)
 3. Consider documenting record vs tuple matching choice
@@ -729,6 +800,7 @@ Comparison to other features:
 #### 1. Trait Declaration Rules (Lines 292-329)
 
 **Current**: 4 nearly identical rules (38 lines)
+
 ```erlang
 trait_decl -> trait upper_ident type_params where trait_methods 'end'
 trait_decl -> trait upper_ident type_params extends trait_extends_list where trait_methods 'end'
@@ -737,6 +809,7 @@ trait_decl -> trait upper_ident type_params extends trait_extends_list where tra
 ```
 
 **Proposed**: 1 rule + 2 helpers (~15 lines, 60% reduction)
+
 ```erlang
 trait_extends -> '$empty' : undefined.
 trait_extends -> extends trait_extends_list : '$2'.
@@ -749,6 +822,7 @@ trait_decl -> trait upper_ident type_params trait_extends where trait_methods tr
 ```
 
 **Impact**:
+
 - Maintenance: 4 locations → 1 location for updates
 - Extensibility: Adding features requires 1 edit, not 4
 - Risk: Low - follows existing pattern in codebase
@@ -756,6 +830,7 @@ trait_decl -> trait upper_ident type_params trait_extends where trait_methods tr
 #### 2. Instance Declaration Rules (Lines 371-404)
 
 **Current**: 4 rules with manual arg enumeration (34 lines)
+
 ```erlang
 instance_decl -> instance upper_ident type_expr_primary where instance_methods 'end'  % 1 arg
 instance_decl -> instance upper_ident type_expr_primary type_expr_primary where ...   % 2 args
@@ -763,6 +838,7 @@ instance_decl -> instance upper_ident type_expr_primary type_expr_primary where 
 ```
 
 **Proposed**: 1 rule + 2 helpers (~18 lines, 47% reduction)
+
 ```erlang
 instance_constraints_opt -> '$empty' : undefined.
 instance_constraints_opt -> instance_constraints double_arrow : '$1'.
@@ -775,6 +851,7 @@ instance_decl -> instance instance_constraints_opt upper_ident instance_type_arg
 ```
 
 **Impact**:
+
 - **Removes 2-arg limit**: Supports arbitrary type argument counts
 - Maintenance: 4 locations → 1 location
 - Risk: Medium - changes type arg handling from fixed to flexible
@@ -784,6 +861,7 @@ instance_decl -> instance instance_constraints_opt upper_ident instance_type_arg
 **Current**: ~35 lines per test, 8 tests = ~280 lines
 
 Repeated pattern in all 8 tests:
+
 ```erlang
 Tokens = [
     {trait, 1},
@@ -799,6 +877,7 @@ Tokens = [
 ```
 
 **Proposed**: Helper functions (~150 lines total, 46% reduction)
+
 ```erlang
 % Helper functions
 make_trait_tokens("Functor", "f", "fmap", ["a", "b"])
@@ -813,6 +892,7 @@ parse_basic_trait_test() ->
 ```
 
 **Impact**:
+
 - Code reduction: 280 lines → 150 lines (130 lines saved)
 - New tests easier: Reuse builders instead of manual tokens
 - Maintenance: Change token format once, all tests update
@@ -820,18 +900,22 @@ parse_basic_trait_test() ->
 **Good Abstractions Observed** ✅:
 
 1. **Helper Function Delegation** (Lines 881-913):
+
    ```erlang
    extract_atom(Token) -> topos_compiler_utils:extract_atom(Token).
    extract_location(Node) -> topos_compiler_utils:extract_location(Node).
    ```
+
    - Prevents duplication across compiler components
    - Single source of truth for utilities
 
 2. **Error Recovery Duplication** (Appropriate):
+
    ```erlang
    trait_decl -> trait error : make_error_declaration(..., "Incomplete trait declaration", ...).
    instance_decl -> instance error : make_error_declaration(..., "Incomplete instance declaration", ...).
    ```
+
    - Error messages should be specific
    - Merging would reduce clarity
 
@@ -845,6 +929,7 @@ parse_basic_trait_test() ->
 | **Total savings** | **352 lines** | **183 lines** | **48% reduction** |
 
 **Recommendations**:
+
 1. **Priority 1**: Add test helper functions (low risk, high impact)
 2. **Priority 2**: Consolidate trait rules (low risk, established pattern)
 3. **Priority 3**: Consolidate instance rules (medium risk, enables flexibility)
@@ -980,16 +1065,19 @@ CWE Mitigation:     All applicable CWEs addressed
 **APPROVE WITH CONDITIONS:**
 
 ✅ **Approve for Phase 1 completion** with expectation that:
+
 1. High priority items resolved before merge to develop
 2. Medium priority items addressed before Phase 2
 3. Known limitations tracked as technical debt
 
 **DO NOT MERGE TO DEVELOP** until:
+
 - ❌ Integration test source recovered or .beam removed
 - ❌ Minimum 12 negative tests added
 - ❌ Parser build process fixed and documented
 
 **CAN MERGE TO FEATURE BRANCH** with:
+
 - ✅ Implementation summary complete and accurate
 - ✅ All unit tests passing
 - ✅ No regressions
@@ -998,6 +1086,7 @@ CWE Mitigation:     All applicable CWEs addressed
 ### For Future Phases
 
 **Before Phase 2 (Semantic Analysis)**:
+
 - 🔴 **Must fix**: Type signature complexity (higher-order functions)
   - **Rationale**: Standard library traits require `(a -> b) -> f a -> f b`
   - **Effort**: ~2-3 days (type grammar refactor)
@@ -1011,6 +1100,7 @@ CWE Mitigation:     All applicable CWEs addressed
   - **Effort**: ~3 hours
 
 **Before Phase 4 (Module System)**:
+
 - 🟡 **Should fix**: Multi-method syntax validation
   - **Effort**: ~1 day (add separators or verify current grammar)
 
@@ -1018,6 +1108,7 @@ CWE Mitigation:     All applicable CWEs addressed
   - **Effort**: ~2 hours (add tests for existing rules)
 
 **Optional Enhancement**:
+
 - 💡 **Consider**: Match expressions in instances
   - **Rationale**: Better code examples, not technically required
   - **Effort**: ~2 days (expression integration)
@@ -1043,6 +1134,7 @@ CWE Mitigation:     All applicable CWEs addressed
 The trait system syntax implementation represents **senior-level engineering** with:
 
 **Strengths**:
+
 - ✅ Excellent documentation (865 lines, every limitation explained)
 - ✅ Strong security practices (9.2/10 score)
 - ✅ Good architectural foundations (extensible AST, clean grammar)
@@ -1050,6 +1142,7 @@ The trait system syntax implementation represents **senior-level engineering** w
 - ✅ No regressions (all existing tests pass)
 
 **Areas Requiring Attention**:
+
 - ⚠️ Test coverage gaps (0% error tests, 44% grammar coverage)
 - ⚠️ Code duplication (8 grammar rules can be reduced to 2)
 - ⚠️ Build process issues (parser regeneration)
@@ -1075,6 +1168,7 @@ Resolve high-priority blockers before merging to develop. The implementation is 
 **Confidence Level**: HIGH
 
 **Agent Breakdown**:
+
 - 📊 Factual Reviewer: Requirements verification
 - 🧪 QA Reviewer: Testing quality and coverage
 - 🏗️ Senior Engineer: Architecture and design
