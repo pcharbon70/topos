@@ -4,6 +4,8 @@
 
 Topos is a new functional programming language for the BEAM virtual machine that fundamentally grounds itself in category theory principles. Unlike traditional functional languages that add categorical concepts as libraries, Topos makes category theory the foundation from which all language features emerge naturally. This creates a unique synthesis where mathematical rigor meets practical distributed systems programming.
 
+**Note**: This guide focuses on core language features. For information about standard library abstractions (Functor, Monad, operators, etc.), see the [Standard Library Guide](../guides/standard-library-overview.md).
+
 ## Core Philosophy
 
 In Topos, **everything is a category**. Programs are compositions of morphisms (which we call "flows"), data flows through immutable transformations, and side effects are handled through algebraic effect handlers. The language treats the BEAM's actor model as a natural categorical structure, making distributed programming both type-safe and mathematically sound.
@@ -38,19 +40,20 @@ Flows are pure functions that represent morphisms between objects. They compose 
 ```topos
 -- Basic flow definition
 flow greet : User -> Text
-flow greet user = "Hello, " <> user.name
+flow greet user = Text.concat "Hello, " user.name
 
 -- Composition using pipe operator
 flow processUser : User -> Result User ValidationError
 flow processUser =
   validate |> normalize |> store
 
--- Type class constraints
-flow map : Functor f => (a -> b) -> f a -> f b
-flow map f = fmap f
+-- Type class constraints (see Standard Library guide for Functor/Monad)
+flow double : List Natural -> List Natural
+flow double xs = List.map (* 2) xs
 
--- Multiple constraints
-flow liftM2 : (Monad m, Applicative f) => (a -> b -> c) -> m a -> m b -> m c
+-- Polymorphic functions with constraints
+flow total : Num a => List a -> a
+flow total xs = List.fold (+) 0 xs
 ```
 
 ### 3. Trait System (Type Classes)
@@ -96,20 +99,16 @@ laws Functor f where
       fmap (h . g) x === (fmap h . fmap g) x
 ```
 
-#### Common Trait Operators
+#### Core Language Operators
 
-The trait system includes standard operators for common abstractions:
+The language includes minimal built-in operators:
 
 | Trait | Description | Keyword | Operator |
 |-------|-------------|---------|----------|
-| Setoid | Type class equality | `equals` | `===` |
-| Setoid | Type class inequality | `not_equals` | `!==` |
-| Ord | Less than | `less_than` | `<` |
-| Ord | Less than or equal | `less_than_or_equal` | `<=` |
-| Ord | Greater than | `greater_than` | `>` |
-| Ord | Greater than or equal | `greater_than_or_equal` | `>=` |
-| Semigroup | Associative append | `append` | `<>` |
-| Functor | Map over structure | `map` or `fmap` | `<$>` |
+| Setoid | Type-level equality | `equals` | `===` |
+| Setoid | Type-level inequality | `not_equals` | `!==` |
+
+**Note**: Comparison operators (`<`, `>`, `<=`, `>=`) are built into the language for convenience. Other trait-based operators (Functor `<$>`, Monad `>>=`, Semigroup `<>`, etc.) are defined in the [Standard Library](../guides/standard-library-overview.md).
 
 ### 4. Instances (Trait Implementations)
 
@@ -126,141 +125,28 @@ instance Setoid a => Setoid (List a) where
   equals (Cons x xs) (Cons y ys) = x === y && xs === ys
   equals _ _ = False
 
--- Higher-kinded instance
-instance Functor List where
-  fmap f Nil = Nil
-  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
-
 -- Instance for Maybe
-instance Functor Maybe where
-  fmap f None = None
-  fmap f (Some x) = Some (f x)
+instance Setoid a => Setoid (Maybe a) where
+  equals None None = True
+  equals (Some x) (Some y) = x === y
+  equals _ _ = False
 ```
 
 ### 5. Operators
 
-> **Note**: New section. Topos supports custom operator definitions with precedence and associativity control.
+Topos includes minimal built-in operators for type-level equality:
 
 ```topos
--- Define custom operators
-operator (<>) = append [infixl 6]
-operator (<$>) = fmap [infixl 4]
-operator (<*>) = apply [infixl 4]
-operator (>>=) = bind [infixl 1]
-
--- Postfix operators
-operator (!) = factorial [postfix]
-
--- Prefix operators
-operator (-) = negate [prefix]
-
--- Standard operators by category:
-
--- Equality (Setoid)
-operator (===) = equals
-operator (!==) = not_equals
-
--- Functor/Applicative/Monad
-operator (<$>) = fmap           -- Functor map
-operator (<*>) = apply          -- Applicative apply
-operator (>>=) = bind           -- Monadic bind
-operator (>>)  = then_          -- Monadic sequence
-operator (=<<) = bind_flipped   -- Flipped bind
-
--- Composition
-operator (>=>) = kleisli_compose        -- Kleisli (left-to-right)
-operator (<=<) = kleisli_compose_right  -- Kleisli (right-to-left)
-operator (>>>) = compose_forward        -- Category (left-to-right)
-operator (<<<) = compose_backward       -- Category (right-to-left)
-
--- Arrow
-operator (***) = parallel  -- Parallel composition on pairs
-operator (&&&) = fanout    -- Fanout (duplicate input)
-
--- Comonad
-operator (=>>) = extend_forward   -- Extend (left-to-right)
-operator (<<=) = extend_backward  -- Extend (right-to-left)
+-- Type-level equality (built into language)
+operator (===) = equals      -- Setoid equality
+operator (!==) = not_equals  -- Setoid inequality
 ```
 
-#### Operator Summary Tables
+Comparison operators (`<`, `>`, `<=`, `>=`) are also built into the language for convenience.
 
-**Equality & Ordering (Setoid, Ord)**
+**Note**: Other operators (Functor `<$>`, Monad `>>=`, Semigroup `<>`, composition operators, etc.) are defined in the [Standard Library](../guides/standard-library-overview.md) as library functions, not built into the language grammar.
 
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Type class equality | `equals` | `===` |
-| Type class inequality | `not_equals` | `!==` |
-| Less than | `less_than` | `<` |
-| Less than or equal | `less_than_or_equal` | `<=` |
-| Greater than | `greater_than` | `>` |
-| Greater than or equal | `greater_than_or_equal` | `>=` |
-
-**Algebraic Structures (Semigroup, Monoid)**
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Associative append | `append` | `<>` |
-
-**Functor, Applicative, Monad**
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Functor map | `map` or `fmap` | `<$>` |
-| Applicative apply | `apply` | `<*>` |
-| Monadic bind | `bind` | `>>=` |
-| Monadic sequence (ignore left) | `then_` | `>>` |
-| Flipped bind | `bind` (flipped args) | `=<<` |
-
-**Composition Operators**
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Kleisli composition (left-to-right) | N/A | `>=>` |
-| Kleisli composition (right-to-left) | N/A | `<=<` |
-| Category composition (left-to-right) | `compose` (flipped) | `>>>` |
-| Category composition (right-to-left) | `compose` | `<<<` |
-
-**Arrow Operators**
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Parallel composition on pairs | `parallel` | `***` |
-| Fanout (duplicate input) | `fanout` | `&&&` |
-
-**Comonad Operators**
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Extend (left-to-right) | `extend` (flipped) | `=>>` |
-| Extend (right-to-left) | `extend` | `<<=` |
-
-### 6. Built-in Functions
-
-> **Note**: New section. Core functions that are fundamental to category theory and functional programming.
-
-```topos
--- Identity morphism (required for all categories)
-flow identity : a -> a
-flow identity x = x
-
--- Constant function
-flow const : a -> b -> a
-flow const x _ = x
-
--- Function composition
-flow compose : (b -> c) -> (a -> b) -> (a -> c)
-flow compose g f = \x -> g (f x)
-
--- Flip argument order
-flow flip : (a -> b -> c) -> (b -> a -> c)
-flow flip f = \y x -> f x y
-
--- Monadic return (pure)
-flow return : Monad m => a -> m a
-flow pure : Applicative f => a -> f a
-```
-
-### 7. Categories and Modules
+### 6. Categories and Modules
 
 Modules organize code into categories with explicit structure. Modules can also group trait definitions and instances.
 
@@ -275,22 +161,26 @@ category Collections = {
 
   -- Morphisms (flows)
   export flow map : (a -> b) -> List a -> List b
-  export flow filter : (a -> b) -> List a -> List a
+  export flow filter : (a -> Bool) -> List a -> List a
+  export flow fold : (a -> b -> b) -> b -> List a -> b
 }
 
 -- Module for trait definitions
-module Category.Functor where
-  export trait Functor (f : Type -> Type)
-  export flow fmap : Functor f => (a -> b) -> f a -> f b
+module Data.Ordering where
+  export trait Ord a where
+    compare : a -> a -> Ordering
+
+  export shape Ordering = LT | EQ | GT
 
 -- Module for instances
-module Data.List.Instances where
-  import Category.Functor (Functor)
-  import Data.List (List)
+module Data.Natural.Instances where
+  import Data.Ordering (Ord, Ordering)
 
-  instance Functor List where
-    fmap f Nil = Nil
-    fmap f (Cons x xs) = Cons (f x) (fmap f xs)
+  instance Ord Natural where
+    compare x y =
+      if x < y then LT
+      else if x > y then GT
+      else EQ
 ```
 
 ### 8. Effects and Handlers
@@ -386,12 +276,13 @@ flow distance p1 p2 =
 
 -- Documentation for trait instances
 doc """
-  Functor instance for List satisfies:
-  - Identity: fmap identity == identity
-  - Composition: fmap (h . g) == fmap h . fmap g
+  Setoid instance for List ensures structural equality:
+  - Reflexivity: xs === xs
+  - Symmetry: xs === ys implies ys === xs
+  - Transitivity: xs === ys and ys === zs implies xs === zs
 """
-instance Functor List where
-  fmap = List.map
+instance Setoid a => Setoid (List a) where
+  equals = List.equal_by equals
 ```
 
 ### 12. Testing as Language Primitive
@@ -518,143 +409,7 @@ flow updateCity newCity =
 
 ## Complete Syntax Examples
 
-### Functors and Natural Transformations
-
-> **Note**: Updated to use trait system instead of ad-hoc functor keyword.
-
-```topos
--- Define Functor trait
-trait Functor (f : Type -> Type) where
-  fmap : (a -> b) -> f a -> f b
-
--- Operator for fmap
-operator (<$>) = fmap [infixl 4]
-
--- Functor laws
-laws Functor f where
-  property "identity" =
-    forall x : f a ->
-      fmap identity x === x
-
-  property "composition" =
-    forall x : f a, g : (a -> b), h : (b -> c) ->
-      fmap (h . g) x === (fmap h . fmap g) x
-
--- List instance
-instance Functor List where
-  fmap f Nil = Nil
-  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
-
--- Maybe instance
-instance Functor Maybe where
-  fmap f None = None
-  fmap f (Some x) = Some (f x)
-
--- Natural transformation
-natural ListToMaybe : List ~> Maybe where
-  transform : forall a. List a -> Maybe a
-  transform Nil = None
-  transform (Cons x _) = Some x
-
-  -- Naturality law
-  law naturality:
-    forall f : (a -> b), xs : List a ->
-      transform (fmap f xs) === fmap f (transform xs)
-
--- Functor composition
-shape Compose f g a = Compose (f (g a))
-
-instance (Functor f, Functor g) => Functor (Compose f g) where
-  fmap h (Compose fga) = Compose (fmap (fmap h) fga)
-```
-
-#### Functor Operators
-
-| Description | Keyword | Operator |
-|-------------|---------|----------|
-| Map function over structure | `fmap` or `map` | `<$>` |
-| Replace with constant (left) | N/A | `<$` |
-| Replace with constant (right) | N/A | `$>` |
-
-### Applicative and Monad
-
-> **Note**: New section showing the trait hierarchy for Applicative and Monad.
-
-```topos
--- Applicative extends Functor
-trait Applicative (f : Type -> Type) extends Functor f where
-  pure : a -> f a
-  apply : f (a -> b) -> f a -> f b
-
--- Operators
-operator (<*>) = apply [infixl 4]
-
--- Applicative laws
-laws Applicative f where
-  property "identity" =
-    forall v : f a ->
-      pure identity <*> v === v
-
-  property "composition" =
-    forall u : f (b -> c), v : f (a -> b), w : f a ->
-      pure compose <*> u <*> v <*> w === u <*> (v <*> w)
-
-  property "homomorphism" =
-    forall f : (a -> b), x : a ->
-      pure f <*> pure x === pure (f x)
-
-  property "interchange" =
-    forall u : f (a -> b), y : a ->
-      u <*> pure y === pure (\f -> f y) <*> u
-
--- Monad extends Applicative
-trait Monad (m : Type -> Type) extends Applicative m where
-  bind : m a -> (a -> m b) -> m b
-
--- Operators
-operator (>>=) = bind [infixl 1]
-operator (>>) = then_ [infixl 1]
-operator (=<<) = flip bind [infixr 1]
-
--- Kleisli composition
-flow (>=>) : Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
-flow (>=>) f g = \x -> f x >>= g
-
-operator (>=>) = kleisli_compose [infixr 1]
-operator (<=<) = flip (>=>) [infixr 1]
-
--- Monad laws
-laws Monad m where
-  property "left identity" =
-    forall a : a, k : (a -> m b) ->
-      return a >>= k === k a
-
-  property "right identity" =
-    forall m : m a ->
-      m >>= return === m
-
-  property "associativity" =
-    forall m : m a, k : (a -> m b), h : (b -> m c) ->
-      (m >>= k) >>= h === m >>= (\x -> k x >>= h)
-
--- Maybe Monad instance
-instance Monad Maybe where
-  bind None _ = None
-  bind (Some x) f = f x
-```
-
-#### Applicative and Monad Operators
-
-| Trait | Description | Keyword | Operator |
-|-------|-------------|---------|----------|
-| Functor | Map over structure | `fmap` or `map` | `<$>` |
-| Applicative | Lift pure value | `pure` | N/A |
-| Applicative | Apply wrapped function | `apply` | `<*>` |
-| Monad | Monadic bind | `bind` | `>>=` |
-| Monad | Monadic sequence (ignore left) | `then_` | `>>` |
-| Monad | Flipped bind | `bind` (flipped) | `=<<` |
-| Monad | Kleisli composition (L→R) | N/A | `>=>` |
-| Monad | Kleisli composition (R→L) | N/A | `<=<` |
+**Note**: Examples of standard library abstractions (Functor, Applicative, Monad, etc.) have been moved to the [Standard Library Guide](../guides/standard-library-overview.md). This section focuses on core language features.
 
 ### Session Types for Protocol Safety
 
@@ -1314,11 +1069,10 @@ end
 ### Category Theory Integration
 - **Objects and Morphisms**: Types and functions as categorical structures
 - **Traits and Instances**: Type classes with lawful abstractions
-- **Functors**: Type constructors with mapping operations (via Functor trait)
-- **Natural Transformations**: Structure-preserving conversions between functors
-- **Monads and Applicatives**: Computational contexts (via trait hierarchy)
 - **Higher-Kinded Types**: Type constructors as first-class with kind annotations
+- **Natural Transformations**: Structure-preserving conversions between type constructors
 - **Limits and Colimits**: Products, coproducts, and universal constructions
+- **Standard Library Abstractions**: Functor, Applicative, Monad (see Standard Library guide)
 
 ### Type System
 - **Trait System**: General abstraction mechanism with `trait`, `instance`, `extends`
@@ -1340,12 +1094,12 @@ end
 - **Trait-Based Effects**: Effects as type classes (e.g., MonadIO)
 
 ### Operators
-- **Custom Operators**: Define infix, prefix, postfix operators with precedence
-- **Equality Operators**: `===`, `!==` for Setoid equality
-- **Functor/Applicative/Monad**: `<$>`, `<*>`, `>>=`, `>>`, `=<<`
-- **Composition**: `>=>`, `<=<` (Kleisli), `>>>`, `<<<` (Category)
-- **Arrow**: `***` (parallel), `&&&` (fanout)
-- **Comonad**: `=>>`, `<<=` (extend)
+- **Type-Level Equality**: `===`, `!==` for Setoid equality (built into language)
+- **Comparison**: `<`, `>`, `<=`, `>=` (built into language for convenience)
+- **Standard Library Operators**: Available as library functions (see [Standard Library](../guides/standard-library-overview.md))
+  - Functor/Applicative/Monad: `fmap`/`<$>`, `apply`/`<*>`, `bind`/`>>=`
+  - Composition: Kleisli, Category morphisms
+  - Arrow, Comonad operators
 
 ### Testing and Verification
 - **Unit Tests**: Basic `test` blocks
@@ -1368,7 +1122,7 @@ end
 - **Property Testing**: Automated law verification
 - **Pattern Matching**: Advanced patterns with categorical semantics
 - **DSL Creation**: Grammar definition and metaprogramming
-- **Built-in Functions**: `identity`, `const`, composition operators
+- **Standard Library**: Rich functional abstractions (Functor, Monad, etc.)
 
 ### BEAM Integration
 - **Process Isolation**: Each actor has independent heap
@@ -1387,6 +1141,6 @@ Topos represents a unique synthesis of mathematical rigor and practical distribu
 - **Concurrent**: Leveraging actors and supervision
 - **Testable**: With built-in testing, property verification, and benchmarking
 - **Maintainable**: Through mandatory documentation and clear effects
-- **Composable**: Via trait system and categorical operators
+- **Composable**: Via trait system and pipe operator
 
 The online store example demonstrates how these features work together to create a robust, scalable, and maintainable system that leverages the best of functional programming, category theory, and the BEAM runtime.
