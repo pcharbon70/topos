@@ -19,7 +19,7 @@
 %%====================================================================
 
 setup() ->
-    topos_types:init_fresh_counter(),
+    % No global state to initialize with explicit state threading
     ok.
 
 teardown(_) ->
@@ -40,10 +40,10 @@ workflow_test_() ->
 
 test_identity_function() ->
     % Simulate type checking: let id = λx. x
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
     % Create type for λx. x: α₁ -> α₁
-    {tvar, Alpha} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     IdType = topos_types:tfun(
         topos_types:tvar(Alpha),
         topos_types:tvar(Alpha),
@@ -63,8 +63,8 @@ test_identity_function() ->
 
     % Look up and instantiate
     {ok, SchemeFound} = topos_type_env:lookup(Env, id),
-    Inst1 = topos_type_scheme:instantiate(SchemeFound),
-    Inst2 = topos_type_scheme:instantiate(SchemeFound),
+    {Inst1, State2} = topos_type_scheme:instantiate(SchemeFound, State1),
+    {Inst2, _State3} = topos_type_scheme:instantiate(SchemeFound, State2),
 
     % Both instantiations should be function types
     ?assertMatch({tfun, _, _, _}, Inst1),
@@ -85,10 +85,10 @@ test_identity_function() ->
 test_const_function() ->
     % Simulate: let const = λx. λy. x
     % Type: ∀α β. α -> β -> α
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
 
     ConstType = topos_types:tfun(
         topos_types:tvar(Alpha),
@@ -113,17 +113,18 @@ test_const_function() ->
     ?assertEqual("∀α1 α2. α1 -> α2 -> α1", PP),
 
     % Instantiate and verify fresh variables
-    Inst = topos_type_scheme:instantiate(ConstScheme),
+    StateInst = topos_type_state:new(),
+    {Inst, _StateInst1} = topos_type_scheme:instantiate(ConstScheme, StateInst),
     ?assertMatch({tfun, {tvar, _}, {tfun, {tvar, _}, {tvar, _}, _}, _}, Inst).
 
 test_compose_function() ->
     % Simulate: let compose = λf. λg. λx. f (g x)
     % Type: ∀α β γ. (β -> γ) -> (α -> β) -> α -> γ
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
-    {tvar, Gamma} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, State2} = topos_types:fresh_var(State1),
+    {{tvar, Gamma}, _State3} = topos_types:fresh_var(State2),
 
     % β -> γ
     FType = topos_types:tfun(
@@ -173,10 +174,10 @@ test_compose_function() ->
 test_map_function() ->
     % Simulate: let map = λf. λlist. ...
     % Type: ∀α β. (α -> β) -> List<α> -> List<β>
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
 
     % α -> β
     FType = topos_types:tfun(
@@ -231,10 +232,10 @@ subst_integration_test_() ->
 
 test_substitution_before_generalization() ->
     % Simulate unification: α₁ = Int, then generalize α₁ -> α₂
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
 
     % Create type: α₁ -> α₂
     Type = topos_types:tfun(
@@ -263,10 +264,10 @@ test_substitution_before_generalization() ->
 
 test_environment_with_substitution() ->
     % Build environment with multiple bindings, apply substitution
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
 
     % x: α₁
     XScheme = topos_type_scheme:mono(topos_types:tvar(Alpha)),
@@ -299,9 +300,9 @@ complex_test_() ->
 
 test_record_with_polymorphism() ->
     % ∀α. {x: α, y: α}
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
+    {{tvar, Alpha}, _State1} = topos_types:fresh_var(State0),
 
     RecordType = topos_types:trecord([
         {x, topos_types:tvar(Alpha)},
@@ -317,10 +318,10 @@ test_record_with_polymorphism() ->
 
 test_effectful_map() ->
     % ∀α β. (α -> β / {io}) -> List<α> -> List<β> / {io}
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
-    {tvar, Alpha} = topos_types:fresh_var(),
-    {tvar, Beta} = topos_types:fresh_var(),
+    {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
+    {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
 
     % α -> β / {io}
     FType = topos_types:tfun(
@@ -387,10 +388,10 @@ test_multiple_let_bindings() ->
     % let const = λx. λy. x in
     % let app = λf. λx. f x in
     % ...
-    topos_types:reset_fresh_counter(),
+    State0 = topos_type_state:new(),
 
     % id: ∀α. α -> α
-    {tvar, Id_Alpha} = topos_types:fresh_var(),
+    {{tvar, Id_Alpha}, State1} = topos_types:fresh_var(State0),
     IdType = topos_types:tfun(
         topos_types:tvar(Id_Alpha),
         topos_types:tvar(Id_Alpha),
@@ -400,8 +401,8 @@ test_multiple_let_bindings() ->
     IdScheme = topos_type_scheme:generalize(IdType, topos_type_env:ftv_env(EmptyEnv)),
 
     % const: ∀α β. α -> β -> α
-    {tvar, Const_Alpha} = topos_types:fresh_var(),
-    {tvar, Const_Beta} = topos_types:fresh_var(),
+    {{tvar, Const_Alpha}, State2} = topos_types:fresh_var(State1),
+    {{tvar, Const_Beta}, State3} = topos_types:fresh_var(State2),
     ConstType = topos_types:tfun(
         topos_types:tvar(Const_Alpha),
         topos_types:tfun(
@@ -414,8 +415,8 @@ test_multiple_let_bindings() ->
     ConstScheme = topos_type_scheme:generalize(ConstType, topos_type_env:ftv_env(EmptyEnv)),
 
     % app: ∀α β. (α -> β) -> α -> β
-    {tvar, App_Alpha} = topos_types:fresh_var(),
-    {tvar, App_Beta} = topos_types:fresh_var(),
+    {{tvar, App_Alpha}, State4} = topos_types:fresh_var(State3),
+    {{tvar, App_Beta}, _State5} = topos_types:fresh_var(State4),
     AppType = topos_types:tfun(
         topos_types:tfun(
             topos_types:tvar(App_Alpha),
@@ -443,9 +444,10 @@ test_multiple_let_bindings() ->
     {ok, ConstFound} = topos_type_env:lookup(Env, const),
     {ok, AppFound} = topos_type_env:lookup(Env, app),
 
-    IdInst = topos_type_scheme:instantiate(IdFound),
-    ConstInst = topos_type_scheme:instantiate(ConstFound),
-    AppInst = topos_type_scheme:instantiate(AppFound),
+    StateInst0 = topos_type_state:new(),
+    {IdInst, StateInst1} = topos_type_scheme:instantiate(IdFound, StateInst0),
+    {ConstInst, StateInst2} = topos_type_scheme:instantiate(ConstFound, StateInst1),
+    {AppInst, _StateInst3} = topos_type_scheme:instantiate(AppFound, StateInst2),
 
     % All should be function types
     ?assertMatch({tfun, _, _, _}, IdInst),
