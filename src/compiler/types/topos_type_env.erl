@@ -15,6 +15,7 @@
     lookup/2,
     extend/3,
     remove/2,
+    merge/2,
     ftv_env/1,
     from_list/1
 ]).
@@ -209,6 +210,19 @@ extend(Env, VarName, Scheme) ->
 -spec remove(env(), atom()) -> env().
 remove(Env, VarName) ->
     maps:remove(VarName, Env).
+
+%% @doc Merge two environments.
+%%
+%% Combines two environments, with bindings from Env2 taking precedence
+%% over bindings from Env1 in case of conflicts. Useful for combining
+%% bindings from multiple patterns.
+%%
+%% @param Env1 The first environment
+%% @param Env2 The second environment (takes precedence)
+%% @returns Merged environment
+-spec merge(env(), env()) -> env().
+merge(Env1, Env2) ->
+    maps:merge(Env1, Env2).
 
 %%====================================================================
 %% Free Type Variables
