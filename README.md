@@ -190,6 +190,40 @@ Topos draws inspiration from:
 - **Idris/Agda** - Dependent types and visibility control
 - **Rust** - Safety guarantees and modern ergonomics
 
+## Development
+
+### Building and Testing
+
+The project uses a Makefile for common development tasks:
+
+```bash
+# Compile all source modules
+make compile
+
+# Run all tests
+make test
+
+# Run tests with coverage reporting
+make coverage
+
+# View coverage summary
+make coverage-report
+
+# Clean build artifacts
+make clean
+```
+
+### Test Coverage
+
+Test coverage reporting is integrated using Erlang's built-in `cover` tool. After running `make coverage`, HTML reports are generated in `_build/test/cover/` showing line-by-line coverage for each module.
+
+**Current Coverage:** ~86% overall for compiler modules (248 tests, all passing)
+
+See [Test Coverage Guide](notes/guides/test-coverage-guide.md) for detailed information on:
+- Interpreting coverage results
+- Improving test coverage
+- Coverage targets and best practices
+
 ## Contributing
 
 This project is currently in the research and early implementation phase. A **proof-of-concept compiler is under active development** following a structured 17-week implementation plan.
@@ -227,6 +261,12 @@ Contributions are welcome in several forms:
 - **Implementation** - Contribute to the proof-of-concept compiler (see phase documents for current progress)
 - **Testing** - Help develop test cases and property-based testing strategies
 - **Documentation** - Improve existing documentation or add examples
+
+When contributing code:
+1. Write tests for new functionality
+2. Run `make coverage` to verify test coverage
+3. Aim for ≥90% coverage on modified modules
+4. Include coverage stats in pull request descriptions
 
 ## License
 

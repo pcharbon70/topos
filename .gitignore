@@ -5,6 +5,10 @@ ebin/
 
 # Generated files
 src/compiler/lexer/topos_lexer_gen.erl
+src/topos_parser.erl
+
+# Dependency lock files
+rebar.lock
 
 # Erlang
 .erl_crash.dump

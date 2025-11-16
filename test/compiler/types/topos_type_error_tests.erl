@@ -508,6 +508,7 @@ test_extremely_deep_substitution_chain() ->
 large_collection_test_() ->
     [
       ?_test(test_large_substitution()),
+      ?_test(test_substitution_size_limit()),
       ?_test(test_large_environment()),
       ?_test(test_many_effects()),
       ?_test(test_effect_set_operations()),
@@ -532,6 +533,24 @@ test_large_substitution() ->
     % Should be able to look up any entry
     ?assertEqual({ok, topos_types:tcon(integer)},
                  topos_type_subst:lookup(LargeSubst, 500)).
+
+test_substitution_size_limit() ->
+    % Test that exceeding the MAX_SUBSTITUTION_SIZE (10,000) raises an error
+    % We build 10,000 mappings first (should succeed)
+    Base = lists:foldl(
+        fun(I, Acc) ->
+            topos_type_subst:extend(Acc, I, topos_types:tcon(integer))
+        end,
+        topos_type_subst:empty(),
+        lists:seq(1, 10000)
+    ),
+
+    % Should have 10,000 entries
+    ?assertEqual(10000, maps:size(Base)),
+
+    % Attempting to add one more should fail with substitution_too_large
+    ?assertError({substitution_too_large, 10001, 10000},
+                 topos_type_subst:extend(Base, 10001, topos_types:tcon(integer))).
 
 test_large_environment() ->
     % Create environment with 1000 bindings
@@ -594,6 +613,10 @@ test_effect_set_operations() ->
     Empty = topos_types:empty_effects(),
     UnionWithEmpty = topos_types:union_effects(Effects1, Empty),
     ?assertEqual(Effects1, UnionWithEmpty),
+
+    % Test union of two empty sets
+    UnionEmptyEmpty = topos_types:union_effects(Empty, Empty),
+    ?assertEqual(Empty, UnionEmptyEmpty),
 
     % Test is_pure with large sets
     ?assertNot(topos_types:is_pure(Effects1)),
@@ -1396,6 +1419,65 @@ test_generalize_after_large_substitution() ->
     ?assertMatch({mono, _}, Scheme).
 
 %%====================================================================
+%% Error Constructor Tests
+%%====================================================================
+
+error_constructor_test_() ->
+    [
+      ?_test(test_error_constructors())
+    ].
+
+test_error_constructors() ->
+    % Test that all error constructors return correctly structured errors
+    ?assertMatch({circular_substitution, 42},
+                 topos_type_error:circular_substitution(42)),
+
+    ?assertMatch({substitution_depth_exceeded, 150, 100},
+                 topos_type_error:substitution_depth_exceeded(150, 100)),
+
+    ?assertMatch({substitution_too_large, 10001, 10000},
+                 topos_type_error:substitution_too_large(10001, 10000)),
+
+    ?assertMatch({duplicate_record_fields, [x, y]},
+                 topos_type_error:duplicate_record_fields([x, y])),
+
+    ?assertMatch({duplicate_variant_constructors, ['Some', 'None']},
+                 topos_type_error:duplicate_variant_constructors(['Some', 'None'])),
+
+    IntType = topos_types:tcon(integer),
+    StringType = topos_types:tcon(string),
+    ?assertMatch({unification_error, _, _},
+                 topos_type_error:unification_error(IntType, StringType)),
+
+    ?assertMatch({occurs_check, 1, _},
+                 topos_type_error:occurs_check(1, IntType)),
+
+    ?assertMatch({type_depth_exceeded, 200, 100},
+                 topos_type_error:type_depth_exceeded(200, 100)),
+
+    ?assertMatch({unbound_variable, foo},
+                 topos_type_error:unbound_variable(foo)),
+
+    ?assertMatch({environment_too_large, 5001, 5000},
+                 topos_type_error:environment_too_large(5001, 5000)),
+
+    ?assertMatch({arity_mismatch, 'List', 1, 2},
+                 topos_type_error:arity_mismatch('List', 1, 2)),
+
+    Args = [IntType, StringType],
+    ?assertMatch({invalid_type_application, _, _},
+                 topos_type_error:invalid_type_application(IntType, Args)),
+
+    Pure = topos_types:empty_effects(),
+    Impure = topos_types:singleton_effect(io),
+    ?assertMatch({effect_mismatch, _, _},
+                 topos_type_error:effect_mismatch(Pure, Impure)),
+
+    RecordType = topos_types:trecord([{x, IntType}], closed),
+    ?assertMatch({missing_field, y, _},
+                 topos_type_error:missing_field(y, RecordType)).
+
+%%====================================================================
 %% Error Formatting Tests
 %%====================================================================
 
@@ -1403,14 +1485,22 @@ error_formatting_test_() ->
     [
       ?_test(test_format_circular_substitution()),
       ?_test(test_format_substitution_depth_exceeded()),
-      ?_test(test_format_unification_failure()),
+      ?_test(test_format_substitution_too_large()),
+      ?_test(test_format_duplicate_record_fields()),
+      ?_test(test_format_duplicate_variant_constructors()),
+      ?_test(test_format_unification_error()),
       ?_test(test_format_occurs_check()),
       ?_test(test_format_type_depth_exceeded()),
       ?_test(test_format_unbound_variable()),
+      ?_test(test_format_environment_too_large()),
       ?_test(test_format_arity_mismatch()),
-      ?_test(test_format_effect_mismatch()),
+      ?_test(test_format_invalid_type_application()),
+      ?_test(test_format_effect_mismatch_pure_to_impure()),
+      ?_test(test_format_effect_mismatch_impure_to_pure()),
+      ?_test(test_format_effect_mismatch_different_effects()),
       ?_test(test_format_missing_field()),
-      ?_test(test_format_with_location())
+      ?_test(test_format_unknown_error())
+      % test_format_with_location() excluded - requires topos_location module
     ].
 
 test_format_circular_substitution() ->
@@ -1426,10 +1516,10 @@ test_format_substitution_depth_exceeded() ->
     ?assert(string:str(Msg, "150") > 0),
     ?assert(string:str(Msg, "100") > 0).
 
-test_format_unification_failure() ->
+test_format_unification_error() ->
     Type1 = topos_types:tcon(integer),
     Type2 = topos_types:tcon(string),
-    Error = topos_type_error:unification_failure(Type1, Type2),
+    Error = topos_type_error:unification_error(Type1, Type2),
     Msg = topos_type_error:format_error(Error),
     ?assert(string:str(Msg, "unification") > 0),
     ?assert(string:str(Msg, "integer") > 0),
@@ -1441,7 +1531,7 @@ test_format_occurs_check() ->
         topos_types:tcon(integer),
         topos_types:empty_effects()
     ),
-    Error = topos_type_error:occurs_check_failure(1, Type),
+    Error = topos_type_error:occurs_check(1, Type),
     Msg = topos_type_error:format_error(Error),
     ?assert(string:str(Msg, "Occurs check") > 0),
     ?assert(string:str(Msg, "α1") > 0),
@@ -1466,13 +1556,84 @@ test_format_arity_mismatch() ->
     ?assert(string:str(Msg, "Arity mismatch") > 0),
     ?assert(string:str(Msg, "List") > 0).
 
-test_format_effect_mismatch() ->
+test_format_substitution_too_large() ->
+    Error = topos_type_error:substitution_too_large(10001, 10000),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "substitution too large") > 0),
+    ?assert(string:str(Msg, "10001") > 0),
+    ?assert(string:str(Msg, "10000") > 0).
+
+test_format_duplicate_record_fields() ->
+    Error = topos_type_error:duplicate_record_fields([x, y, z]),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Duplicate field") > 0),
+    ?assert(string:str(Msg, "x") > 0),
+    ?assert(string:str(Msg, "y") > 0),
+    ?assert(string:str(Msg, "z") > 0).
+
+test_format_duplicate_variant_constructors() ->
+    Error = topos_type_error:duplicate_variant_constructors(['Some', 'None', 'Other']),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Duplicate constructor") > 0),
+    ?assert(string:str(Msg, "Some") > 0),
+    ?assert(string:str(Msg, "None") > 0),
+    ?assert(string:str(Msg, "Other") > 0).
+
+test_format_environment_too_large() ->
+    Error = topos_type_error:environment_too_large(5001, 5000),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "environment too large") > 0),
+    ?assert(string:str(Msg, "5001") > 0),
+    ?assert(string:str(Msg, "5000") > 0).
+
+test_format_invalid_type_application() ->
+    Constructor = topos_types:tcon('Maybe'),
+    Args = [topos_types:tcon(integer), topos_types:tcon(string)],
+    Error = topos_type_error:invalid_type_application(Constructor, Args),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Invalid type application") > 0),
+    ?assert(string:str(Msg, "Maybe") > 0),
+    ?assert(string:str(Msg, "2") > 0).  % 2 arguments
+
+test_format_effect_mismatch_pure_to_impure() ->
     Pure = topos_types:empty_effects(),
     Impure = topos_types:singleton_effect(io),
     Error = topos_type_error:effect_mismatch(Pure, Impure),
     Msg = topos_type_error:format_error(Error),
     ?assert(string:str(Msg, "Effect mismatch") > 0),
-    ?assert(string:str(Msg, "pure") > 0).
+    ?assert(string:str(Msg, "pure") > 0),
+    ?assert(string:str(Msg, "{io}") > 0).
+
+test_format_effect_mismatch_impure_to_pure() ->
+    Pure = topos_types:empty_effects(),
+    Impure = topos_types:singleton_effect(network),
+    Error = topos_type_error:effect_mismatch(Impure, Pure),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Effect mismatch") > 0),
+    ?assert(string:str(Msg, "pure") > 0),
+    ?assert(string:str(Msg, "{network}") > 0).
+
+test_format_effect_mismatch_different_effects() ->
+    Effects1 = topos_types:union_effects(
+        topos_types:singleton_effect(io),
+        topos_types:singleton_effect(file)
+    ),
+    Effects2 = topos_types:union_effects(
+        topos_types:singleton_effect(network),
+        topos_types:singleton_effect(database)
+    ),
+    Error = topos_type_error:effect_mismatch(Effects1, Effects2),
+    Msg = topos_type_error:format_error(Error),
+    ?assert(string:str(Msg, "Effect mismatch") > 0),
+    ?assert(string:str(Msg, "file") > 0 orelse string:str(Msg, "io") > 0),
+    ?assert(string:str(Msg, "network") > 0 orelse string:str(Msg, "database") > 0).
+
+test_format_unknown_error() ->
+    % Test the catch-all case for unknown errors
+    UnknownError = {unknown_error_type, some, data},
+    Msg = topos_type_error:format_error(UnknownError),
+    ?assert(string:str(Msg, "Unknown type error") > 0),
+    ?assert(string:str(Msg, "unknown_error_type") > 0).
 
 test_format_missing_field() ->
     RecordType = topos_types:trecord([

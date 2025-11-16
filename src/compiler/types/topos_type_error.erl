@@ -20,8 +20,8 @@
     substitution_depth_exceeded/2,
     duplicate_record_fields/1,
     duplicate_variant_constructors/1,
-    unification_failure/2,
-    occurs_check_failure/2,
+    unification_error/2,
+    occurs_check/2,
     type_depth_exceeded/2,
     unbound_variable/1,
     environment_too_large/2,
@@ -48,8 +48,8 @@
     {duplicate_variant_constructors, [atom()]} |
 
     % Unification errors
-    {unification_failure, topos_types:ty(), topos_types:ty()} |
-    {occurs_check_failure, topos_types:type_var_id(), topos_types:ty()} |
+    {unification_error, topos_types:ty(), topos_types:ty()} |
+    {occurs_check, topos_types:type_var_id(), topos_types:ty()} |
 
     % Type depth errors
     {type_depth_exceeded, non_neg_integer(), non_neg_integer()} |
@@ -113,7 +113,7 @@ format_error({duplicate_variant_constructors, Constructors}) ->
     ));
 
 %% Unification errors
-format_error({unification_failure, Type1, Type2}) ->
+format_error({unification_error, Type1, Type2}) ->
     Type1Str = topos_type_pp:pp_type(Type1),
     Type2Str = topos_type_pp:pp_type(Type2),
     lists:flatten(io_lib:format(
@@ -124,7 +124,7 @@ format_error({unification_failure, Type1, Type2}) ->
         [Type1Str, Type2Str]
     ));
 
-format_error({occurs_check_failure, VarId, Type}) ->
+format_error({occurs_check, VarId, Type}) ->
     TypeStr = topos_type_pp:pp_type(Type),
     lists:flatten(io_lib:format(
         "Occurs check failed: type variable α~p occurs in type ~ts~n"
@@ -252,15 +252,15 @@ duplicate_record_fields(Fields) ->
 duplicate_variant_constructors(Constructors) ->
     {duplicate_variant_constructors, Constructors}.
 
-%% @doc Create a unification failure error
--spec unification_failure(topos_types:ty(), topos_types:ty()) -> type_error().
-unification_failure(Type1, Type2) ->
-    {unification_failure, Type1, Type2}.
+%% @doc Create a unification error
+-spec unification_error(topos_types:ty(), topos_types:ty()) -> type_error().
+unification_error(Type1, Type2) ->
+    {unification_error, Type1, Type2}.
 
-%% @doc Create an occurs check failure error
--spec occurs_check_failure(topos_types:type_var_id(), topos_types:ty()) -> type_error().
-occurs_check_failure(VarId, Type) ->
-    {occurs_check_failure, VarId, Type}.
+%% @doc Create an occurs check error
+-spec occurs_check(topos_types:type_var_id(), topos_types:ty()) -> type_error().
+occurs_check(VarId, Type) ->
+    {occurs_check, VarId, Type}.
 
 %% @doc Create a type depth exceeded error
 -spec type_depth_exceeded(non_neg_integer(), non_neg_integer()) -> type_error().
