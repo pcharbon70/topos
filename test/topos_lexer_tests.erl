@@ -209,6 +209,50 @@ multiple_strings_test() ->
     ], Tokens).
 
 %%====================================================================
+%% String Length Limits (Security)
+%%====================================================================
+
+string_length_within_limit_test() ->
+    %% String with 8190 characters of content (+ 2 quotes = 8192 total)
+    Content = lists:duplicate(8190, $a),
+    Source = "\"" ++ Content ++ "\"",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertMatch([{string, 1, _}], Tokens).
+
+string_length_at_limit_test() ->
+    %% String with exactly 8190 chars content (at the limit)
+    Content = lists:duplicate(8190, $x),
+    Source = "\"" ++ Content ++ "\"",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    [{string, 1, Value}] = Tokens,
+    ?assertEqual(8190, length(Value)).
+
+string_length_exceeds_limit_test() ->
+    %% String with 8191 characters of content (exceeds limit)
+    Content = lists:duplicate(8191, $a),
+    Source = "\"" ++ Content ++ "\"",
+    Result = topos_lexer:tokenize(Source),
+    ?assertMatch({error, {1, topos_lexer, {user, {string_too_long, 1, 8193, 8192}}}}, Result).
+
+string_length_far_exceeds_limit_test() ->
+    %% String with 10000 characters (far exceeds limit)
+    Content = lists:duplicate(10000, $b),
+    Source = "\"" ++ Content ++ "\"",
+    Result = topos_lexer:tokenize(Source),
+    ?assertMatch({error, {1, topos_lexer, {user, {string_too_long, 1, 10002, 8192}}}}, Result).
+
+string_length_with_escapes_test() ->
+    %% Escapes count as their source length, not expanded length
+    %% "\n\n\n..." x 2000 = 4000 chars source, expands to 2000 chars
+    Escapes = lists:duplicate(4000, "\\n"),
+    Content = lists:flatten(Escapes),
+    Source = "\"" ++ Content ++ "\"",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    [{string, 1, Value}] = Tokens,
+    %% Value should be 4000 newlines
+    ?assertEqual(4000, length(Value)).
+
+%%====================================================================
 %% Test 1.1.1.4: Comment Recognition
 %%====================================================================
 
@@ -265,6 +309,130 @@ unclosed_comment_error_test() ->
 unmatched_comment_end_error_test() ->
     Result = topos_lexer:tokenize("x -} y"),
     ?assertMatch({error, {1, topos_lexer, unmatched_comment_end}}, Result).
+
+%%====================================================================
+%% Comment Depth Limits (Security)
+%%====================================================================
+
+comment_depth_within_limit_test() ->
+    %% 50 levels of nesting (well under limit of 100)
+    Opening = lists:flatten(lists:duplicate(50, "{- ")),
+    Closing = lists:flatten(lists:duplicate(50, " -}")),
+    Source = "x " ++ Opening ++ "deep" ++ Closing ++ " y",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertEqual([{lower_ident, 1, "x"}, {lower_ident, 1, "y"}], Tokens).
+
+comment_depth_at_limit_test() ->
+    %% Exactly 100 levels of nesting (at the limit)
+    Opening = lists:flatten(lists:duplicate(100, "{- ")),
+    Closing = lists:flatten(lists:duplicate(100, " -}")),
+    Source = "x " ++ Opening ++ "max" ++ Closing ++ " y",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertEqual([{lower_ident, 1, "x"}, {lower_ident, 1, "y"}], Tokens).
+
+comment_depth_exceeds_limit_test() ->
+    %% 101 levels of nesting (exceeds limit)
+    Opening = lists:flatten(lists:duplicate(101, "{- ")),
+    Closing = lists:flatten(lists:duplicate(101, " -}")),
+    Source = "x " ++ Opening ++ "too deep" ++ Closing ++ " y",
+    Result = topos_lexer:tokenize(Source),
+    ?assertMatch({error, {1, topos_lexer, {comment_depth_exceeded, 101, 100}}}, Result).
+
+comment_depth_far_exceeds_limit_test() ->
+    %% 200 levels of nesting (far exceeds limit)
+    Opening = lists:flatten(lists:duplicate(200, "{- ")),
+    Closing = lists:flatten(lists:duplicate(200, " -}")),
+    Source = "x " ++ Opening ++ "way too deep" ++ Closing ++ " y",
+    Result = topos_lexer:tokenize(Source),
+    ?assertMatch({error, {1, topos_lexer, {comment_depth_exceeded, 101, 100}}}, Result).
+
+comment_depth_gradual_increase_test() ->
+    %% Test that depth increases correctly through multiple opening delimiters
+    Source = "x {- L1 {- L2 {- L3 {- L4 {- L5 -} -} -} -} -} y",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertEqual([{lower_ident, 1, "x"}, {lower_ident, 1, "y"}], Tokens).
+
+comment_depth_with_content_test() ->
+    %% Ensure content between comment delimiters is properly skipped
+    Opening = lists:flatten(lists:duplicate(10, "{- level ")),
+    Closing = lists:flatten(lists:duplicate(10, " end -}")),
+    Source = "start " ++ Opening ++ "hidden content" ++ Closing ++ " finish",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertEqual([{lower_ident, 1, "start"}, {lower_ident, 1, "finish"}], Tokens).
+
+%%====================================================================
+%% UTF-8 and Unicode Validation (Security)
+%%====================================================================
+
+utf8_valid_ascii_test() ->
+    %% Plain ASCII should work
+    {ok, Tokens} = topos_lexer:tokenize("hello world"),
+    ?assertEqual([{lower_ident, 1, "hello"}, {lower_ident, 1, "world"}], Tokens).
+
+utf8_valid_binary_ascii_test() ->
+    %% Binary ASCII input
+    {ok, Tokens} = topos_lexer:tokenize(<<"hello world">>),
+    ?assertEqual([{lower_ident, 1, "hello"}, {lower_ident, 1, "world"}], Tokens).
+
+utf8_valid_unicode_in_string_test() ->
+    %% UTF-8 should work in string literals (using Chinese characters)
+    Binary = <<"\"Hello ", 228, 184, 150, 231, 149, 140, "\"">>,  % "Hello 世界" in UTF-8
+    {ok, Tokens} = topos_lexer:tokenize(Binary),
+    ?assertMatch([{string, 1, _}], Tokens).
+
+utf8_invalid_byte_sequence_test() ->
+    %% Invalid UTF-8: truncated multi-byte sequence
+    Binary = <<"hello ", 16#C3, " world">>,  % Incomplete 2-byte sequence
+    Result = topos_lexer:tokenize(Binary),
+    ?assertMatch({error, {0, topos_lexer, {invalid_utf8, _}}}, Result).
+
+utf8_invalid_continuation_byte_test() ->
+    %% Invalid UTF-8: invalid continuation byte
+    Binary = <<"hello ", 16#80, " world">>,  % Standalone continuation byte
+    Result = topos_lexer:tokenize(Binary),
+    ?assertMatch({error, {0, topos_lexer, {invalid_utf8, _}}}, Result).
+
+utf8_overlong_encoding_test() ->
+    %% Invalid UTF-8: overlong encoding (security issue!)
+    %% Overlong encoding of '/' (U+002F) as 2-byte sequence
+    Binary = <<16#C0, 16#AF>>,  % Should be rejected
+    Result = topos_lexer:tokenize(Binary),
+    ?assertMatch({error, {0, topos_lexer, {invalid_utf8, _}}}, Result).
+
+unicode_surrogate_pair_test() ->
+    %% Invalid: UTF-16 surrogate code points
+    Result = topos_lexer:tokenize([16#D800]),  % High surrogate
+    ?assertMatch({error, {0, topos_lexer, {invalid_unicode, 1, 16#D800, _}}}, Result).
+
+unicode_beyond_range_test() ->
+    %% Invalid: Code point beyond valid Unicode range
+    Result = topos_lexer:tokenize([16#110000]),  % Beyond U+10FFFF
+    ?assertMatch({error, {0, topos_lexer, {invalid_unicode, 1, 16#110000, _}}}, Result).
+
+unicode_negative_codepoint_test() ->
+    %% Invalid: Negative code point
+    Result = topos_lexer:tokenize([-1]),
+    ?assertMatch({error, {0, topos_lexer, {invalid_unicode, 1, -1, _}}}, Result).
+
+unicode_valid_bmp_test() ->
+    %% Valid: Basic Multilingual Plane characters
+    Source = [16#0041, 16#0042, 16#0043],  % "ABC"
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertEqual([{upper_ident, 1, "ABC"}], Tokens).
+
+unicode_valid_supplementary_test() ->
+    %% Valid: Supplementary plane characters in strings
+    %% U+1F30D is 🌍 (Earth emoji)
+    Source = "\"" ++ [16#1F30D] ++ "\"",
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    [{string, 1, Value}] = Tokens,
+    ?assertEqual([16#1F30D], Value).
+
+unicode_valid_private_use_test() ->
+    %% Valid: Private Use Area (U+E000-U+F8FF)
+    Source = [34, 16#E000, 16#F8FF, 34],  % "..." with private use chars
+    {ok, Tokens} = topos_lexer:tokenize(Source),
+    ?assertMatch([{string, 1, _}], Tokens).
 
 mixed_comments_test() ->
     Input = "x -- single line\n"
