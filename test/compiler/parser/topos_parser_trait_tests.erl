@@ -2,6 +2,9 @@
 -include_lib("eunit/include/eunit.hrl").
 -include("src/compiler/parser/topos_ast.hrl").
 
+%% Import shared parser test helper
+-import(topos_parser_test_helpers, [parse_single_decl/1]).
+
 %%====================================================================
 %% Test Helper Functions - Eliminate Boilerplate (DRY Principle)
 %%====================================================================
@@ -84,16 +87,7 @@ make_multi_arg_instance_tokens(TraitName, TypeNames, MethodName, MethodParam, Me
         {'end', 3}
     ].
 
-%% @doc Parse tokens and extract the single declaration
-%% Before: 4-5 lines in every test
-%% After: 1 function call
-parse_single_decl(Tokens) ->
-    {ok, Result} = topos_parser:parse(Tokens),
-    ?assertMatch({module, undefined, [], [], [_], _}, Result),
-    {module, _, _, _, [Decl], _} = Result,
-    Decl.
-
-
+%% Note: parse_single_decl/1 now imported from topos_parser_test_helpers
 
 %% @doc Create assertion helper for trait validation
 assert_trait_structure(TraitDecl, ExpectedName, ExpectedTypeParam, ExpectedMethod) ->

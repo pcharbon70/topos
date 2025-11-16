@@ -1,6 +1,9 @@
 -module(topos_parser_pattern_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+%% Import shared parser test helpers
+-import(topos_parser_test_helpers, [parse_flow/1, get_patterns/1, get_guards/1]).
+
 %%====================================================================
 %% Pattern Matching Parser Tests
 %%====================================================================
@@ -27,28 +30,9 @@
 %%====================================================================
 
 %%====================================================================
-%% Helper Functions
+%% Helper Functions - Imported from topos_parser_test_helpers
 %%====================================================================
-
-%% @doc Parse a Topos flow declaration from source code
-parse_flow(Source) ->
-    {ok, Tokens} = topos_lexer:tokenize(Source),
-    {ok, AST} = topos_parser:parse(Tokens),
-    {module, _, _, _, [FlowDecl], _} = AST,
-    FlowDecl.
-
-%% @doc Extract the pattern list from a flow declaration
-get_patterns(FlowDecl) ->
-    {flow_decl, _Name, _Type, [Clause], _Loc} = FlowDecl,
-    {flow_clause, Patterns, _Guards, _Body, _ClauseLoc} = Clause,
-    Patterns.
-
-%% @doc Extract guards from a flow declaration
-get_guards(FlowDecl) ->
-    {flow_decl, _Name, _Type, [Clause], _Loc} = FlowDecl,
-    {flow_clause, _Patterns, Guards, _Body, _ClauseLoc} = Clause,
-    Guards.
-
+%% parse_flow/1, get_patterns/1, get_guards/1
 %%====================================================================
 %% Section 1: Variable Patterns
 %%====================================================================

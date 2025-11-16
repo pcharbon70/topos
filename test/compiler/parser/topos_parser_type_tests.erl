@@ -1,6 +1,9 @@
 -module(topos_parser_type_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+%% Import shared parser test helpers
+-import(topos_parser_test_helpers, [parse_type_sig/1]).
+
 %%====================================================================
 %% Type Expression Parser Tests
 %%====================================================================
@@ -28,18 +31,9 @@
 %%====================================================================
 
 %%====================================================================
-%% Helper Functions
+%% Helper Functions - Imported from topos_parser_test_helpers
 %%====================================================================
-
-%% @doc Parse a Topos flow with type signature from source code
-parse_type_sig(Source) ->
-    FullSource = Source ++ "\nflow f = x",
-    {ok, Tokens} = topos_lexer:tokenize(FullSource),
-    {ok, AST} = topos_parser:parse(Tokens),
-    {module, _, _, _, [FlowDecl], _} = AST,
-    {flow_decl, _Name, TypeSig, _Clauses, _Loc} = FlowDecl,
-    TypeSig.
-
+%% parse_type_sig/1
 %%====================================================================
 %% Section 1: Type Variables
 %%====================================================================
