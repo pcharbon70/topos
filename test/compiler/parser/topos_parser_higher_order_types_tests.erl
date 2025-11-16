@@ -38,7 +38,7 @@ parse_simple_parenthesized_function_test() ->
     ],
     {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [TraitDecl], _} = Result,
-    #trait_decl{name = 'Functor', type_params = ["f"], methods = Methods} = TraitDecl,
+    #trait_decl{name = 'Functor', type_params = [f], methods = Methods} = TraitDecl,
 
     %% Verify method signature
     [{fmap, TypeSig}] = Methods,
@@ -48,8 +48,8 @@ parse_simple_parenthesized_function_test() ->
     ?assertMatch({type_fun, _, _, _}, TypeSig),
 
     %% First argument should be a function type (a -> b)
-    {type_fun, FirstArg, Rest, _} = TypeSig,
-    ?assertMatch({type_var, "a", _}, FirstArg).
+    {type_fun, FirstArg, _Rest, _} = TypeSig,
+    ?assertMatch({type_fun, _, _, _}, FirstArg).
 
 parse_monad_bind_signature_test() ->
     %% trait Monad m where
@@ -78,7 +78,7 @@ parse_monad_bind_signature_test() ->
     ],
     {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [TraitDecl], _} = Result,
-    #trait_decl{name = 'Monad', type_params = ["m"], methods = Methods} = TraitDecl,
+    #trait_decl{name = 'Monad', type_params = [m], methods = Methods} = TraitDecl,
 
     %% Verify method signature
     [{bind, TypeSig}] = Methods,
@@ -115,7 +115,7 @@ parse_foldable_signature_test() ->
     ],
     {ok, Result} = topos_parser:parse(Tokens),
     {module, _, _, _, [TraitDecl], _} = Result,
-    #trait_decl{name = 'Foldable', type_params = ["t"], methods = Methods} = TraitDecl,
+    #trait_decl{name = 'Foldable', type_params = [t], methods = Methods} = TraitDecl,
 
     [{foldl, TypeSig}] = Methods,
     ?assertMatch({type_fun, _, _, _}, TypeSig).
@@ -192,7 +192,7 @@ parse_tuple_type_two_elements_test() ->
     %% Should be: (a, b) -> a
     {type_fun, TupleType, RetType, _} = TypeSig,
     ?assertMatch({type_tuple, [_, _], _}, TupleType),
-    ?assertMatch({type_var, "a", _}, RetType).
+    ?assertMatch({type_var, a, _}, RetType).
 
 parse_tuple_type_three_elements_test() ->
     %% trait Triple where

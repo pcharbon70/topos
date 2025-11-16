@@ -38,7 +38,7 @@ Nonterminals
   perform_expr try_with_expr
   handler_clauses handler_clause operation_cases operation_case
   effect_list effect_list_nonempty
-  type_expr type_expr_primary type_expr_app
+  type_expr type_expr_primary type_expr_app type_expr_primary_list
   type_list type_expr_list type_record_fields type_record_field
   .
 
@@ -802,22 +802,30 @@ type_expr -> type_expr_app : '$1'.
 
 
 %% Type application (higher precedence than function arrows)
-%% Supports both type constructors (Maybe a) and type variables (f a) for higher-kinded types
-type_expr_app -> upper_ident type_expr_primary :
+%% Supports both type constructors (Maybe a, Either a b, Triple a b c)
+%% and type variables (f a, c a a) for higher-kinded types
+type_expr_app -> upper_ident type_expr_primary_list :
     {type_app,
         {type_con, extract_atom('$1'), extract_location('$1')},
-        ['$2'],
+        '$2',
         extract_location('$1')}.
 
 %% Type application with type variable (for higher-kinded types like f a)
-type_expr_app -> lower_ident type_expr_primary :
+type_expr_app -> lower_ident type_expr_primary_list :
     {type_app,
         {type_var, extract_atom('$1'), extract_location('$1')},
-        ['$2'],
+        '$2',
         extract_location('$1')}.
 
 type_expr_app -> type_expr_primary :
     '$1'.
+
+%% Multiple type arguments (one or more, space-separated)
+%% Examples: a, Int, (a -> b), a b, a b c
+type_expr_primary_list -> type_expr_primary :
+    ['$1'].
+type_expr_primary_list -> type_expr_primary type_expr_primary_list :
+    ['$1' | '$2'].
 
 %% Primary type expressions (atomic)
 type_expr_primary -> lower_ident :

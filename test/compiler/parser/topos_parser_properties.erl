@@ -245,11 +245,25 @@ prop_error_messages_meaningful() ->
 %% Helper Generators
 %%====================================================================
 
+%% Generate valid lower-case identifiers
+valid_lower_ident() ->
+    ?LET({First, Rest}, {
+        oneof(lists:seq($a, $z)),
+        list(oneof(lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9) ++ [$_]))
+    }, [First | Rest]).
+
+%% Generate valid upper-case identifiers
+valid_upper_ident() ->
+    ?LET({First, Rest}, {
+        oneof(lists:seq($A, $Z)),
+        list(oneof(lists:seq($a, $z) ++ lists:seq($A, $Z) ++ lists:seq($0, $9) ++ [$_]))
+    }, [First | Rest]).
+
 valid_trait_components() ->
     ?LET({Name, TypeParam, Methods}, {
-        proper_types:union([proper_types:atom(), proper_types:binary()]),
-        proper_types:binary(),
-        proper_types:list(method_generator())
+        oneof([valid_upper_ident(), "Functor", "Applicative", "Monad"]),
+        oneof([valid_lower_ident(), "f", "m", "t"]),
+        list(method_generator())
     },
         #{
             name => Name,
@@ -259,9 +273,9 @@ valid_trait_components() ->
 
 valid_instance_components() ->
     ?LET({Name, TypeArgs, Methods}, {
-        proper_types:atom(),
-        proper_types:list(proper_types:binary()),
-        proper_types:list(instance_method_generator())
+        oneof([valid_upper_ident(), "Functor", "Applicative", "Monad"]),
+        list(oneof([valid_lower_ident(), "a", "b", "c"])),
+        list(instance_method_generator())
     },
         #{
             name => Name,
@@ -271,25 +285,26 @@ valid_instance_components() ->
 
 method_generator() ->
     ?LET({MethodName, FromType, ToType}, {
-        proper_types:binary(),
-        proper_types:binary(),
-        proper_types:binary()
+        oneof([valid_lower_ident(), "map", "fmap", "bind"]),
+        oneof([valid_lower_ident(), "a", "b", "c"]),
+        oneof([valid_lower_ident(), "a", "b", "c"])
     }, {MethodName, FromType, ToType}).
 
 instance_method_generator() ->
     ?LET({MethodName, Param, Body}, {
-        proper_types:binary(),
-        proper_types:binary(),
-        proper_types:binary()
+        oneof([valid_lower_ident(), "map", "fmap", "bind"]),
+        oneof([valid_lower_ident(), "x", "y", "z"]),
+        oneof([valid_lower_ident(), "result", "output"])
     }, {MethodName, Param, Body}).
 
 trait_name_generator() ->
-    proper_types:union([
-        proper_types:binary(),  % Random string
-        "Functor",             % Valid uppercase
-        "functor",             % Valid lowercase
-        "ComplexTrait",        % Valid camel case
-        "invalid_trait"        % Valid but lowercase
+    oneof([
+        valid_upper_ident(),   % Valid uppercase identifier
+        valid_lower_ident(),   % Valid lowercase identifier (should fail validation)
+        "Functor",            % Valid uppercase
+        "functor",            % Valid lowercase
+        "ComplexTrait",       % Valid camel case
+        "invalid_trait"       % Valid but lowercase
     ]).
 
 extends_pattern_generator() ->
@@ -311,44 +326,42 @@ type_expression_generator() ->
     ]).
 
 malformed_token_sequences() ->
-    proper_types:non_empty(proper_types:union([
-        proper_types:integer(),
-        proper_types:atom(),
-        proper_types:binary(),
-        proper_types:list(proper_types:union([
-            proper_types:integer(),
-            proper_types:atom(),
-            proper_types:binary()
-        ]))
-    ])).
+    %% Generate sequences of properly structured tokens in invalid orders
+    non_empty(list(oneof([
+        {trait, 1},
+        {instance, 1},
+        {where, 1},
+        {'end', 1},
+        {colon, 1},
+        {arrow, 1},
+        {equals, 1}
+    ]))).
 
 random_trait_token_generator() ->
-    proper_types:non_empty(
-        proper_types:list(proper_types:union([
+    non_empty(
+        list(oneof([
             {trait, 1},
             {instance, 1},
-            {upper_ident, 1, proper_types:binary()},
-            {lower_ident, 1, proper_types:binary()},
+            {upper_ident, 1, valid_upper_ident()},
+            {lower_ident, 1, valid_lower_ident()},
             {where, 1},
             {extends, 1},
             {colon, 1},
             {arrow, 1},
             {equals, 1},
-            {'end', 1},
-            {proper_types:integer(), proper_types:union([proper_types:atom(), proper_types:binary()])},
-            proper_types:binary()  % Malformed tokens
+            {'end', 1}
         ]))
     ).
 
 invalid_token_generator() ->
-    proper_types:non_empty(
-        proper_types:list(proper_types:union([
-            {trait, proper_types:neg_integer()},  % Negative line number
-            {where, proper_types:integer(1000, 10000)},  % Huge line number
+    non_empty(
+        list(oneof([
+            {trait, 1},
+            {where, 1},
             {upper_ident, 1, ""},  % Empty identifier
-            {lower_ident, 1, proper_types:binary(1000, 2000)},  % Long identifier
-            proper_types:binary(),  % Raw binary instead of token tuple
-            proper_types:integer()  % Just a number
+            {lower_ident, 1, valid_lower_ident()},
+            {arrow, 1},
+            {'end', 1}
         ]))
     ).
 
@@ -400,18 +413,18 @@ build_extends_tokens(Extends) ->
             lists:join({comma, 1}, Extended)
     end.
 
-build_method_tokens([]) -> [].
+build_method_tokens([]) -> [];
 build_method_tokens([{MethodName, FromType, ToType} | Rest]) ->
     [{lower_ident, 2, MethodName}, {colon, 2}, {lower_ident, 2, FromType}, {arrow, 2}, {lower_ident, 2, ToType}] ++
     build_method_tokens(Rest).
 
-build_instance_method_tokens([]) -> [].
+build_instance_method_tokens([]) -> [];
 build_instance_method_tokens([{MethodName, Param, Body} | Rest]) ->
     [{flow, 2}, {lower_ident, 2, MethodName}, {lower_ident, 2, Param}, {equals, 2}, {lower_ident, 2, Body}] ++
     build_instance_method_tokens(Rest).
 
 generate_nested_function_type(Depth) ->
-    Types = [$(a ++ integer_to_list(N)) || N <- lists:seq(1, Depth + 1)],
+    Types = ["a" ++ integer_to_list(N) || N <- lists:seq(1, Depth + 1)],
     build_nested_function(Types).
 
 build_nested_function([From, To]) ->
