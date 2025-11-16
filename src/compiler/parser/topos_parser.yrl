@@ -57,7 +57,8 @@ Terminals
 
   %% Operators
   pipe_right bind arrow double_arrow concat
-  eq neq lte gte lt gt
+  setoid_eq setoid_neq eq neq lte gte lt gt
+  fmap ap then_op bind_flip kleisli_lr kleisli_rl
   'or' 'and' cons left_arrow range
   colon equals pipe
   plus minus star slash dot
@@ -85,17 +86,29 @@ Rootsymbol topos_module.
 %%============================================================================
 
 Right    100 arrow.           %% Type-level function arrow (right-assoc)
-Right    150 pipe_right.      %% |> pipe operator
-Right    160 bind.            %% >>= Kleisli composition
 
-Nonassoc 300 eq neq.          %% == /=
+%% Monadic operators (lowest precedence for sequencing)
+Left     150 bind bind_flip then_op.  %% >>= =<< >>
+Right    152 kleisli_lr kleisli_rl.   %% >=> <=< (right-assoc composition)
+
+Right    160 pipe_right.      %% |> pipe operator
+
+%% Equality operators (non-associative)
+Nonassoc 300 eq neq setoid_eq setoid_neq.  %% == /= === !==
 Nonassoc 310 lt gt lte gte.   %% < > <= >=
-Right    350 concat.          %% <> (right-assoc for strings)
 
+%% Semigroup append (right-assoc for list concatenation)
+Right    350 concat.          %% <>
+
+%% Functor and Applicative operators
+Left     370 fmap ap.         %% <$> <*>
+
+%% Arithmetic operators
 Left     400 plus minus.      %% + -
 Left     500 star slash.      %% * /
 
-Left     600 dot.             %% Record field access
+%% Record field access (highest precedence)
+Left     600 dot.             %% .
 
 %%============================================================================
 %% Parser Conflicts Documentation
@@ -623,6 +636,12 @@ expr -> expr eq expr :
 expr -> expr neq expr :
     {binary_op, neq, '$1', '$3', extract_location('$2')}.
 
+expr -> expr setoid_eq expr :
+    {binary_op, setoid_eq, '$1', '$3', extract_location('$2')}.
+
+expr -> expr setoid_neq expr :
+    {binary_op, setoid_neq, '$1', '$3', extract_location('$2')}.
+
 expr -> expr lt expr :
     {binary_op, lt, '$1', '$3', extract_location('$2')}.
 
@@ -634,6 +653,26 @@ expr -> expr lte expr :
 
 expr -> expr gte expr :
     {binary_op, gte, '$1', '$3', extract_location('$2')}.
+
+%% Category theory operators
+expr -> expr fmap expr :
+    {binary_op, fmap, '$1', '$3', extract_location('$2')}.
+
+expr -> expr ap expr :
+    {binary_op, ap, '$1', '$3', extract_location('$2')}.
+
+%% Monadic operators
+expr -> expr then_op expr :
+    {binary_op, then_op, '$1', '$3', extract_location('$2')}.
+
+expr -> expr bind_flip expr :
+    {binary_op, bind_flip, '$1', '$3', extract_location('$2')}.
+
+expr -> expr kleisli_lr expr :
+    {binary_op, kleisli_lr, '$1', '$3', extract_location('$2')}.
+
+expr -> expr kleisli_rl expr :
+    {binary_op, kleisli_rl, '$1', '$3', extract_location('$2')}.
 
 expr -> expr_app : '$1'.
 

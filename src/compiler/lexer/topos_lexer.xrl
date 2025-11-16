@@ -84,12 +84,21 @@ perform : {token, {perform, TokenLine}}.
 try : {token, {'try', TokenLine}}.
 with : {token, {with, TokenLine}}.
 
-%% Two-character operators (must come before single-character)
+%% Two-character and three-character operators (must come before single-character)
+%% Ordering is critical: longer operators must come before shorter ones
 \|> : {token, {pipe_right, TokenLine}}.
 >>= : {token, {bind, TokenLine}}.
+>> : {token, {then_op, TokenLine}}.
+>=> : {token, {kleisli_lr, TokenLine}}.
 -> : {token, {arrow, TokenLine}}.
 => : {token, {double_arrow, TokenLine}}.
+=<< : {token, {bind_flip, TokenLine}}.
+<=< : {token, {kleisli_rl, TokenLine}}.
+<\$> : {token, {fmap, TokenLine}}.
+<\*> : {token, {ap, TokenLine}}.
 <> : {token, {concat, TokenLine}}.
+=== : {token, {setoid_eq, TokenLine}}.
+!== : {token, {setoid_neq, TokenLine}}.
 == : {token, {eq, TokenLine}}.
 /= : {token, {neq, TokenLine}}.
 <= : {token, {lte, TokenLine}}.
