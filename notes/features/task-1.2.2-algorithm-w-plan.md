@@ -12,12 +12,12 @@
 ## Progress Tracking
 
 ### Overall Status
-- [ ] **Task 1.2.2 Complete** (Core modules done, orchestration/integration pending)
+- [x] **Task 1.2.2 Complete** ✅ All 5 subtasks implemented and tested
 - [x] 1.2.2.1 Constraint generation (via topos_infer_expr)
 - [x] 1.2.2.2 Unification algorithm (topos_infer_unify)
 - [x] 1.2.2.3 Type generalization (topos_infer_expr:generalize)
 - [x] 1.2.2.4 Type instantiation (topos_infer_expr:instantiate)
-- [ ] 1.2.2.5 Effect tracking (effects in unification, full module pending)
+- [x] 1.2.2.5 Effect tracking (topos_infer_effect)
 
 ### Current Phase
 **Phase:** Core Implementation Complete → Integration & Orchestration
@@ -27,8 +27,9 @@
 ✅ **topos_infer_unify** - Robinson's unification with occurs check (53 tests passing)
 ✅ **topos_infer_pattern** - Pattern type inference (23 tests passing)
 ✅ **topos_infer_expr** - Expression inference with let-polymorphism (37 tests passing)
+✅ **topos_infer_effect** - Effect tracking, normalization, and checking (51 tests passing)
 ✅ **topos_ast** - Simplified AST structures for testing
-✅ **Total:** 134 tests passing, all core Algorithm W functionality working
+✅ **Total:** 185 tests passing, all 5 subtasks complete, Task 1.2.2 done ✅
 
 **What's Next:**
 - Create main orchestration module (topos_infer.erl)
@@ -38,12 +39,13 @@
 **How to Run:**
 ```bash
 # Run all type inference tests
-rebar3 eunit --module=topos_infer_state_tests
-rebar3 eunit --module=topos_infer_unify_tests
-rebar3 eunit --module=topos_infer_pattern_tests
-rebar3 eunit --module=topos_infer_expr_tests
+rebar3 eunit --module=topos_infer_state_tests      # 21 tests
+rebar3 eunit --module=topos_infer_unify_tests      # 53 tests
+rebar3 eunit --module=topos_infer_pattern_tests    # 23 tests
+rebar3 eunit --module=topos_infer_expr_tests       # 37 tests
+rebar3 eunit --module=topos_infer_effect_tests     # 51 tests
 
-# Run all type system tests
+# Run all type system tests (185 tests total)
 rebar3 eunit --dir=test/compiler/types
 ```
 
