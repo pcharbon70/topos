@@ -39,7 +39,7 @@ Nonterminals
   handler_clauses handler_clause operation_cases operation_case
   effect_list effect_list_nonempty
   type_expr type_expr_primary type_expr_app
-  type_list type_record_fields type_record_field
+  type_list type_expr_list type_record_fields type_record_field
   .
 
 %%============================================================================
@@ -802,9 +802,17 @@ type_expr -> type_expr_app : '$1'.
 
 
 %% Type application (higher precedence than function arrows)
+%% Supports both type constructors (Maybe a) and type variables (f a) for higher-kinded types
 type_expr_app -> upper_ident type_expr_primary :
     {type_app,
         {type_con, extract_atom('$1'), extract_location('$1')},
+        ['$2'],
+        extract_location('$1')}.
+
+%% Type application with type variable (for higher-kinded types like f a)
+type_expr_app -> lower_ident type_expr_primary :
+    {type_app,
+        {type_var, extract_atom('$1'), extract_location('$1')},
         ['$2'],
         extract_location('$1')}.
 
@@ -818,11 +826,14 @@ type_expr_primary -> lower_ident :
 type_expr_primary -> upper_ident :
     {type_con, extract_atom('$1'), extract_location('$1')}.
 
+%% Parenthesized type expression (no comma)
 type_expr_primary -> lparen type_expr rparen :
     '$2'.
 
-type_expr_primary -> lparen type_list rparen :
-    {type_tuple, '$2', extract_location('$1')}.
+%% Tuple type (requires comma - minimum 2 elements)
+%% This eliminates ambiguity with parenthesized types
+type_expr_primary -> lparen type_expr comma type_expr_list rparen :
+    {type_tuple, ['$2' | '$4'], extract_location('$1')}.
 
 type_expr_primary -> lbrace rbrace :
     {type_record, [], undefined, extract_location('$1')}.
@@ -830,6 +841,13 @@ type_expr_primary -> lbrace rbrace :
 type_expr_primary -> lbrace type_record_fields rbrace :
     {type_record, '$2', undefined, extract_location('$1')}.
 
+%% Type expression list (for tuples - at least one element after the first)
+type_expr_list -> type_expr :
+    ['$1'].
+type_expr_list -> type_expr comma type_expr_list :
+    ['$1' | '$3'].
+
+%% Legacy type_list for backwards compatibility (used in other contexts)
 type_list -> type_expr :
     ['$1'].
 type_list -> type_expr comma type_list :
