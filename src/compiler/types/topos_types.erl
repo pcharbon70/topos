@@ -90,7 +90,7 @@
 %% Alpha1 = topos_types:tvar(1).  %% → {tvar, 1}
 %%
 %% %% Type variables are typically generated fresh
-%% State0 = topos_type_state:new(),
+%% State0 = topos_infer_state:new(),
 %% {Var, State1} = topos_types:fresh_var(State0).  %% → {{tvar, 1}, State1}
 %% '''
 -spec tvar(type_var_id()) -> ty().
@@ -221,7 +221,25 @@ tfun(From, To, Effects) ->
 %%     1  %% Row variable α1
 %% ).
 %% '''
--spec trecord([{atom(), ty()}], row_var()) -> ty().
+%% @doc Create a record type with row polymorphism
+%%
+%% Record types provide extensible structures with row polymorphism.
+%% Fields are name-type pairs, and RowVar allows for extension.
+%%
+%% @param Fields List of {FieldName, Type} tuples
+%% @param RowVar Variable for remaining fields (integer ID or 'closed')
+%% @returns {trecord, Fields, RowVar} | {error, {duplicate_record_fields, [atom()]}}
+%%
+%% @throws {duplicate_record_fields, Fields} if duplicate field names exist (Pattern 2)
+%%
+%% @example
+%% ```
+%% %% Create record with row variable for extension
+%% PersonType = topos_types:trecord([{name, string}, {age, int}], 3).
+%% %% → {trecord, [{name, string}, {age, int}], 3}
+%% ```
+-spec trecord([{atom(), ty()}], pos_integer() | closed) ->
+    ty() | {error, {duplicate_record_fields, [atom()]}}.
 trecord(Fields, RowVar) when is_list(Fields) ->
     % Validate no duplicate field names
     FieldNames = [Name || {Name, _Type} <- Fields],
@@ -229,7 +247,7 @@ trecord(Fields, RowVar) when is_list(Fields) ->
         true -> {trecord, Fields, RowVar};
         false ->
             Duplicates = find_duplicates(FieldNames),
-            error({duplicate_record_fields, Duplicates})
+            {error, {duplicate_record_fields, Duplicates}}
     end.
 
 %% @doc Create a tuple type.
@@ -276,7 +294,7 @@ ttuple(Elements) when is_list(Elements) ->
 %% @example
 %% ```
 %% %% Maybe type: Some a | None
-%% State0 = topos_type_state:new(),
+%% State0 = topos_infer_state:new(),
 %% {Alpha, _State1} = topos_types:fresh_var(State0),
 %% Maybe = topos_types:tvariant([
 %%     {'Some', [Alpha]},
@@ -325,7 +343,7 @@ tvariant(Constructors) when is_list(Constructors) ->
 %% Essential for type inference algorithms like Algorithm W, where fresh
 %% variables represent unknown types that will be unified during inference.
 %%
-%% @param State The current type state (from `topos_type_state:new()' or previous call)
+%% @param State The current type state (from `topos_infer_state:new()' or previous call)
 %% @returns Tuple `{TypeVariable, NewState}' where TypeVariable is `{tvar, Id}'
 %%
 %% @see fresh_var_id/1
@@ -334,7 +352,7 @@ tvariant(Constructors) when is_list(Constructors) ->
 %% @example
 %% ```
 %% %% Generate fresh variables with state threading
-%% State0 = topos_type_state:new(),
+%% State0 = topos_infer_state:new(),
 %% {Var1, State1} = topos_types:fresh_var(State0),  %% → {{tvar, 1}, State1}
 %% {Var2, State2} = topos_types:fresh_var(State1),  %% → {{tvar, 2}, State2}
 %% {Var3, State3} = topos_types:fresh_var(State2).  %% → {{tvar, 3}, State3}
@@ -342,9 +360,9 @@ tvariant(Constructors) when is_list(Constructors) ->
 %% %% Each variable has a unique ID
 %% Var1 =/= Var2 =/= Var3  %% → true
 %% '''
--spec fresh_var(topos_type_state:state()) -> {ty(), topos_type_state:state()}.
+-spec fresh_var(topos_infer_state:infer_state()) -> {ty(), topos_infer_state:infer_state()}.
 fresh_var(State) ->
-    topos_type_state:fresh_var(State).
+    topos_infer_state:fresh_var(State).
 
 %% @doc Generate a fresh type variable ID with explicit state threading.
 %%
@@ -352,7 +370,7 @@ fresh_var(State) ->
 %% a complete type variable structure. Useful when you need to construct
 %% types manually or track variable IDs separately.
 %%
-%% @param State The current type state (from `topos_type_state:new()' or previous call)
+%% @param State The current type state (from `topos_infer_state:new()' or previous call)
 %% @returns Tuple `{VarId, NewState}' where VarId is a positive integer
 %%
 %% @see fresh_var/1
@@ -361,7 +379,7 @@ fresh_var(State) ->
 %% @example
 %% ```
 %% %% Generate fresh variable IDs
-%% State0 = topos_type_state:new(),
+%% State0 = topos_infer_state:new(),
 %% {Id1, State1} = topos_types:fresh_var_id(State0),  %% → {1, State1}
 %% {Id2, State2} = topos_types:fresh_var_id(State1),  %% → {2, State2}
 %%
@@ -369,9 +387,9 @@ fresh_var(State) ->
 %% Var1 = topos_types:tvar(Id1),  %% → {tvar, 1}
 %% Var2 = topos_types:tvar(Id2).  %% → {tvar, 2}
 %% '''
--spec fresh_var_id(topos_type_state:state()) -> {type_var_id(), topos_type_state:state()}.
+-spec fresh_var_id(topos_infer_state:infer_state()) -> {type_var_id(), topos_infer_state:infer_state()}.
 fresh_var_id(State) ->
-    topos_type_state:fresh_var_id(State).
+    topos_infer_state:fresh_var_id(State).
 
 %%====================================================================
 %% Effect Set Operations
@@ -651,7 +669,7 @@ extract_function_effects(_) ->
 %% %% → set containing 1
 %%
 %% %% Function type: α -> β
-%% State0 = topos_type_state:new(),
+%% State0 = topos_infer_state:new(),
 %% {Alpha, State1} = topos_types:fresh_var(State0),  %% → {tvar, 1}
 %% {Beta, _State2} = topos_types:fresh_var(State1),  %% → {tvar, 2}
 %% FuncType = topos_types:tfun(Alpha, Beta, topos_types:empty_effects()),
@@ -670,7 +688,7 @@ type_vars(Type) ->
 %% Internal function with depth tracking to prevent stack overflow
 -spec type_vars_acc(ty(), sets:set(type_var_id()), non_neg_integer()) -> sets:set(type_var_id()).
 type_vars_acc(_Type, _Acc, Depth) when Depth > 100 ->
-    MaxDepth = topos_compiler_utils:get_max_type_depth(),
+    MaxDepth = topos_config:get_max_type_depth(),
     error(topos_type_error:type_depth_exceeded(Depth, MaxDepth));
 
 type_vars_acc({tvar, Id}, Acc, _Depth) ->

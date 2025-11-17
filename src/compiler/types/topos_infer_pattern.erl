@@ -14,7 +14,8 @@
 -module(topos_infer_pattern).
 
 -export([
-    infer/3
+    infer/3,
+    merge_bindings/2
 ]).
 
 %%%===================================================================
@@ -38,7 +39,7 @@ infer({pwild}, _Env, State) ->
 % true : Bool
 % "hello" : String
 infer({plit, Lit}, _Env, State) ->
-    Type = literal_type(Lit),
+    Type = topos_infer_utils:literal_type(Lit),
     EmptyBindings = topos_type_env:empty(),
     {Type, EmptyBindings, State};
 
@@ -135,24 +136,49 @@ infer_record_fields_acc([{Label, Pattern} | Rest], Env, State, FieldsAcc, Bindin
     infer_record_fields_acc(Rest, Env, State1, [{Label, Type} | FieldsAcc], CombinedBindings).
 
 %% @doc Merge two binding environments, detecting duplicate bindings
-%% In patterns, duplicate variable names are not allowed
+%% In patterns, duplicate variable names are not allowed unless they bind
+%% to identical types (which is redundant but not an error)
 -spec merge_bindings(topos_type_env:env(), topos_type_env:env()) -> topos_type_env:env().
 merge_bindings(Env1, Env2) ->
-    % For PoC, simple merge (assuming no duplicates)
-    % In full implementation, would check for duplicate variable names
-    topos_type_env:merge(Env1, Env2).
+    % Find common variable names (potential conflicts)
+    Vars1 = maps:keys(Env1),
+    Vars2 = maps:keys(Env2),
+    CommonVars = sets:intersection(sets:from_list(Vars1), sets:from_list(Vars2)),
+    
+    % Check for type conflicts in common variables
+    case sets:to_list(CommonVars) of
+        [] ->
+            % No conflicts, safe to merge
+            topos_type_env:merge(Env1, Env2);
+        Conflicts ->
+            % Check each common variable for type mismatches
+            case check_type_conflicts(Conflicts, Env1, Env2) of
+                ok ->
+                    % All types match, safe to merge
+                    topos_type_env:merge(Env1, Env2);
+                {error, {duplicate_binding, Var, Type1, Type2}} ->
+                    % Type conflict found, create error
+                    error(topos_type_error:duplicate_pattern_binding(Var, Type1, Type2))
+            end
+    end.
 
-%% @doc Get the type of a literal value
--spec literal_type(topos_ast:literal()) -> topos_types:type().
-literal_type({int, _}) ->
-    {tcon, int};
-literal_type({float, _}) ->
-    {tcon, float};
-literal_type({bool, _}) ->
-    {tcon, bool};
-literal_type({string, _}) ->
-    {tcon, string};
-literal_type({atom, _}) ->
-    {tcon, atom};
-literal_type({unit}) ->
-    {tcon, unit}.
+%% @doc Check if any common variables have conflicting types
+%% Returns ok if all types match, or {error, Conflict} if conflict found
+-spec check_type_conflicts([atom()], topos_type_env:env(), topos_type_env:env()) ->
+    ok | {error, {duplicate_binding, atom(), topos_type_scheme:scheme(), topos_type_scheme:scheme()}}.
+check_type_conflicts([], _Env1, _Env2) ->
+    ok;
+check_type_conflicts([Var | Rest], Env1, Env2) ->
+    Scheme1 = maps:get(Var, Env1),
+    Scheme2 = maps:get(Var, Env2),
+    
+    case Scheme1 =:= Scheme2 of
+        true ->
+            % Types match, continue checking
+            check_type_conflicts(Rest, Env1, Env2);
+        false ->
+            % Types conflict, return error
+            {error, {duplicate_binding, Var, Scheme1, Scheme2}}
+    end.
+
+

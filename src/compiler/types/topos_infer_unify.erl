@@ -20,7 +20,8 @@
 -export([
     unify/3,
     unify_many/3,
-    unify_effects/2
+    unify_effects/2,
+    unify_types/2
 ]).
 
 %%%===================================================================
@@ -29,6 +30,9 @@
 
 %% @doc Unify two types, returning a substitution that makes them equal
 %% Returns either a substitution or an error
+%%
+%% **Pattern 1 Error:** Returns {error, Error, State} for inference errors
+%% since this function threads inference state through the unification process.
 -spec unify(topos_types:type(), topos_types:type(), topos_infer_state:infer_state()) ->
     {ok, topos_type_subst:subst(), topos_infer_state:infer_state()} |
     {error, topos_type_error:type_error(), topos_infer_state:infer_state()}.
@@ -77,6 +81,9 @@ unify_many([{T1, T2} | Rest], AccSubst, State) ->
 %% @doc Unify two effect sets
 %% In the PoC, effects are monomorphic (no effect variables),
 %% so we just check for equality
+%%
+%% **Pattern 2 Error:** Returns {error, Error} for validation errors
+%% since this function doesn't thread inference state.
 -spec unify_effects(topos_types:effect_set(), topos_types:effect_set()) ->
     ok | {error, topos_type_error:type_error()}.
 unify_effects(Effects1, Effects2) ->
@@ -232,7 +239,14 @@ unify_types({trecord, Fields1, Row1}, {trecord, Fields2, Row2})
     case unify_record_fields(Fields1, Fields2) of
         {ok, Subst1} ->
             % Unify row variables (treat as type variables)
-            unify_types({tvar, Row1}, {tvar, Row2});
+            case unify_types({tvar, Row1}, {tvar, Row2}) of
+                {ok, Subst2} ->
+                    % Compose field substitution with row variable substitution
+                    ComposedSubst = topos_type_subst:compose(Subst1, Subst2),
+                    {ok, ComposedSubst};
+                {error, _} = Error ->
+                    Error
+            end;
         {error, _} = Error ->
             Error
     end;
@@ -244,9 +258,10 @@ unify_types({trecord, Fields1, RowVar}, {trecord, Fields2, closed})
   when is_integer(RowVar) ->
     case unify_record_fields(Fields1, Fields2) of
         {ok, Subst1} ->
-            % Row variable unifies with closed
-            % For PoC, just return field unification substitution
-            {ok, Subst1};
+            % Row variable unifies with closed - bind row variable to empty record
+            RowSubst = topos_type_subst:singleton(RowVar, {trecord, [], closed}),
+            ComposedSubst = topos_type_subst:compose(RowSubst, Subst1),
+            {ok, ComposedSubst};
         {error, _} = Error ->
             Error
     end;

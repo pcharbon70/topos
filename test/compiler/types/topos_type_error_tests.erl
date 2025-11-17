@@ -1179,7 +1179,7 @@ test_counter_wraparound() ->
     % Test that counter doesn't overflow (Erlang handles big integers)
     % Generate many variables and check uniqueness
 
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     % Generate 10,000 variables
     {Vars, _StateFinal} = lists:foldl(
@@ -1203,7 +1203,7 @@ test_counter_wraparound() ->
 
 test_many_fresh_variables() ->
     % Stress test: generate 50,000 variables
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     % This should not crash or slow down significantly
     Count = 50000,
@@ -1218,7 +1218,7 @@ test_many_fresh_variables() ->
 
     % Counter should be at expected value
     {_NextVar, StateNext} = topos_types:fresh_var(StateFinal),
-    ?assertEqual(Count + 1, topos_type_state:get_counter(StateNext)).
+    ?assertEqual(Count + 1, topos_infer_state:get_counter(StateNext)).
 
 %%====================================================================
 %% Pretty-Printing Edge Cases
@@ -1300,7 +1300,7 @@ test_instantiate_empty_quantifiers() ->
     % Create polymorphic scheme with empty quantifier list
     % (should behave like monomorphic)
 
-    State = topos_type_state:new(),
+    State = topos_infer_state:new(),
     Type = topos_types:tcon(integer),
     Scheme = topos_type_scheme:poly([], Type),
 
@@ -1310,7 +1310,7 @@ test_instantiate_empty_quantifiers() ->
 
 test_nested_quantification() ->
     % Generalize twice (should only quantify once)
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Var1}, _State1} = topos_types:fresh_var(State0),
     Type = topos_types:tvar(Var1),

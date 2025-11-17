@@ -24,6 +24,10 @@
 %%%===================================================================
 
 %% @doc Infer the type of an expression
+%%
+%% **Pattern 1 Error:** Returns {error, Error, State} for inference errors
+%% since this function threads inference state through the expression
+%% inference process.
 -spec infer(topos_ast:expr(), topos_type_env:env(), topos_infer_state:infer_state()) ->
     {topos_types:type(), topos_infer_state:infer_state()} |
     {error, topos_type_error:type_error(), topos_infer_state:infer_state()}.
@@ -31,7 +35,7 @@
 % Expression: Literal
 % 42 : Int
 infer({lit, Lit}, _Env, State) ->
-    Type = literal_type(Lit),
+    Type = topos_infer_utils:literal_type(Lit),
     {Type, State};
 
 % Expression: Variable
@@ -238,6 +242,47 @@ infer({variant, Constructor, Args}, Env, State) ->
         {ArgTypes, State1} ->
             Type = {tvariant, [{Constructor, ArgTypes}]},
             {Type, State1};
+
+% Expression: Variant constructor (monadic version)
+% Shows how monadic combinators eliminate deep nesting
+infer_m_variant(Constructor, Args, Env) ->
+    InferExprs = topos_infer_monad:infer_exprs(Args, Env),
+    topos_infer_monad:map(
+        fun(ArgTypes) -> {tvariant, [{Constructor, ArgTypes}]} end,
+        InferExprs
+    ).
+
+% Expression: Record field access (monadic version)
+% Demonstrates how monadic combinators clean up nested case statements
+infer_m_field_access(Expr, FieldName, Env) ->
+    % Chain operations using monadic bind instead of nested cases
+    topos_infer_monad:bind(
+        fun(S) -> infer(Expr, Env, S) end,  % Infer the expression
+        fun(ExprType) ->
+            topos_infer_monad:with_fresh_var(
+                fun(FieldType) ->
+                    topos_infer_monad:with_fresh_var(
+                        fun(RowVar) ->
+                            {tvar, RowVarId} = RowVar,
+                            ExpectedType = {trecord, [{FieldName, FieldType}], RowVarId},
+                            
+                            fun(State3) ->
+                                case topos_infer_unify:unify(ExprType, ExpectedType, State3) of
+                                    {ok, _Subst, State4} ->
+                                        FinalSubst = topos_infer_state:get_subst(State4),
+                                        FinalFieldType = topos_type_subst:apply(FinalSubst, FieldType),
+                                        {FinalFieldType, State4};
+                                    {error, _, _} = Error ->
+                                        Error
+                                end
+                            end
+                        end
+                    )
+                end
+            )
+        end,
+        topos_infer_state:new()  % Initial state
+    ).
         {error, _, _} = Error ->
             Error
     end;
@@ -353,11 +398,4 @@ infer_record_fields_acc([{Label, Expr} | Rest], Env, State, FieldsAcc) ->
             Error
     end.
 
-%% @doc Get the type of a literal value
--spec literal_type(topos_ast:literal()) -> topos_types:type().
-literal_type({int, _}) -> {tcon, int};
-literal_type({float, _}) -> {tcon, float};
-literal_type({bool, _}) -> {tcon, bool};
-literal_type({string, _}) -> {tcon, string};
-literal_type({atom, _}) -> {tcon, atom};
-literal_type({unit}) -> {tcon, unit}.
+

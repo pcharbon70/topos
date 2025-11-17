@@ -13,91 +13,91 @@ This phase runs for **6.5 weeks** and focuses on correctness over optimization, 
 ---
 
 ## 1.1 Lexer and Parser
-- [ ] **Section 1.1 Complete**
+- [x] **Section 1.1 Complete**
 
 The lexer and parser form the front-end of the compiler, transforming raw Topos source code into structured Abstract Syntax Trees (ASTs). The lexer breaks input text into tokens (keywords, operators, identifiers, literals), while the parser organizes these tokens according to Topos grammar rules. We implement this using Erlang's leex (lexical analyzer generator) and yecc (LALR parser generator) tools, which provide mature, battle-tested parsing infrastructure. The parser must handle Topos's unique syntax including categorical terminology (`shape`, `flow`), composition operators (`|>`, `>>=`), and pattern matching constructs. Error recovery and helpful error messages are priorities from the start.
 
 ### 1.1.1 Token Recognition
-- [ ] **Task 1.1.1 Complete**
+- [x] **Task 1.1.1 Complete**
 
 Token recognition involves defining lexical rules that classify input characters into meaningful tokens. We must identify keywords (`shape`, `flow`, `match`, `where`, `let`, `in`, `do`, `end`), operators (`|>`, `->`, `:`, `=`, `<>`, `>>=`), delimiters (`{`, `}`, `[`, `]`, `(`, `)`, `|`), literals (numbers, strings, atoms), and comments (single-line `--` and multi-line `{- -}`). The lexer must handle whitespace correctly, track line/column positions for error reporting, and distinguish between similar tokens (e.g., `->` vs `-`).
 
-- [ ] 1.1.1.1 Define token types and lexical rules for all Topos keywords, operators, and delimiters
-- [ ] 1.1.1.2 Implement number literal recognition supporting integers, floats, and scientific notation
-- [ ] 1.1.1.3 Implement string literal recognition with escape sequences and multi-line support
-- [ ] 1.1.1.4 Implement comment recognition for single-line and multi-line comments with proper nesting
+- [x] 1.1.1.1 Define token types and lexical rules for all Topos keywords, operators, and delimiters
+- [x] 1.1.1.2 Implement number literal recognition supporting integers, floats, and scientific notation
+- [x] 1.1.1.3 Implement string literal recognition with escape sequences and multi-line support
+- [x] 1.1.1.4 Implement comment recognition for single-line and multi-line comments with proper nesting
 
 ### 1.1.2 Grammar Implementation
-- [ ] **Task 1.1.2 Complete**
+- [x] **Task 1.1.2 Complete**
 
 The parser grammar defines the syntactic structure of Topos programs using production rules. We implement a context-free grammar that handles type declarations (`shape`), function definitions (`flow`), pattern matching expressions, let bindings, and composition operators. The grammar must be unambiguous and support operator precedence correctly (e.g., function application binds tighter than `|>`). We use LALR parsing with shift/reduce conflict resolution or PEG parsing with ordered choice.
 
-- [ ] 1.1.2.1 Define grammar production rules for shape declarations with ADT constructors and record syntax
-- [ ] 1.1.2.2 Define grammar production rules for flow definitions with type signatures and pattern clauses
-- [ ] 1.1.2.3 Define grammar production rules for expressions including composition, application, and let bindings
-- [ ] 1.1.2.4 Define operator precedence and associativity tables ensuring correct parsing of complex expressions
+- [x] 1.1.2.1 Define grammar production rules for shape declarations with ADT constructors and record syntax
+- [x] 1.1.2.2 Define grammar production rules for flow definitions with type signatures and pattern clauses
+- [x] 1.1.2.3 Define grammar production rules for expressions including composition, application, and let bindings
+- [x] 1.1.2.4 Define operator precedence and associativity tables ensuring correct parsing of complex expressions
 
 ### 1.1.3 AST Construction
-- [ ] **Task 1.1.3 Complete**
+- [x] **Task 1.1.3 Complete**
 
 The Abstract Syntax Tree (AST) is the internal representation of parsed Topos programs. We define appropriate data structures using Erlang records for each syntactic category: module definitions, type declarations, function definitions, patterns, expressions, and literals. The AST preserves source location information for error reporting and should be easy to traverse for subsequent compiler passes. We design the AST to be immutable and use pattern matching for processing, leveraging Erlang's native pattern matching capabilities.
 
-- [ ] 1.1.3.1 Define AST node structures for all expression types with source location metadata
-- [ ] 1.1.3.2 Define AST node structures for pattern forms including guards, or-patterns, and nested patterns
-- [ ] 1.1.3.3 Define AST node structures for declarations (shapes, flows, modules) with visibility annotations
-- [ ] 1.1.3.4 Implement AST construction functions that build structured trees from parse results
+- [x] 1.1.3.1 Define AST node structures for all expression types with source location metadata
+- [x] 1.1.3.2 Define AST node structures for pattern forms including guards, or-patterns, and nested patterns
+- [x] 1.1.3.3 Define AST node structures for declarations (shapes, flows, modules) with visibility annotations
+- [x] 1.1.3.4 Implement AST construction functions that build structured trees from parse results
 
 ### 1.1.4 Error Recovery and Reporting
-- [ ] **Task 1.1.4 Complete**
+- [x] **Task 1.1.4 Complete**
 
 High-quality error messages are essential for developer experience. When syntax errors occur, we provide clear messages indicating what went wrong, where in the source file, and what was expected. Error recovery allows the parser to continue after errors to report multiple issues in one pass. We implement error messages with code snippets, color highlighting, and suggestions for fixes.
 
-- [ ] 1.1.4.1 Implement error reporting with source location, line/column numbers, and code context
-- [ ] 1.1.4.2 Implement panic-mode error recovery for common syntax errors to continue parsing
-- [ ] 1.1.4.3 Create helpful error messages with suggestions for common mistakes (e.g., missing `end`, unmatched delimiters)
-- [ ] 1.1.4.4 Add colored terminal output and code snippet formatting for error display
+- [x] 1.1.4.1 Implement error reporting with source location, line/column numbers, and code context
+- [x] 1.1.4.2 Implement panic-mode error recovery for common syntax errors to continue parsing
+- [x] 1.1.4.3 Create helpful error messages with suggestions for common mistakes (e.g., missing `end`, unmatched delimiters)
+- [x] 1.1.4.4 Add colored terminal output and code snippet formatting for error display
 
 ### 1.1.5 Effect Syntax Support
-- [ ] **Task 1.1.5 Complete**
+- [x] **Task 1.1.5 Complete**
 
 Support for algebraic effects syntax including effect declarations, effect operations, and effect handlers. This extends the lexer and parser to recognize effect-specific keywords and constructs, enabling Topos's category-theoretic approach to side effects.
 
-- [ ] 1.1.5.1 Add `effect`, `operation`, `perform`, `with` keywords to lexer and extend parser with effect declaration grammar producing EffectDecl and EffectOperation AST nodes (success: parse `effect FileIO { operation read(path: String): String }`)
-- [ ] 1.1.5.2 Add perform expression grammar and AST node PerformExpr enabling effectful operation invocations (success: parse `perform FileIO.read(path)`)
-- [ ] 1.1.5.3 Add try/with handler syntax and AST nodes TryWithExpr and HandlerCase for effect handlers with pattern matching on operation names (success: parse complete handler blocks with multiple operation cases)
-- [ ] 1.1.5.4 Add effect annotation syntax using `/` operator for effect sets in type signatures and EffectAnnotation AST node (success: parse `String / {FileIO, Process}` in function signatures)
+- [x] 1.1.5.1 Add `effect`, `operation`, `perform`, `with` keywords to lexer and extend parser with effect declaration grammar producing EffectDecl and EffectOperation AST nodes (success: parse `effect FileIO { operation read(path: String): String }`)
+- [x] 1.1.5.2 Add perform expression grammar and AST node PerformExpr enabling effectful operation invocations (success: parse `perform FileIO.read(path)`)
+- [x] 1.1.5.3 Add try/with handler syntax and AST nodes TryWithExpr and HandlerCase for effect handlers with pattern matching on operation names (success: parse complete handler blocks with multiple operation cases)
+- [x] 1.1.5.4 Add effect annotation syntax using `/` operator for effect sets in type signatures and EffectAnnotation AST node (success: parse `String / {FileIO, Process}` in function signatures)
 
 ### 1.1.6 Trait System Syntax
-- [ ] **Task 1.1.6 Complete**
+- [x] **Task 1.1.6 Complete**
 
 Add trait system keywords and syntax to demonstrate Topos's category-theory-first approach through general abstraction mechanisms. Traits replace ad-hoc polymorphism with principled type classes that form the foundation of the standard library's category theory abstractions (Setoid, Functor, Monad, etc.).
 
-- [ ] 1.1.6.1 Add `trait`, `instance`, `extends` keywords to lexer for trait system declarations
-- [ ] 1.1.6.2 Add trait declaration grammar with method signatures and default implementations producing TraitDecl AST nodes (success: parse `trait Functor f where fmap : (a -> b) -> f a -> f b`)
-- [ ] 1.1.6.3 Add instance declaration grammar with method implementations producing InstanceDecl AST nodes (success: parse `instance Functor Maybe where fmap f = match | None -> None | Some x -> Some (f x) end`)
-- [ ] 1.1.6.4 Add trait hierarchy syntax with extends clauses for trait inheritance (success: parse `trait Monad m extends Applicative m where bind : m a -> (a -> m b) -> m b`)
+- [x] 1.1.6.1 Add `trait`, `instance`, `extends` keywords to lexer for trait system declarations
+- [x] 1.1.6.2 Add trait declaration grammar with method signatures and default implementations producing TraitDecl AST nodes (success: parse `trait Functor f where fmap : (a -> b) -> f a -> f b`)
+- [x] 1.1.6.3 Add instance declaration grammar with method implementations producing InstanceDecl AST nodes (success: parse `instance Functor Maybe where fmap f = match | None -> None | Some x -> Some (f x) end`)
+- [x] 1.1.6.4 Add trait hierarchy syntax with extends clauses for trait inheritance (success: parse `trait Monad m extends Applicative m where bind : m a -> (a -> m b) -> m b`)
 
 ### 1.1.7 Core Operators
-- [ ] **Task 1.1.7 Complete**
+- [x] **Task 1.1.7 Complete**
 
 Add dual notation operators for category theory abstractions, providing both readable keyword versions and concise symbolic operators. This makes Topos accessible to beginners (using keywords like `equals`, `append`, `bind`) while enabling experts to write terse, mathematical code (using `===`, `<>`, `>>=`).
 
-- [ ] 1.1.7.1 Add equality operators `===` and `!==` to lexer for Setoid trait (type class equality)
-- [ ] 1.1.7.2 Add composition operators: `<>` (Semigroup append), `<$>` (Functor map), `<*>` (Applicative apply)
-- [ ] 1.1.7.3 Add monadic operators: `>>=` (bind), `>>` (sequence), `=<<` (flipped bind), `>=>` (Kleisli left-to-right), `<=<` (Kleisli right-to-left)
-- [ ] 1.1.7.4 Define operator precedence and associativity tables ensuring correct parsing (infixl 1 for >>=, infixl 4 for <$> and <*>, infixl 6 for <>)
+- [x] 1.1.7.1 Add equality operators `===` and `!==` to lexer for Setoid trait (type class equality)
+- [x] 1.1.7.2 Add composition operators: `<>` (Semigroup append), `<$>` (Functor map), `<*>` (Applicative apply)
+- [x] 1.1.7.3 Add monadic operators: `>>=` (bind), `>>` (sequence), `=<<` (flipped bind), `>=>` (Kleisli left-to-right), `<=<` (Kleisli right-to-left)
+- [x] 1.1.7.4 Define operator precedence and associativity tables ensuring correct parsing (infixl 1 for >>=, infixl 4 for <$> and <*>, infixl 6 for <>)
 
 ### Unit Tests - Section 1.1
-- [ ] **Unit Tests 1.1 Complete**
-- [ ] Test lexer tokenization of all keywords, operators, delimiters, and literals with edge cases
-- [ ] Test parser handling of valid Topos programs generating correct ASTs
-- [ ] Test parser error recovery with intentionally malformed input producing multiple error reports
-- [ ] Test source location tracking ensuring accurate line/column information in AST nodes
-- [ ] Test effect syntax parsing for effect declarations, perform expressions, handlers, and effect annotations
-- [ ] Test nested handler syntax and operation pattern matching with complete coverage
-- [ ] Test trait system syntax parsing for trait declarations, instance declarations, and trait hierarchies
-- [ ] Test core operator parsing with correct precedence and associativity (===, <>, <$>, <*>, >>=, >=>)
-- [ ] Test operator parsing in complex expressions ensuring proper nesting and binding
+- [x] **Unit Tests 1.1 Complete**
+- [x] Test lexer tokenization of all keywords, operators, delimiters, and literals with edge cases
+- [x] Test parser handling of valid Topos programs generating correct ASTs
+- [x] Test parser error recovery with intentionally malformed input producing multiple error reports
+- [x] Test source location tracking ensuring accurate line/column information in AST nodes
+- [x] Test effect syntax parsing for effect declarations, perform expressions, handlers, and effect annotations
+- [x] Test nested handler syntax and operation pattern matching with complete coverage
+- [x] Test trait system syntax parsing for trait declarations, instance declarations, and trait hierarchies
+- [x] Test core operator parsing with correct precedence and associativity (===, <>, <$>, <*>, >>=, >=>)
+- [x] Test operator parsing in complex expressions ensuring proper nesting and binding
 
 ---
 
@@ -109,26 +109,26 @@ The type system is the heart of Topos, providing static guarantees while inferri
 **Effect System for PoC**: Effect tracking is monomorphic (no effect variables or polymorphism). Effects are tracked alongside types during inference, perform operations introduce effects, and handlers resolve effects. Full effect polymorphism and advanced inference are deferred to Phase 6.
 
 ### 1.2.1 Type Representation
-- [ ] **Task 1.2.1 Complete**
+- [x] **Task 1.2.1 Complete**
 
 We define the internal representation of types, including type variables (α, β, γ), type constructors (`List`, `Maybe`, `Process`), function types (τ₁ -> τ₂), record types, and variant types. Type schemes represent polymorphic types with forall quantification. **We extend this with effect sets** to create a type-and-effect system where function types include effect annotations. We implement type equality checking, substitution operations, and pretty-printing for type expressions used in error messages.
 
-- [ ] 1.2.1.1 Define type term representation with type variables, constructors, functions, records, and variants
-- [ ] 1.2.1.2 Implement type substitution operations for unification and instantiation
-- [ ] 1.2.1.3 Implement type scheme representation for polymorphic types with quantified variables
-- [ ] 1.2.1.4 Implement type pretty-printing for human-readable error messages and REPL output
-- [ ] 1.2.1.5 Define EffectSet type as `{effect_set, [EffectName]}` and extend function types to `{fun_type, Param, Return, EffectSet}` where empty set `{}` represents pure functions (success: can represent and manipulate type-and-effect signatures)
+- [x] 1.2.1.1 Define type term representation with type variables, constructors, functions, records, and variants
+- [x] 1.2.1.2 Implement type substitution operations for unification and instantiation
+- [x] 1.2.1.3 Implement type scheme representation for polymorphic types with quantified variables
+- [x] 1.2.1.4 Implement type pretty-printing for human-readable error messages and REPL output
+- [x] 1.2.1.5 Define EffectSet type as `{effect_set, [EffectName]}` and extend function types to `{fun_type, Param, Return, EffectSet}` where empty set `{}` represents pure functions (success: can represent and manipulate type-and-effect signatures)
 
 ### 1.2.2 Algorithm W Implementation
-- [ ] **Task 1.2.2 Complete**
+- [x] **Task 1.2.2 Complete**
 
 Algorithm W is the standard approach to Hindley-Milner type inference, combining constraint generation with unification. We traverse the AST, generating type constraints, then solve them using Robinson's unification algorithm with occurs check. The algorithm infers the most general (principal) type for each expression. We handle let-polymorphism correctly, allowing generalization only at let bindings. **We extend Algorithm W to track effects alongside types**, propagating effect sets through the AST.
 
-- [ ] 1.2.2.1 Implement constraint generation traversing AST and collecting type equations
-- [ ] 1.2.2.2 Implement unification algorithm with occurs check preventing infinite types
-- [ ] 1.2.2.3 Implement type generalization for let bindings introducing forall quantifiers
-- [ ] 1.2.2.4 Implement type instantiation for polymorphic function applications
-- [ ] 1.2.2.5 Track effect annotations during type inference where perform operations introduce effects into function signatures, function application propagates effect sets via union, and PoC limitation allows only monomorphic effects without effect variables (defer polymorphism to Phase 6)
+- [x] 1.2.2.1 Implement constraint generation traversing AST and collecting type equations
+- [x] 1.2.2.2 Implement unification algorithm with occurs check preventing infinite types
+- [x] 1.2.2.3 Implement type generalization for let bindings introducing forall quantifiers
+- [x] 1.2.2.4 Implement type instantiation for polymorphic function applications
+- [x] 1.2.2.5 Track effect annotations during type inference where perform operations introduce effects into function signatures, function application propagates effect sets via union, and PoC limitation allows only monomorphic effects without effect variables (defer polymorphism to Phase 6)
 
 ### 1.2.3 Constraint Solving
 - [ ] **Task 1.2.3 Complete**

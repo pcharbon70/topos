@@ -23,6 +23,8 @@ new_state_test() ->
 
     % Should start with variable counter at 1
     ?assertEqual(1, topos_infer_state:get_next_var(State)),
+    % Check get_counter alias works too
+    ?assertEqual(1, topos_infer_state:get_counter(State)),
 
     % Should start with empty substitution
     Subst = topos_infer_state:get_subst(State),
@@ -31,6 +33,12 @@ new_state_test() ->
     % Should start with no errors
     ?assertEqual(false, topos_infer_state:has_errors(State)),
     ?assertEqual([], topos_infer_state:get_errors(State)).
+
+new_state_custom_counter_test() ->
+    % Test new/1 constructor
+    State = topos_infer_state:new(42),
+    ?assertEqual(42, topos_infer_state:get_next_var(State)),
+    ?assertEqual(42, topos_infer_state:get_counter(State)).
 
 %%%===================================================================
 %%% Section 2: Fresh Variable Generation
@@ -43,6 +51,7 @@ fresh_var_single_test() ->
     {{tvar, Id1}, State1} = topos_infer_state:fresh_var(State0),
     ?assertEqual(1, Id1),
     ?assertEqual(2, topos_infer_state:get_next_var(State1)),
+    ?assertEqual(2, topos_infer_state:get_counter(State1)),
 
     % Generate second variable
     {{tvar, Id2}, State2} = topos_infer_state:fresh_var(State1),
@@ -52,6 +61,16 @@ fresh_var_single_test() ->
     % Generate third variable
     {{tvar, Id3}, _State3} = topos_infer_state:fresh_var(State2),
     ?assertEqual(3, Id3).
+
+fresh_var_id_test() ->
+    State0 = topos_infer_state:new(),
+    {Id, State1} = topos_infer_state:fresh_var_id(State0),
+
+    % First ID should be 1
+    ?assertEqual(1, Id),
+    % Counter should be updated
+    ?assertEqual(2, topos_infer_state:get_next_var(State1)),
+    ?assertEqual(2, topos_infer_state:get_counter(State1)).
 
 fresh_var_independence_test() ->
     % Each state should maintain its own counter
@@ -345,8 +364,85 @@ integration_complex_substitution_test() ->
     ?assertEqual(ExpectedList, topos_type_subst:apply(FinalSubst, Delta)).
 
 %%%===================================================================
+%%% Section 7: State Independence Tests
+%%%===================================================================
+
+state_not_modified_test() ->
+    State0 = topos_infer_state:new(),
+
+    % Generate variable but don't use returned state
+    {_Var1, _State1} = topos_infer_state:fresh_var(State0),
+
+    % Original state unchanged
+    ?assertEqual(1, topos_infer_state:get_next_var(State0)),
+    ?assertEqual(1, topos_infer_state:get_counter(State0)),
+
+    % Generate another from original - should get same ID
+    {Var2, State2} = topos_infer_state:fresh_var(State0),
+    ?assertMatch({tvar, 1}, Var2),
+    ?assertEqual(2, topos_infer_state:get_next_var(State2)),
+    ?assertEqual(2, topos_infer_state:get_counter(State2)).
+
+parallel_states_test() ->
+    % Two independent state threads
+    StateA0 = topos_infer_state:new(),
+    StateB0 = topos_infer_state:new(),
+
+    % Branch A
+    {VarA1, StateA1} = topos_infer_state:fresh_var(StateA0),
+    {VarA2, StateA2} = topos_infer_state:fresh_var(StateA1),
+
+    % Branch B (independent)
+    {VarB1, StateB1} = topos_infer_state:fresh_var(StateB0),
+    {VarB2, StateB2} = topos_infer_state:fresh_var(StateB1),
+
+    % Both branches generate same IDs (independent)
+    ?assertMatch({tvar, 1}, VarA1),
+    ?assertMatch({tvar, 2}, VarA2),
+    ?assertMatch({tvar, 1}, VarB1),
+    ?assertMatch({tvar, 2}, VarB2),
+
+    % Final counters
+    ?assertEqual(3, topos_infer_state:get_next_var(StateA2)),
+    ?assertEqual(3, topos_infer_state:get_next_var(StateB2)).
+
+sequential_ids_fold_test() ->
+    State0 = topos_infer_state:new(),
+
+    % Generate 10 fresh variable IDs using fold
+    {Ids, StateFinal} = lists:foldl(
+        fun(_, {AccIds, AccState}) ->
+            {Id, NewState} = topos_infer_state:fresh_var_id(AccState),
+            {[Id | AccIds], NewState}
+        end,
+        {[], State0},
+        lists:seq(1, 10)
+    ),
+
+    % IDs should be 1..10 (reversed because of cons)
+    ?assertEqual(lists:seq(10, 1, -1), Ids),
+    % Counter should be 10
+    ?assertEqual(11, topos_infer_state:get_next_var(StateFinal)),
+    ?assertEqual(11, topos_infer_state:get_counter(StateFinal)).
+
+%%%===================================================================
 %%% Test Suite Integration
 %%%===================================================================
+
+fresh_var_overflow_test() ->
+    % Test that overflow detection works
+    % Create a state near the limit
+    MaxId = 1000000,
+    State0 = topos_infer_state:new(MaxId),
+    
+    % Should work up to the limit
+    {{tvar, MaxId}, State1} = topos_infer_state:fresh_var(State0),
+    ?assertEqual(MaxId + 1, topos_infer_state:get_next_var(State1)),
+    
+    % Next call should overflow and throw error
+    OverflowId = MaxId + 1,
+    ?assertError({type_var_overflow, OverflowId, MaxId},
+        topos_infer_state:fresh_var(State1)).
 
 integration_all_sections_test() ->
     % Verify all sections run successfully

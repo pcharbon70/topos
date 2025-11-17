@@ -185,8 +185,8 @@ generalize(Type, EnvFreeVars) ->
 %% {IntType, State3} = topos_type_scheme:instantiate(MonoScheme, State2).
 %% %% → {{tcon, integer}, State3}
 %% '''
--spec instantiate(scheme(), topos_type_state:state()) ->
-    {topos_types:ty(), topos_type_state:state()}.
+-spec instantiate(scheme(), topos_infer_state:infer_state()) ->
+    {topos_types:ty(), topos_infer_state:infer_state()}.
 instantiate({mono, Type}, State) ->
     % Monomorphic types instantiate to themselves
     {Type, State};

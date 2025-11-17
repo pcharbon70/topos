@@ -252,9 +252,49 @@ infer_variant_multiple_args_test() ->
     % Should bind both x and y
     ?assertEqual([x, y], lists:sort(maps:keys(Bindings))).
 
-%%%===================================================================
-%%% Section 7: As-Patterns
-%%%===================================================================
+%%====================================================================
+%% Duplicate Binding Detection Tests
+%%====================================================================
+
+duplicate_binding_same_type_test() ->
+    % Test that duplicate bindings with same type are allowed
+    IntScheme = topos_type_scheme:mono({tcon, int}),
+    Env1 = topos_type_env:singleton(x, IntScheme),
+    Env2 = topos_type_env:singleton(x, IntScheme),
+    
+    % Should merge successfully (same type)
+    Result = topos_infer_pattern:merge_bindings(Env1, Env2),
+    ?assertEqual(IntScheme, maps:get(x, Result)).
+
+duplicate_binding_different_type_test() ->
+    % Test that duplicate bindings with different types are detected
+    IntScheme = topos_type_scheme:mono({tcon, int}),
+    StrScheme = topos_type_scheme:mono({tcon, string}),
+    Env1 = topos_type_env:singleton(x, IntScheme),
+    Env2 = topos_type_env:singleton(x, StrScheme),
+    
+    % Should throw error for different types
+    ?assertError({duplicate_pattern_binding, x, IntScheme, StrScheme},
+        topos_infer_pattern:merge_bindings(Env1, Env2)).
+
+duplicate_binding_multiple_variables_test() ->
+    % Test with multiple variables, some conflicting
+    IntScheme = topos_type_scheme:mono({tcon, int}),
+    StrScheme = topos_type_scheme:mono({tcon, string}),
+    BoolScheme = topos_type_scheme:mono({tcon, bool}),
+    
+    Env1 = #{x => IntScheme, y => StrScheme},
+    Env2 = #{y => StrScheme, z => BoolScheme},  % y matches, z is new
+    
+    % Should merge successfully (only y overlaps but types match)
+    Result = topos_infer_pattern:merge_bindings(Env1, Env2),
+    ?assertEqual(IntScheme, maps:get(x, Result)),
+    ?assertEqual(StrScheme, maps:get(y, Result)),
+    ?assertEqual(BoolScheme, maps:get(z, Result)).
+
+%%====================================================================
+%% Pattern Matching Tests
+%%====================================================================
 
 infer_as_pattern_with_wildcard_test() ->
     Env = topos_type_env:empty(),

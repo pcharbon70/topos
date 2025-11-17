@@ -40,7 +40,7 @@ workflow_test_() ->
 
 test_identity_function() ->
     % Simulate type checking: let id = λx. x
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     % Create type for λx. x: α₁ -> α₁
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
@@ -85,7 +85,7 @@ test_identity_function() ->
 test_const_function() ->
     % Simulate: let const = λx. λy. x
     % Type: ∀α β. α -> β -> α
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
@@ -113,14 +113,14 @@ test_const_function() ->
     ?assertEqual("∀α1 α2. α1 -> α2 -> α1", PP),
 
     % Instantiate and verify fresh variables
-    StateInst = topos_type_state:new(),
+    StateInst = topos_infer_state:new(),
     {Inst, _StateInst1} = topos_type_scheme:instantiate(ConstScheme, StateInst),
     ?assertMatch({tfun, {tvar, _}, {tfun, {tvar, _}, {tvar, _}, _}, _}, Inst).
 
 test_compose_function() ->
     % Simulate: let compose = λf. λg. λx. f (g x)
     % Type: ∀α β γ. (β -> γ) -> (α -> β) -> α -> γ
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, State2} = topos_types:fresh_var(State1),
@@ -174,7 +174,7 @@ test_compose_function() ->
 test_map_function() ->
     % Simulate: let map = λf. λlist. ...
     % Type: ∀α β. (α -> β) -> List<α> -> List<β>
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
@@ -232,7 +232,7 @@ subst_integration_test_() ->
 
 test_substitution_before_generalization() ->
     % Simulate unification: α₁ = Int, then generalize α₁ -> α₂
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
@@ -264,7 +264,7 @@ test_substitution_before_generalization() ->
 
 test_environment_with_substitution() ->
     % Build environment with multiple bindings, apply substitution
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
@@ -300,7 +300,7 @@ complex_test_() ->
 
 test_record_with_polymorphism() ->
     % ∀α. {x: α, y: α}
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, _State1} = topos_types:fresh_var(State0),
 
@@ -318,7 +318,7 @@ test_record_with_polymorphism() ->
 
 test_effectful_map() ->
     % ∀α β. (α -> β / {io}) -> List<α> -> List<β> / {io}
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {{tvar, Alpha}, State1} = topos_types:fresh_var(State0),
     {{tvar, Beta}, _State2} = topos_types:fresh_var(State1),
@@ -388,7 +388,7 @@ test_multiple_let_bindings() ->
     % let const = λx. λy. x in
     % let app = λf. λx. f x in
     % ...
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     % id: ∀α. α -> α
     {{tvar, Id_Alpha}, State1} = topos_types:fresh_var(State0),
@@ -444,7 +444,7 @@ test_multiple_let_bindings() ->
     {ok, ConstFound} = topos_type_env:lookup(Env, const),
     {ok, AppFound} = topos_type_env:lookup(Env, app),
 
-    StateInst0 = topos_type_state:new(),
+    StateInst0 = topos_infer_state:new(),
     {IdInst, StateInst1} = topos_type_scheme:instantiate(IdFound, StateInst0),
     {ConstInst, StateInst2} = topos_type_scheme:instantiate(ConstFound, StateInst1),
     {AppInst, _StateInst3} = topos_type_scheme:instantiate(AppFound, StateInst2),

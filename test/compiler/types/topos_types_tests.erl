@@ -117,7 +117,7 @@ fresh_var_test_() ->
     ].
 
 test_fresh_var_unique() ->
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
     {Var1, State1} = topos_types:fresh_var(State0),
     {Var2, State2} = topos_types:fresh_var(State1),
     {Var3, _State3} = topos_types:fresh_var(State2),
@@ -133,7 +133,7 @@ test_fresh_var_unique() ->
     ?assertMatch({tvar, _}, Var3).
 
 test_fresh_var_sequential() ->
-    State0 = topos_type_state:new(),
+    State0 = topos_infer_state:new(),
 
     {Var1, State1} = topos_types:fresh_var(State0),
     {Var2, State2} = topos_types:fresh_var(State1),
@@ -146,8 +146,8 @@ test_fresh_var_sequential() ->
 
 test_fresh_var_state_independence() ->
     % Create two independent state threads
-    StateA0 = topos_type_state:new(),
-    StateB0 = topos_type_state:new(),
+    StateA0 = topos_infer_state:new(),
+    StateB0 = topos_infer_state:new(),
 
     {VarA1, StateA1} = topos_types:fresh_var(StateA0),
     {VarB1, StateB1} = topos_types:fresh_var(StateB0),

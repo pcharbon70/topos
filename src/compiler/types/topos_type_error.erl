@@ -5,6 +5,28 @@
 %%% for type system operations. Integrates with the compiler's error
 %%% reporting infrastructure.
 %%%
+%%% === Error Handling Patterns ===
+%%%
+%%% The codebase uses three standardized error handling patterns:
+%%%
+%%% **Pattern 1: Inference Functions (with state threading)**
+%%%   - Return: `{ok, Result, State} | {error, Error, State}`
+%%%   - Used by: `unify/3`, `infer/3` functions that thread state
+%%%   - Example: `topos_infer_unify:unify/3`
+%%%
+%%% **Pattern 2: Validation Functions (without state)**  
+%%%   - Return: `ok | {error, Error}`
+%%%   - Used by: Lower-level validation, effect operations
+%%%   - Example: `topos_infer_unify:unify_effects/2`
+%%%
+%%% **Pattern 3: Programming Errors (should never happen)**
+%%%   - Return: `error(Error)` (throws exception)
+%%%   - Used by: Security violations, invariant violations, programming errors
+%%%   - Example: `topos_type_subst:singleton/2` occurs check failures
+%%%
+%%% **Guideline:** Use Pattern 1 for inference, Pattern 2 for validation,
+%%% Pattern 3 only for errors that indicate bugs/security violations.
+%%%
 %%% @end
 %%%
 -module(topos_type_error).
@@ -27,6 +49,8 @@
     environment_too_large/2,
     substitution_too_large/2,
     arity_mismatch/3,
+    duplicate_pattern_binding/3,
+    type_var_overflow/2,
     effect_mismatch/2,
     missing_field/2,
     invalid_type_application/2
@@ -46,6 +70,8 @@
     % Construction errors
     {duplicate_record_fields, [atom()]} |
     {duplicate_variant_constructors, [atom()]} |
+    {duplicate_pattern_binding, atom(), topos_type_scheme:scheme(), topos_type_scheme:scheme()} |
+    {type_var_overflow, non_neg_integer(), non_neg_integer()} |
 
     % Unification errors
     {unification_error, topos_types:ty(), topos_types:ty()} |
@@ -102,6 +128,23 @@ format_error({duplicate_record_fields, Fields}) ->
         "Duplicate field names in record type: ~ts~n"
         "Each field name must be unique within a record.",
         [FieldList]
+    ));
+
+format_error({duplicate_pattern_binding, VarName, Type1, Type2}) ->
+    lists:flatten(io_lib:format(
+        "Variable '~p' bound to different types in pattern:~n"
+        "  First binding: ~p~n"
+        "  Second binding: ~p~n"
+        "In pattern matching, the same variable name cannot represent different types.",
+        [VarName, Type1, Type2]
+    ));
+
+format_error({type_var_overflow, CurrentId, MaxId}) ->
+    lists:flatten(io_lib:format(
+        "Type variable ID overflow: reached ~p (maximum: ~p)~n"
+        "This may indicate infinitely complex types or a potential DoS attack.~n"
+        "Consider simplifying your type definitions or increasing the limit.",
+        [CurrentId, MaxId]
     ));
 
 format_error({duplicate_variant_constructors, Constructors}) ->
@@ -281,6 +324,16 @@ environment_too_large(Size, Max) ->
 -spec arity_mismatch(atom(), non_neg_integer(), non_neg_integer()) -> type_error().
 arity_mismatch(Name, Expected, Actual) ->
     {arity_mismatch, Name, Expected, Actual}.
+
+%% @doc Create a duplicate pattern binding error
+-spec duplicate_pattern_binding(atom(), topos_type_scheme:scheme(), topos_type_scheme:scheme()) -> type_error().
+duplicate_pattern_binding(VarName, Type1, Type2) ->
+    {duplicate_pattern_binding, VarName, Type1, Type2}.
+
+%% @doc Create a type variable overflow error
+-spec type_var_overflow(non_neg_integer(), non_neg_integer()) -> type_error().
+type_var_overflow(CurrentId, MaxId) ->
+    {type_var_overflow, CurrentId, MaxId}.
 
 %% @doc Create an invalid type application error
 -spec invalid_type_application(topos_types:ty(), [topos_types:ty()]) -> type_error().

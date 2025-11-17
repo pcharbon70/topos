@@ -25,6 +25,13 @@ compile:
 		src/compiler/types/topos_type_env.erl \
 		src/compiler/types/topos_type_pp.erl \
 		src/compiler/types/topos_type_error.erl \
+		src/compiler/types/topos_ast.erl \
+		src/compiler/types/topos_infer_state.erl \
+		src/compiler/types/topos_infer_unify.erl \
+		src/compiler/types/topos_infer_pattern.erl \
+		src/compiler/types/topos_infer_expr.erl \
+		src/compiler/types/topos_infer_effect.erl \
+		src/compiler/types/topos_infer.erl \
 		src/compiler/topos_compiler_utils.erl
 	@echo "✓ Compilation complete"
 
@@ -38,7 +45,15 @@ test: compile
 		test/compiler/types/topos_type_env_tests.erl \
 		test/compiler/types/topos_type_pp_tests.erl \
 		test/compiler/types/topos_type_integration_tests.erl \
-		test/compiler/types/topos_type_error_tests.erl
+		test/compiler/types/topos_type_error_tests.erl \
+		test/compiler/types/topos_infer_state_tests.erl \
+		test/compiler/types/topos_infer_unify_tests.erl \
+		test/compiler/types/topos_infer_pattern_tests.erl \
+		test/compiler/types/topos_infer_expr_tests.erl \
+		test/compiler/types/topos_infer_effect_tests.erl \
+		test/compiler/types/topos_infer_tests.erl \
+		test/compiler/types/topos_infer_row_unify_tests.erl \
+		test/compiler/types/topos_type_subst_occurs_tests.erl
 	@echo ""
 	@echo "Running tests..."
 	@erl -noshell -pa _build/test -eval " \
@@ -49,7 +64,15 @@ test: compile
 			topos_type_env_tests, \
 			topos_type_pp_tests, \
 			topos_type_integration_tests, \
-			topos_type_error_tests \
+			topos_type_error_tests, \
+			topos_infer_state_tests, \
+			topos_infer_unify_tests, \
+			topos_infer_pattern_tests, \
+			topos_infer_expr_tests, \
+			topos_infer_effect_tests, \
+			topos_infer_tests, \
+			topos_infer_row_unify_tests, \
+			topos_type_subst_occurs_tests \
 		], [verbose]) \
 	" -s init stop
 
