@@ -28,6 +28,7 @@ compile:
 		src/compiler/types/topos_config.erl \
 		src/compiler/types/topos_constraint.erl \
 		src/compiler/types/topos_instance.erl \
+		src/compiler/types/topos_coherence.erl \
 		src/compiler/types/topos_infer_state.erl \
 		src/compiler/types/topos_infer_unify.erl \
 		src/compiler/types/topos_infer_pattern.erl \
@@ -50,6 +51,7 @@ test: compile
 		test/compiler/types/topos_type_error_tests.erl \
 		test/compiler/types/topos_constraint_tests.erl \
 		test/compiler/types/topos_instance_tests.erl \
+		test/compiler/types/topos_coherence_tests.erl \
 		test/compiler/types/topos_infer_state_tests.erl \
 		test/compiler/types/topos_infer_unify_tests.erl \
 		test/compiler/types/topos_infer_pattern_tests.erl \
