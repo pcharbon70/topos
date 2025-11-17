@@ -18,7 +18,6 @@ compile:
 	@echo "Compiling source modules..."
 	@mkdir -p _build/test
 	@erlc -o _build/test -pa _build/test -I src \
-		src/compiler/types/topos_type_state.erl \
 		src/compiler/types/topos_types.erl \
 		src/compiler/types/topos_type_subst.erl \
 		src/compiler/types/topos_type_scheme.erl \
@@ -26,6 +25,8 @@ compile:
 		src/compiler/types/topos_type_pp.erl \
 		src/compiler/types/topos_type_error.erl \
 		src/compiler/types/topos_ast.erl \
+		src/compiler/types/topos_config.erl \
+		src/compiler/types/topos_constraint.erl \
 		src/compiler/types/topos_infer_state.erl \
 		src/compiler/types/topos_infer_unify.erl \
 		src/compiler/types/topos_infer_pattern.erl \
@@ -46,6 +47,7 @@ test: compile
 		test/compiler/types/topos_type_pp_tests.erl \
 		test/compiler/types/topos_type_integration_tests.erl \
 		test/compiler/types/topos_type_error_tests.erl \
+		test/compiler/types/topos_constraint_tests.erl \
 		test/compiler/types/topos_infer_state_tests.erl \
 		test/compiler/types/topos_infer_unify_tests.erl \
 		test/compiler/types/topos_infer_pattern_tests.erl \

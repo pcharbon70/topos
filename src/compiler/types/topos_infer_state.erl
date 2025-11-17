@@ -26,7 +26,13 @@
     has_errors/1,
     get_next_var/1,
     set_next_var/2,
-    get_counter/1
+    get_counter/1,
+    % Constraint operations
+    add_constraint/2,
+    add_constraints/2,
+    get_constraints/1,
+    clear_constraints/1,
+    substitute_constraints/1
 ]).
 
 -export_type([infer_state/0]).
@@ -36,9 +42,10 @@
 %%%===================================================================
 
 -record(infer_state, {
-    next_var :: pos_integer(),              % Next fresh type variable ID
-    subst :: topos_type_subst:subst(),      % Accumulated substitution
-    errors :: [topos_type_error:type_error()] % Collected errors
+    next_var :: pos_integer(),                    % Next fresh type variable ID
+    subst :: topos_type_subst:subst(),            % Accumulated substitution
+    errors :: [topos_type_error:type_error()],    % Collected errors
+    constraints :: topos_constraint:constraint_set() % Trait constraints
 }).
 
 
@@ -55,7 +62,8 @@ new() ->
     #infer_state{
         next_var = 1,
         subst = topos_type_subst:empty(),
-        errors = []
+        errors = [],
+        constraints = topos_constraint:empty_constraint_set()
     }.
 
 %% @doc Create a new state with specified starting counter
@@ -65,7 +73,8 @@ new(StartCounter) when is_integer(StartCounter), StartCounter > 0 ->
     #infer_state{
         next_var = StartCounter,
         subst = topos_type_subst:empty(),
-        errors = []
+        errors = [],
+        constraints = topos_constraint:empty_constraint_set()
     }.
 
 %% @doc Generate a fresh type variable
@@ -169,3 +178,39 @@ set_next_var(N, #infer_state{} = State) when N > 0 ->
 -spec get_counter(infer_state()) -> pos_integer().
 get_counter(#infer_state{next_var = N}) ->
     N.
+
+%%%===================================================================
+%%% Constraint Operations
+%%%===================================================================
+
+%% @doc Add a single constraint to the state
+-spec add_constraint(topos_constraint:constraint(), infer_state()) -> infer_state().
+add_constraint(Constraint, #infer_state{constraints = Cs} = State) ->
+    NewCs = topos_constraint:add_constraint(Constraint, Cs),
+    State#infer_state{constraints = NewCs}.
+
+%% @doc Add multiple constraints to the state
+-spec add_constraints(topos_constraint:constraint_set(), infer_state()) -> infer_state().
+add_constraints(NewConstraints, #infer_state{constraints = Cs} = State) ->
+    UpdatedCs = topos_constraint:add_constraints(NewConstraints, Cs),
+    State#infer_state{constraints = UpdatedCs}.
+
+%% @doc Get all constraints from the state
+-spec get_constraints(infer_state()) -> topos_constraint:constraint_set().
+get_constraints(#infer_state{constraints = Cs}) ->
+    Cs.
+
+%% @doc Clear all constraints from the state
+-spec clear_constraints(infer_state()) -> infer_state().
+clear_constraints(State) ->
+    State#infer_state{constraints = topos_constraint:empty_constraint_set()}.
+
+%% @doc Apply the current substitution to all constraints
+%%
+%% This should be called after unification to ensure constraints
+%% are kept in sync with the current type knowledge.
+%%
+-spec substitute_constraints(infer_state()) -> infer_state().
+substitute_constraints(#infer_state{subst = Subst, constraints = Cs} = State) ->
+    NewCs = topos_constraint:substitute(Subst, Cs),
+    State#infer_state{constraints = NewCs}.
