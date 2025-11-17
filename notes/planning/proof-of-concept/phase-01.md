@@ -131,15 +131,15 @@ Algorithm W is the standard approach to Hindley-Milner type inference, combining
 - [x] 1.2.2.5 Track effect annotations during type inference where perform operations introduce effects into function signatures, function application propagates effect sets via union, and PoC limitation allows only monomorphic effects without effect variables (defer polymorphism to Phase 6)
 
 ### 1.2.3 Constraint Solving
-- [ ] **Task 1.2.3 Complete**
+- [x] **Task 1.2.3 Complete**
 
 Beyond simple unification, we need constraint solving for type classes (traits like `Functor`, `Monad`, `Ord`). When a function uses operations from a trait, we generate trait constraints that must be satisfied. Constraint solving searches for trait instances and resolves ambiguous type variables. We implement instance resolution with backtracking and check for coherence (no overlapping instances). **We also add effect handler checking** to verify that try/with blocks correctly handle declared effects.
 
-- [ ] 1.2.3.1 Implement trait constraint representation and generation from trait-polymorphic functions
-- [ ] 1.2.3.2 Implement instance resolution searching trait instances and unifying with constraints
-- [ ] 1.2.3.3 Implement constraint simplification reducing complex constraints to canonical form
-- [ ] 1.2.3.4 Implement coherence checking ensuring unique instance resolution without ambiguity
-- [ ] 1.2.3.5 Verify effect handlers match declared effect operations, check handler exhaustiveness ensuring all operations covered, and resolve effects when handled by removing them from effect set (success: type-check simple handler blocks correctly)
+- [x] 1.2.3.1 Implement trait constraint representation and generation from trait-polymorphic functions
+- [x] 1.2.3.2 Implement instance resolution searching trait instances and unifying with constraints
+- [x] 1.2.3.3 Implement constraint simplification reducing complex constraints to canonical form
+- [x] 1.2.3.4 Implement coherence checking ensuring unique instance resolution without ambiguity
+- [x] 1.2.3.5 Verify effect handlers match declared effect operations, check handler exhaustiveness ensuring all operations covered, and resolve effects when handled by removing them from effect set (success: type-check simple handler blocks correctly)
 
 ### 1.2.4 Error Messages
 - [ ] **Task 1.2.4 Complete**
